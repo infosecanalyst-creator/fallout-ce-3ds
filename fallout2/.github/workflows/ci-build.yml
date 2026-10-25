@@ -1,0 +1,59 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: 3DS
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkitarm:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq build-essential cmake
+          # Build SDL2 for 3DS (not packaged by devkitPro)
+          git clone --depth 1 -b SDL2 https://github.com/libsdl-org/SDL.git /tmp/SDL2
+          cmake -S /tmp/SDL2 -B /tmp/SDL2/build \
+            -DCMAKE_TOOLCHAIN_FILE=$DEVKITPRO/cmake/3DS.cmake \
+            -DCMAKE_INSTALL_PREFIX=$DEVKITPRO/portlibs/3ds \
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/SDL2/build -j$(nproc)
+          cmake --install /tmp/SDL2/build
+          # Build bannertool (not included in devkitPro)
+          git clone --recursive --depth 1 https://github.com/diasurgical/bannertool.git /tmp/bannertool
+          make -C /tmp/bannertool
+          cp /tmp/bannertool/output/*/bannertool $DEVKITPRO/tools/bin/
+          # Build makerom (not included in devkitPro container)
+          git clone --depth 1 https://github.com/3DSGuy/Project_CTR.git /tmp/Project_CTR
+          make -C /tmp/Project_CTR/makerom deps
+          make -C /tmp/Project_CTR/makerom
+          cp /tmp/Project_CTR/makerom/bin/makerom $DEVKITPRO/tools/bin/
+
+      - name: Fetch fpattern
+        run: |
+          git clone https://github.com/alexbatalov/fpattern.git third_party/fpattern-src
+          cd third_party/fpattern-src && git checkout 8523173ec252c3b796fcdfca0fcc6329642fbbe3
+
+      - name: Build
+        run: |
+          make -f Makefile.ctr -j$(nproc)
+          ls -la fallout2-ce.3dsx fallout2-ce.cia
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fallout2-ce-3ds
+          path: |
+            fallout2-ce.3dsx
+            fallout2-ce.cia
+          retention-days: 7

@@ -1,0 +1,12 @@
+build/
+out/
+*.3dsx
+*.elf
+*.cia
+*.smdh
+*.bnr
+*.map
+romfs/gfx/
+**/romfs/gfx/
+perf_log.csv
+debug.log

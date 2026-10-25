@@ -1,0 +1,149 @@
+# GitLab CI for the Fallout 2 CE Nintendo 3DS port.
+#
+# Builds fallout2-ce.3dsx (Homebrew Launcher) and fallout2-ce.cia (installable
+# title) on the cluster runner (k8s-linux) inside the official devkitARM image,
+# and on a v* tag publishes both to the package registry and a GitLab release.
+# This replaces the GitHub Actions workflows (.github/workflows/ci-build.yml and
+# release.yml), which are disabled now that CI/CD runs on GitLab only; they are
+# left in the tree unchanged.
+#
+# Runs on version tags, when started from the web UI / API, and on merge
+# requests (e.g. Renovate), never on plain pushes. Merge request pipelines run
+# version-check and the 3DS build but never release (release runs only on v*
+# tags / RELEASE_VERSION). Set RELEASE_VERSION=v1.2.3 on a manual run of the
+# tag v1.2.3 to (re)publish that release.
+
+stages: [test, build, release]
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v/
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "api"
+    # Merge requests (Renovate): version-check + 3DS build; nothing published.
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+variables:
+  GIT_DEPTH: "1"
+
+.version: &version
+  # v1.2.3 -> 1.2.3; untagged runs get a valid semver prerelease.
+  - |
+    if [ -n "$RELEASE_VERSION" ]; then VERSION="${RELEASE_VERSION#v}"; elif [ -n "$CI_COMMIT_TAG" ]; then VERSION="${CI_COMMIT_TAG#v}"; else VERSION="0.0.0-${CI_COMMIT_SHORT_SHA}"; fi
+    echo "Version: $VERSION"
+
+.linux:
+  tags: [linux]
+  interruptible: true
+
+# ───────────────────────────── checks (gate) ─────────────────────────────
+
+# The port has no test suite; this gate stops a mislabelled release before
+# the (long) 3DS build starts.
+version-check:
+  extends: .linux
+  stage: test
+  image: alpine:3.20
+  script:
+    - *version
+    # A manual RELEASE_VERSION run must be started on that tag.
+    - |
+      if [ -n "$RELEASE_VERSION" ] && [ "$CI_COMMIT_TAG" != "v${RELEASE_VERSION#v}" ]; then
+        echo "RELEASE_VERSION=$RELEASE_VERSION but this pipeline runs on '${CI_COMMIT_TAG:-$CI_COMMIT_REF_NAME}'. Run it on the tag v${RELEASE_VERSION#v}."; exit 1
+      fi
+    - sh ci/check-version.sh "$VERSION"
+
+# ───────────────────────────── 3DS build ─────────────────────────────
+
+# Same toolchain as the GitHub workflow's last builds: devkitpro/devkitarm
+# "latest" was 20251231 then. Pinned by tag and digest so an old tag rebuilds
+# with the same compiler and libctru/citro2d/citro3d; bump both together.
+build-3ds:
+  extends: .linux
+  stage: build
+  image: devkitpro/devkitarm:20251231@sha256:0e0a00e966f32121297ad8ebceabf5e9ca0a408f3c020fdf21384e03b499f3a0
+  needs: [version-check]
+  variables:
+    # Parallel jobs for SDL2 and the game. The game links with -flto=auto, so
+    # this is capped rather than taken from the node's full CPU count.
+    BUILD_JOBS: "8"
+  script:
+    - *version
+    # The image already carries gcc/g++/cmake/git; install them only if a
+    # future image drops them (the GitHub workflow always apt-installed them).
+    - |
+      if ! command -v cmake >/dev/null || ! command -v g++ >/dev/null || ! command -v git >/dev/null; then
+        apt-get update -qq && apt-get install -y -qq build-essential cmake git >/dev/null
+      fi
+    - bash ci/build-3ds-deps.sh
+    - make -f Makefile.ctr -j"$BUILD_JOBS"
+    - |
+      set -e
+      for f in fallout2-ce.3dsx fallout2-ce.cia; do
+        test -s "$f" || { echo "$f was not produced"; exit 1; }
+      done
+      # A healthy build is several MB; anything tiny means a broken link/pack.
+      for f in fallout2-ce.3dsx fallout2-ce.cia; do
+        size=$(stat -c%s "$f"); [ "$size" -ge $((2*1024*1024)) ] || { echo "$f is only $size bytes"; exit 1; }
+      done
+      head -c 4 fallout2-ce.3dsx | grep -q '^3DSX' || { echo "fallout2-ce.3dsx has no 3DSX header"; exit 1; }
+      mkdir -p out && cp fallout2-ce.3dsx fallout2-ce.cia out/
+      ( cd out && sha256sum fallout2-ce.3dsx fallout2-ce.cia > SHA256SUMS && cat SHA256SUMS )
+      ls -la out/
+  artifacts:
+    name: fallout2-ce-3ds-$CI_COMMIT_SHORT_SHA
+    paths: [out/]
+    expire_in: 30 days
+
+# ───────────────────────────── release ─────────────────────────────
+
+# Uploads the builds to the project's generic package registry and creates
+# (or updates) the GitLab release for the version's tag with links to them.
+release:
+  extends: .linux
+  stage: release
+  image: alpine:3.20
+  needs: [build-3ds]
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v/
+    - if: $RELEASE_VERSION
+  # Never auto-cancel a half-finished publish.
+  interruptible: false
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - apk add --no-cache curl jq >/dev/null
+    - |
+      set -e
+      VERSION="${RELEASE_VERSION:-$CI_COMMIT_TAG}"; VERSION="${VERSION#v}"; TAG="v$VERSION"
+      API="$CI_API_V4_URL/projects/$CI_PROJECT_ID"; H="JOB-TOKEN: $CI_JOB_TOKEN"
+      PKG="$API/packages/generic/fallout2-ce-3ds/$VERSION"
+      TAG_JSON=$(curl -fsS -H "$H" "$API/repository/tags/$TAG") || { echo "Tag $TAG does not exist in this project"; exit 1; }
+      # A manual RELEASE_VERSION run must be started on the tag itself, or it
+      # would publish some other commit's builds under this tag.
+      TAG_SHA=$(printf '%s' "$TAG_JSON" | jq -r '.commit.id')
+      [ "$TAG_SHA" = "$CI_COMMIT_SHA" ] || { echo "Tag $TAG points at $TAG_SHA but this pipeline built $CI_COMMIT_SHA. Run the pipeline on the tag ref $TAG."; exit 1; }
+      ls -la out/
+      : > links.ndjson
+      for f in out/*; do
+        [ -f "$f" ] || continue
+        name=$(basename "$f")
+        echo "uploading $name ($(du -h "$f" | cut -f1))"
+        curl -fsS -H "$H" --upload-file "$f" "$PKG/$name" >/dev/null
+        # Link the API download URL (what the release mirror accepts), not the web one.
+        jq -cn --arg n "$name" --arg u "$PKG/$name" '{name:$n, url:$u, link_type:"package"}' >> links.ndjson
+      done
+      test -s links.ndjson || { echo "No builds to publish"; exit 1; }
+      ASSETS=$(jq -s -c . links.ndjson)
+      NOTES=$(printf 'Fallout 2 CE for Nintendo 3DS %s\n\n- fallout2-ce.3dsx: run from the Homebrew Launcher\n- fallout2-ce.cia: install with a CIA installer (e.g. FBI)\n- SHA256SUMS: checksums of both\n\nGame data (master.dat, critter.dat, patch000.dat, data/) goes in sdmc:/3ds/fallout2/.\n\nBuilt on GitLab CI.' "$VERSION")
+      BODY=$(jq -cn --arg tag "$TAG" --arg name "Fallout 2 CE 3DS $VERSION" --arg desc "$NOTES" --argjson links "$ASSETS" '{tag_name:$tag, name:$name, description:$desc, assets:{links:$links}}')
+      if curl -fsS -o /dev/null -H "$H" "$API/releases/$TAG" 2>/dev/null; then
+        curl -fsS -H "$H" "$API/releases/$TAG/assets/links" | jq -r '.[].id' | while read -r id; do
+          curl -fsS -X DELETE -H "$H" "$API/releases/$TAG/assets/links/$id" >/dev/null
+        done
+        curl -fsS -X PUT -H "$H" -H "Content-Type: application/json" "$API/releases/$TAG" -d "$BODY" | jq -r '"updated release " + .tag_name'
+        while read -r l; do curl -fsS -X POST -H "$H" -H "Content-Type: application/json" "$API/releases/$TAG/assets/links" -d "$l" >/dev/null; done < links.ndjson
+      else
+        curl -fsS -X POST -H "$H" -H "Content-Type: application/json" "$API/releases" -d "$BODY" | jq -r '"created release " + .tag_name'
+      fi
+      echo "Published $TAG with:"; jq -r '.name' links.ndjson | sed 's/^/  /'
