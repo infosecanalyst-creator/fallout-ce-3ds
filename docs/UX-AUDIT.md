@@ -40,9 +40,15 @@ Every HUD button that sits on the untouchable top screen now has a hardware shor
 - Character sheet, Pip-Boy, world map: interactive on the bottom, detail on top; world-map travel is a single tap.
 - Save/load: slot list on the bottom, preview image and description on top.
 
-## Not done (needs deeper engine work)
+## Second pass
 
-- Hit-chance preview while targeting. Fallout only shows it on the called-shot screen; showing it on the top screen when an enemy is tapped would need combat UI work.
-- A quick-heal hotkey. The engine has no "use best healing item" action.
-- D-pad navigation of dialogue replies (number keys exist in the engine; the stylus covers this well already).
-- A "use active item" shortcut outside combat (the HUD item button on the top screen).
+| Action | Before | After |
+|---|---|---|
+| Know your odds before attacking | Only on the called-shot screen (open it per enemy) | **Hold R** in combat: the message log lists "Name: NN% to hit" for every visible enemy with your current weapon/mode |
+| Heal | Open inventory (4 AP), find Stimpak, use, close | **Select+A** (same 4 AP in combat); Super Stimpak used if no Stimpak |
+| Active item button (attack / reload / use item on…) | HUD button on the untouchable top screen | **B** (L keeps the classic right-click) |
+| Accidental display-mode change | Select tapped outside gameplay switched to the full-screen view | Select tap only recenters in gameplay; display mode is **Select+L** only |
+
+## Not done
+
+- D-pad navigation of dialogue replies: the replies are already large stylus targets on the touchscreen, so a hardware path adds little.

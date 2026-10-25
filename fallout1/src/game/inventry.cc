@@ -51,6 +51,54 @@
 
 namespace fallout {
 
+#ifdef __3DS__
+static void quick_heal_message(const char* text)
+{
+    char buf[80];
+    snprintf(buf, sizeof(buf), "%s", text);
+    display_print(buf);
+}
+
+// One-button heal: use a Stimpak (or Super Stimpak) without opening the
+// inventory. In combat it costs the same 4 AP as opening the inventory.
+void inven_quick_heal()
+{
+    if (!intface_is_enabled()) {
+        return;
+    }
+
+    if (critter_get_hits(obj_dude) >= stat_level(obj_dude, STAT_MAXIMUM_HIT_POINTS)) {
+        quick_heal_message("You are already at full health.");
+        return;
+    }
+
+    Object* item = inven_pid_is_carried_ptr(obj_dude, PROTO_ID_STIMPACK);
+    if (item == NULL) {
+        item = inven_pid_is_carried_ptr(obj_dude, PROTO_ID_SUPER_STIMPACK);
+    }
+    if (item == NULL) {
+        quick_heal_message("You have no stimpaks.");
+        return;
+    }
+
+    if (isInCombat()) {
+        if (obj_dude->data.critter.combat.ap < 4) {
+            quick_heal_message("Not enough action points to heal (4 needed).");
+            return;
+        }
+        obj_dude->data.critter.combat.ap -= 4;
+        intface_update_move_points(obj_dude->data.critter.combat.ap, combat_free_move);
+    }
+
+    if (item_d_take_drug(obj_dude, item)) {
+        item_remove_mult(obj_dude, item, 1);
+        obj_connect(item, obj_dude->tile, obj_dude->elevation, NULL);
+        obj_destroy(item);
+    }
+    intface_update_hit_points(true);
+}
+#endif
+
 #define INVENTORY_WINDOW_X 80
 #define INVENTORY_WINDOW_Y 0
 

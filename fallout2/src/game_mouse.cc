@@ -12,6 +12,7 @@
 #include "color.h"
 #include "combat.h"
 #include "critter.h"
+#include "display_monitor.h"
 #include "draw.h"
 #include "game.h"
 #include "game_sound.h"
@@ -970,7 +971,13 @@ void gameMouseHighlightAll(bool enable)
         }
 
         if (enable) {
-            if (objectSetOutline(obj, OUTLINE_TYPE_ITEM, nullptr) == 0) {
+            // Set the outline directly: many critter protos carry the
+            // "no highlight" flag, which would hide lootable bodies.
+            if ((obj->outline & OUTLINE_TYPE_MASK) == 0) {
+                obj->outline = OUTLINE_TYPE_ITEM;
+                if ((obj->flags & OBJECT_HIDDEN) != 0) {
+                    obj->outline |= OUTLINE_DISABLED;
+                }
                 changed = true;
             }
         } else if ((obj->outline & OUTLINE_TYPE_MASK) == OUTLINE_TYPE_ITEM && obj != gGameMouseHighlightedItem) {
@@ -981,6 +988,29 @@ void gameMouseHighlightAll(bool enable)
 
     if (changed) {
         tileWindowRefresh();
+    }
+
+    // In combat, also report the chance to hit every visible enemy with the
+    // current weapon/mode (Fallout only shows it on the called-shot screen).
+    if (enable && isInCombat()) {
+        int hitMode;
+        bool aiming;
+        if (interfaceGetCurrentHitMode(&hitMode, &aiming) != -1) {
+            for (Object* obj = objectFindFirstAtElevation(gElevation); obj != nullptr; obj = objectFindNextAtElevation()) {
+                if (!gameMouseIsSmartEnemy(obj)) {
+                    continue;
+                }
+                int sx, sy;
+                tileToScreenXY(obj->tile, &sx, &sy, gElevation);
+                if (sx < 0 || sx > 640 || sy < 0 || sy > 380) {
+                    continue;
+                }
+                int chance = _determine_to_hit(gDude, obj, HIT_LOCATION_UNCALLED, hitMode);
+                char text[80];
+                snprintf(text, sizeof(text), "%s: %d%% to hit", objectGetName(obj), chance);
+                displayMonitorAddMessage(text);
+            }
+        }
     }
 }
 #endif

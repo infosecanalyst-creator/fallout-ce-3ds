@@ -69,6 +69,9 @@ Object* inven_left_hand(Object* obj);
 Object* inven_worn(Object* obj);
 int inven_pid_is_carried(Object* obj, int pid);
 Object* inven_pid_is_carried_ptr(Object* obj, int pid);
+#ifdef __3DS__
+void inven_quick_heal();
+#endif
 int inven_pid_quantity_carried(Object* obj, int pid);
 void display_stats();
 Object* inven_find_type(Object* obj, int a2, int* inout_a3);

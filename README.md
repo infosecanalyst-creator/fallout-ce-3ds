@@ -14,7 +14,8 @@ Both are forks of [alexbatalov/fallout1-ce](https://github.com/alexbatalov/fallo
 |---|---|
 | Layout | Map defaults to the **bottom touchscreen** (stylus = mouse), HUD and message log on the top screen. ZL swaps; the choice is remembered. |
 | Smart tap | A tap acts on whatever it touches: pick up, talk, loot, open, use, or attack a hostile in combat (running into reach first if needed). Open ground = move. Long-press = action menu. No cursor-mode switching needed. |
-| Highlight | Hold R to outline every item and lootable body on the level (touch has no hover). |
+| Highlight | Hold R to outline every item and lootable body on the level (touch has no hover); in combat it also lists your hit chance against each visible enemy. |
+| Quick heal | Select+A uses a Stimpak (or Super Stimpak) without opening the inventory. |
 | Camera | Follows the player and recenters near the edge of the view; C-stick scrolls (New 3DS); Select recenters. |
 | HUD shortcuts | Every HUD button on the untouchable top screen has a hardware shortcut (see controls). |
 | Defaults | Always run, fast combat, Fallout 2 quicksave without slot/name prompts (`AutoQuickSave=3`), karma change messages. |
@@ -33,8 +34,10 @@ The full audit against stylus and mouse strategy-game conventions is in [docs/UX
 | Circle Pad | Move cursor |
 | C-stick | Scroll map (New 3DS; D-pad scrolls on Old 3DS) |
 | A | Left click (hold to drag) |
-| B / L | Right click (classic cursor-mode cycle) |
-| R (hold) | Highlight items and lootable bodies |
+| B | Active item button: attack with weapon, reload, or use item on a target |
+| L | Right click (classic cursor-mode cycle) |
+| R (hold) | Highlight items and lootable bodies; in combat also lists your chance to hit each visible enemy |
+| Select+A | Quick heal (Stimpak, then Super Stimpak; 4 AP in combat) |
 | X / Y | Inventory / Pip-Boy |
 | D-pad Up / Down | Swap weapon hand / cycle weapon mode |
 | D-pad Left / Right | Skilldex / character sheet |

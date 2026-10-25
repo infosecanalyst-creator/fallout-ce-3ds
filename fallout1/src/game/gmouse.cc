@@ -8,6 +8,7 @@
 #include "game/art.h"
 #include "game/anim.h"
 #include "game/combat.h"
+#include "game/display.h"
 #include "game/critter.h"
 #include "game/game.h"
 #include "game/gconfig.h"
@@ -909,7 +910,13 @@ void gmouse_highlight_all(bool enable)
         }
 
         if (enable) {
-            if (obj_outline_object(obj, OUTLINE_TYPE_ITEM, NULL) == 0) {
+            // Set the outline directly: many critter protos carry the
+            // "no highlight" flag, which would hide lootable bodies.
+            if ((obj->outline & OUTLINE_TYPE_MASK) == 0) {
+                obj->outline = OUTLINE_TYPE_ITEM;
+                if ((obj->flags & OBJECT_HIDDEN) != 0) {
+                    obj->outline |= OUTLINE_DISABLED;
+                }
                 changed = true;
             }
         } else if ((obj->outline & OUTLINE_TYPE_MASK) == OUTLINE_TYPE_ITEM && obj != outlined_object) {
@@ -920,6 +927,28 @@ void gmouse_highlight_all(bool enable)
 
     if (changed) {
         tile_refresh_display();
+    }
+
+    // In combat, also report the chance to hit every visible enemy.
+    if (enable && isInCombat()) {
+        int hitMode;
+        bool aiming;
+        if (intface_get_attack(&hitMode, &aiming) != -1) {
+            for (Object* obj = obj_find_first_at(map_elevation); obj != NULL; obj = obj_find_next_at()) {
+                if (!gmouse_is_smart_enemy(obj)) {
+                    continue;
+                }
+                int sx, sy;
+                tile_coord(obj->tile, &sx, &sy, map_elevation);
+                if (sx < 0 || sx > 640 || sy < 0 || sy > 380) {
+                    continue;
+                }
+                int chance = determine_to_hit(obj_dude, obj, HIT_LOCATION_UNCALLED, hitMode);
+                char text[80];
+                snprintf(text, sizeof(text), "%s: %d%% to hit", object_name(obj), chance);
+                display_print(text);
+            }
+        }
     }
 }
 #endif

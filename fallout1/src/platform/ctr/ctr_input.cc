@@ -22,6 +22,8 @@
 #include "game/gmouse.h"
 #include "game/object.h"
 #include "game/tile.h"
+#include "game/intface.h"
+#include "game/inventry.h"
 
 namespace fallout {
 
@@ -38,6 +40,7 @@ namespace fallout {
 #define FLAG_START_ZR 0x200
 #define FLAG_SELECT_X 0x400
 #define FLAG_SELECT_Y 0x800
+#define FLAG_SELECT_A 0x1000
 
 #define KEY_PRESS(x) ((ctr_input.frame.kHeld & (x)) && (!(oldpad & (x))))
 #define KEY_HELD(x) (ctr_input.frame.kHeld & (x))
@@ -444,6 +447,12 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
         key_combi_flags |= FLAG_SELECT_Y;
     }
 
+    // Select+A = quick heal (Stimpak, then Super Stimpak)
+    if (KEY_HELD(KEY_SELECT) && KEY_PRESS(KEY_A) && ctr_in_gameplay()) {
+        inven_quick_heal();
+        key_combi_flags |= FLAG_SELECT_A;
+    }
+
     // Start+ZR = end combat
     if (KEY_HELD(KEY_START) && KEY_PRESS(KEY_ZR) && ctr_in_gameplay()) {
         GNW_add_input_buffer(KEY_RETURN);
@@ -457,9 +466,6 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
             // Select tap = center the map on the player
             GNW_add_input_buffer(KEY_HOME);
             followLastTile = -1;
-        } else {
-            ctr_input.mode = ((ctr_input.mode + 1) % DISPLAY_MODE_FULL_TOP); // DISPLAY_MODE_LAST
-            setActiveRectMap(DISPLAY_LAST);
         }
     }
 
@@ -472,9 +478,14 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
     }
 
     if (key_combi_flags == FLAG_NONE) {
-        // L or B = right click (cycles the cursor: move / attack / examine)
-        if (KEY_PRESS(KEY_L) || KEY_PRESS(KEY_B)) {
+        // L = right click (cycles the cursor: move / attack / examine).
+        // B = the HUD's active-item button during gameplay (attack with the
+        // weapon, reload, or use the item on a target); right click elsewhere.
+        if (KEY_PRESS(KEY_L) || (KEY_PRESS(KEY_B) && !ctr_in_gameplay())) {
             *buttons |= MOUSE_STATE_RIGHT_BUTTON_DOWN;
+        }
+        if (KEY_PRESS(KEY_B) && ctr_in_gameplay()) {
+            intface_use_item();
         }
 
         // A = left click on every screen (hold to drag)

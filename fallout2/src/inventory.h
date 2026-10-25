@@ -23,6 +23,9 @@ Object* critterGetItem2(Object* critter);
 Object* critterGetItem1(Object* critter);
 Object* critterGetArmor(Object* critter);
 Object* objectGetCarriedObjectByPid(Object* obj, int pid);
+#ifdef __3DS__
+void inventoryQuickHeal();
+#endif
 int objectGetCarriedQuantityByPid(Object* obj, int pid);
 Object* _inven_find_type(Object* obj, int itemType, int* indexPtr);
 Object* _inven_find_id(Object* obj, int id);
