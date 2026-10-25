@@ -897,6 +897,94 @@ bool gameMouseClickOnInterfaceBar()
     return _mouse_click_in(interfaceBarWindowRectLeft, interfaceBarWindowRect.top, interfaceBarWindowRectRight, interfaceBarWindowRect.bottom);
 }
 
+#ifdef __3DS__
+// Touch has no hover, so "which cursor mode am I in" costs extra taps.
+// Smart tap: in move mode, a tap on something you can act on acts on it
+// (pick up / talk / loot / use / open, or attack a hostile in combat);
+// a tap on open ground still moves. B/L keeps the classic mode cycle.
+static Object* gameMouseSmartTarget = nullptr;
+
+static bool gameMouseIsSmartEnemy(Object* obj)
+{
+    return obj != nullptr && obj != gDude && FID_TYPE(obj->fid) == OBJ_TYPE_CRITTER
+        && isInCombat() && !critterIsDead(obj)
+        && obj->data.critter.combat.team != gDude->data.critter.combat.team;
+}
+
+static int gameMouseSmartMode(int mode)
+{
+    gameMouseSmartTarget = nullptr;
+    if (mode != GAME_MOUSE_MODE_MOVE) {
+        return mode;
+    }
+
+    Object* obj = gameMouseGetObjectUnderCursor(-1, true, gElevation);
+    if (obj == gDude && isInCombat()) {
+        // The player's sprite often covers an adjacent enemy: look for an
+        // enemy standing on the tapped hex itself.
+        int mx, my;
+        mouseGetPosition(&mx, &my);
+        int tile = tileFromScreenXY(mx, my, gElevation);
+        for (Object* o = objectFindFirstAtLocation(gElevation, tile); o != nullptr; o = objectFindNextAtLocation()) {
+            if (gameMouseIsSmartEnemy(o)) {
+                gameMouseSmartTarget = o;
+                return GAME_MOUSE_MODE_CROSSHAIR;
+            }
+        }
+    }
+    if (obj == nullptr || obj == gDude) {
+        return mode;
+    }
+
+    switch (FID_TYPE(obj->fid)) {
+    case OBJ_TYPE_ITEM:
+        return GAME_MOUSE_MODE_ARROW;
+    case OBJ_TYPE_CRITTER:
+        if (gameMouseIsSmartEnemy(obj)) {
+            gameMouseSmartTarget = obj;
+            return GAME_MOUSE_MODE_CROSSHAIR;
+        }
+        return GAME_MOUSE_MODE_ARROW;
+    case OBJ_TYPE_SCENERY:
+        return _obj_action_can_use(obj) ? GAME_MOUSE_MODE_ARROW : mode;
+    }
+
+    return mode;
+}
+
+// Show every item and lootable body on the current level while held
+// (the touchscreen equivalent of hovering, like Alt/Tab in modern RPGs).
+void gameMouseHighlightAll(bool enable)
+{
+    if (!gGameMouseInitialized) {
+        return;
+    }
+
+    bool changed = false;
+    for (Object* obj = objectFindFirstAtElevation(gElevation); obj != nullptr; obj = objectFindNextAtElevation()) {
+        int type = FID_TYPE(obj->fid);
+        bool candidate = type == OBJ_TYPE_ITEM
+            || (type == OBJ_TYPE_CRITTER && obj != gDude && critterIsDead(obj));
+        if (!candidate) {
+            continue;
+        }
+
+        if (enable) {
+            if (objectSetOutline(obj, OUTLINE_TYPE_ITEM, nullptr) == 0) {
+                changed = true;
+            }
+        } else if ((obj->outline & OUTLINE_TYPE_MASK) == OUTLINE_TYPE_ITEM && obj != gGameMouseHighlightedItem) {
+            objectClearOutline(obj, nullptr);
+            changed = true;
+        }
+    }
+
+    if (changed) {
+        tileWindowRefresh();
+    }
+}
+#endif
+
 // 0x44BFA8
 void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
 {
@@ -930,7 +1018,12 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
     }
 
     if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_UP) != 0) {
-        if (gGameMouseMode == GAME_MOUSE_MODE_MOVE) {
+#ifdef __3DS__
+        int mode = gameMouseSmartMode(gGameMouseMode);
+#else
+        int mode = gGameMouseMode;
+#endif
+        if (mode == GAME_MOUSE_MODE_MOVE) {
             int actionPoints;
             if (isInCombat()) {
                 actionPoints = _combat_free_move + gDude->data.critter.combat.ap;
@@ -954,7 +1047,7 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
             return;
         }
 
-        if (gGameMouseMode == GAME_MOUSE_MODE_ARROW) {
+        if (mode == GAME_MOUSE_MODE_ARROW) {
             Object* targetObj = gameMouseGetObjectUnderCursor(-1, true, gElevation);
             if (targetObj != nullptr) {
                 switch (FID_TYPE(targetObj->fid)) {
@@ -1002,8 +1095,29 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
             return;
         }
 
-        if (gGameMouseMode == GAME_MOUSE_MODE_CROSSHAIR) {
+        if (mode == GAME_MOUSE_MODE_CROSSHAIR) {
+#ifdef __3DS__
+            // Smart tap on an enemy that is out of reach: run up to it first
+            // (tap again to attack), instead of just "Target out of range".
+            if (gGameMouseMode == GAME_MOUSE_MODE_MOVE) {
+                Object* enemy = gameMouseSmartTarget;
+                int hitMode;
+                bool aiming;
+                if (enemy != nullptr && interfaceGetCurrentHitMode(&hitMode, &aiming) != -1
+                    && _combat_check_bad_shot(gDude, enemy, hitMode, aiming) == COMBAT_BAD_SHOT_OUT_OF_RANGE) {
+                    reg_anim_begin(ANIMATION_REQUEST_RESERVED);
+                    animationRegisterRunToObject(gDude, enemy, gDude->data.critter.combat.ap + _combat_free_move, 0);
+                    reg_anim_end();
+                    return;
+                }
+            }
+#endif
             Object* targetObj = gameMouseGetObjectUnderCursor(OBJ_TYPE_CRITTER, false, gElevation);
+#ifdef __3DS__
+            if (gameMouseSmartTarget != nullptr) {
+                targetObj = gameMouseSmartTarget;
+            }
+#endif
             if (targetObj == nullptr) {
                 targetObj = gameMouseGetObjectUnderCursor(-1, false, gElevation);
                 if (!objectIsDoor(targetObj)) {
@@ -1021,7 +1135,7 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
             return;
         }
 
-        if (gGameMouseMode == GAME_MOUSE_MODE_USE_CROSSHAIR) {
+        if (mode == GAME_MOUSE_MODE_USE_CROSSHAIR) {
             Object* object = gameMouseGetObjectUnderCursor(-1, true, gElevation);
             if (object != nullptr) {
                 Object* weapon;
@@ -1053,13 +1167,13 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
             return;
         }
 
-        if (gGameMouseMode == GAME_MOUSE_MODE_USE_FIRST_AID
-            || gGameMouseMode == GAME_MOUSE_MODE_USE_DOCTOR
-            || gGameMouseMode == GAME_MOUSE_MODE_USE_LOCKPICK
-            || gGameMouseMode == GAME_MOUSE_MODE_USE_STEAL
-            || gGameMouseMode == GAME_MOUSE_MODE_USE_TRAPS
-            || gGameMouseMode == GAME_MOUSE_MODE_USE_SCIENCE
-            || gGameMouseMode == GAME_MOUSE_MODE_USE_REPAIR) {
+        if (mode == GAME_MOUSE_MODE_USE_FIRST_AID
+            || mode == GAME_MOUSE_MODE_USE_DOCTOR
+            || mode == GAME_MOUSE_MODE_USE_LOCKPICK
+            || mode == GAME_MOUSE_MODE_USE_STEAL
+            || mode == GAME_MOUSE_MODE_USE_TRAPS
+            || mode == GAME_MOUSE_MODE_USE_SCIENCE
+            || mode == GAME_MOUSE_MODE_USE_REPAIR) {
             Object* object = gameMouseGetObjectUnderCursor(-1, 1, gElevation);
             if (object == nullptr || actionUseSkill(gDude, object, gGameMouseModeSkills[gGameMouseMode - FIRST_GAME_MOUSE_MODE_SKILL]) != -1) {
                 gameMouseSetCursor(MOUSE_CURSOR_NONE);
@@ -1069,7 +1183,13 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
         }
     }
 
+#ifdef __3DS__
+    // Long-press on anything interactive opens the action menu, in move mode too.
+    if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_DOWN_REPEAT) == MOUSE_EVENT_LEFT_BUTTON_DOWN_REPEAT
+        && (gGameMouseMode == GAME_MOUSE_MODE_ARROW || gameMouseSmartMode(gGameMouseMode) != gGameMouseMode)) {
+#else
     if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_DOWN_REPEAT) == MOUSE_EVENT_LEFT_BUTTON_DOWN_REPEAT && gGameMouseMode == GAME_MOUSE_MODE_ARROW) {
+#endif
         Object* targetObj = gameMouseGetObjectUnderCursor(-1, true, gElevation);
         if (targetObj != nullptr) {
             int actionMenuItemsCount = 0;

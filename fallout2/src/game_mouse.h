@@ -89,6 +89,9 @@ int gameMouseGetCursor();
 void gmouse_set_mapper_mode(int mode);
 void gameMouseSetMode(int a1);
 int gameMouseGetMode();
+#ifdef __3DS__
+void gameMouseHighlightAll(bool enable);
+#endif
 void gameMouseCycleMode();
 void _gmouse_3d_refresh();
 void gameMouseResetBouncingCursorFid();

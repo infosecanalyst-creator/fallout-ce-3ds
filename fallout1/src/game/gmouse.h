@@ -94,6 +94,9 @@ void gmouse_3d_disable_modes();
 int gmouse_3d_modes_are_enabled();
 void gmouse_3d_set_mode(int a1);
 int gmouse_3d_get_mode();
+#ifdef __3DS__
+void gmouse_highlight_all(bool enable);
+#endif
 void gmouse_3d_toggle_mode();
 void gmouse_3d_refresh();
 int gmouse_3d_set_fid(int fid);

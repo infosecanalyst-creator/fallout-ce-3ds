@@ -10,3 +10,4 @@ romfs/gfx/
 **/romfs/gfx/
 perf_log.csv
 debug.log
+*.build.log

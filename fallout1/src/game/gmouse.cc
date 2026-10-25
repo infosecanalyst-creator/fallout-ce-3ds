@@ -6,6 +6,7 @@
 
 #include "game/actions.h"
 #include "game/art.h"
+#include "game/anim.h"
 #include "game/combat.h"
 #include "game/critter.h"
 #include "game/game.h"
@@ -839,6 +840,90 @@ void gmouse_bk_process()
     }
 }
 
+#ifdef __3DS__
+// Touch has no hover: in move mode a tap on something interactive acts on it
+// (pick up / talk / loot / use / open, or attack a hostile in combat).
+static Object* gmouse_smart_target = NULL;
+
+static bool gmouse_is_smart_enemy(Object* obj)
+{
+    return obj != NULL && obj != obj_dude && FID_TYPE(obj->fid) == OBJ_TYPE_CRITTER
+        && isInCombat() && !critter_is_dead(obj)
+        && obj->data.critter.combat.team != obj_dude->data.critter.combat.team;
+}
+
+static int gmouse_smart_mode(int mode)
+{
+    gmouse_smart_target = NULL;
+    if (mode != GAME_MOUSE_MODE_MOVE) {
+        return mode;
+    }
+
+    Object* obj = object_under_mouse(-1, true, map_elevation);
+    if (obj == obj_dude && isInCombat()) {
+        // The player's sprite often covers an adjacent enemy.
+        int mx, my;
+        mouse_get_position(&mx, &my);
+        int tile = tile_num(mx, my, map_elevation);
+        for (Object* o = obj_find_first_at(map_elevation); o != NULL; o = obj_find_next_at()) {
+            if (o->tile == tile && gmouse_is_smart_enemy(o)) {
+                gmouse_smart_target = o;
+                return GAME_MOUSE_MODE_CROSSHAIR;
+            }
+        }
+    }
+    if (obj == NULL || obj == obj_dude) {
+        return mode;
+    }
+
+    switch (FID_TYPE(obj->fid)) {
+    case OBJ_TYPE_ITEM:
+        return GAME_MOUSE_MODE_ARROW;
+    case OBJ_TYPE_CRITTER:
+        if (gmouse_is_smart_enemy(obj)) {
+            gmouse_smart_target = obj;
+            return GAME_MOUSE_MODE_CROSSHAIR;
+        }
+        return GAME_MOUSE_MODE_ARROW;
+    case OBJ_TYPE_SCENERY:
+        return proto_action_can_use(obj->pid) ? GAME_MOUSE_MODE_ARROW : mode;
+    }
+
+    return mode;
+}
+
+// Outline every item and lootable body on the level while held.
+void gmouse_highlight_all(bool enable)
+{
+    if (!gmouse_initialized) {
+        return;
+    }
+
+    bool changed = false;
+    for (Object* obj = obj_find_first_at(map_elevation); obj != NULL; obj = obj_find_next_at()) {
+        int type = FID_TYPE(obj->fid);
+        bool candidate = type == OBJ_TYPE_ITEM
+            || (type == OBJ_TYPE_CRITTER && obj != obj_dude && critter_is_dead(obj));
+        if (!candidate) {
+            continue;
+        }
+
+        if (enable) {
+            if (obj_outline_object(obj, OUTLINE_TYPE_ITEM, NULL) == 0) {
+                changed = true;
+            }
+        } else if ((obj->outline & OUTLINE_TYPE_MASK) == OUTLINE_TYPE_ITEM && obj != outlined_object) {
+            obj_remove_outline(obj, NULL);
+            changed = true;
+        }
+    }
+
+    if (changed) {
+        tile_refresh_display();
+    }
+}
+#endif
+
 // 0x443AA0
 void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
 {
@@ -879,7 +964,12 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
     }
 
     if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_UP) != 0) {
-        if (gmouse_3d_current_mode == GAME_MOUSE_MODE_MOVE) {
+#ifdef __3DS__
+        int mode = gmouse_smart_mode(gmouse_3d_current_mode);
+#else
+        int mode = gmouse_3d_current_mode;
+#endif
+        if (mode == GAME_MOUSE_MODE_MOVE) {
             int actionPoints;
             if (isInCombat()) {
                 actionPoints = combat_free_move + obj_dude->data.critter.combat.ap;
@@ -906,7 +996,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
             return;
         }
 
-        if (gmouse_3d_current_mode == GAME_MOUSE_MODE_ARROW) {
+        if (mode == GAME_MOUSE_MODE_ARROW) {
             Object* target = object_under_mouse(-1, true, map_elevation);
             if (target != NULL) {
                 switch (FID_TYPE(target->fid)) {
@@ -954,8 +1044,28 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
             return;
         }
 
-        if (gmouse_3d_current_mode == GAME_MOUSE_MODE_CROSSHAIR) {
+        if (mode == GAME_MOUSE_MODE_CROSSHAIR) {
+#ifdef __3DS__
+            // Smart tap on an enemy that is out of reach: run up to it first.
+            if (gmouse_3d_current_mode == GAME_MOUSE_MODE_MOVE) {
+                Object* enemy = gmouse_smart_target;
+                int hitMode;
+                bool aiming;
+                if (enemy != NULL && intface_get_attack(&hitMode, &aiming) != -1
+                    && combat_check_bad_shot(obj_dude, enemy, hitMode, aiming) == COMBAT_BAD_SHOT_OUT_OF_RANGE) {
+                    register_begin(ANIMATION_REQUEST_RESERVED);
+                    register_object_run_to_object(obj_dude, enemy, obj_dude->data.critter.combat.ap + combat_free_move, 0);
+                    register_end();
+                    return;
+                }
+            }
+#endif
             Object* target = object_under_mouse(OBJ_TYPE_CRITTER, false, map_elevation);
+#ifdef __3DS__
+            if (gmouse_smart_target != NULL) {
+                target = gmouse_smart_target;
+            }
+#endif
             if (target != NULL) {
                 combat_attack_this(target);
                 gmouse_3d_hover_test = true;
@@ -966,7 +1076,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
             return;
         }
 
-        if (gmouse_3d_current_mode == GAME_MOUSE_MODE_USE_CROSSHAIR) {
+        if (mode == GAME_MOUSE_MODE_USE_CROSSHAIR) {
             Object* target = object_under_mouse(-1, true, map_elevation);
             if (target != NULL) {
                 Object* weapon;
@@ -998,13 +1108,13 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
             return;
         }
 
-        if (gmouse_3d_current_mode == GAME_MOUSE_MODE_USE_FIRST_AID
-            || gmouse_3d_current_mode == GAME_MOUSE_MODE_USE_DOCTOR
-            || gmouse_3d_current_mode == GAME_MOUSE_MODE_USE_LOCKPICK
-            || gmouse_3d_current_mode == GAME_MOUSE_MODE_USE_STEAL
-            || gmouse_3d_current_mode == GAME_MOUSE_MODE_USE_TRAPS
-            || gmouse_3d_current_mode == GAME_MOUSE_MODE_USE_SCIENCE
-            || gmouse_3d_current_mode == GAME_MOUSE_MODE_USE_REPAIR) {
+        if (mode == GAME_MOUSE_MODE_USE_FIRST_AID
+            || mode == GAME_MOUSE_MODE_USE_DOCTOR
+            || mode == GAME_MOUSE_MODE_USE_LOCKPICK
+            || mode == GAME_MOUSE_MODE_USE_STEAL
+            || mode == GAME_MOUSE_MODE_USE_TRAPS
+            || mode == GAME_MOUSE_MODE_USE_SCIENCE
+            || mode == GAME_MOUSE_MODE_USE_REPAIR) {
             Object* target = object_under_mouse(-1, 1, map_elevation);
             if (target == NULL || action_use_skill_on(obj_dude, target, gmouse_skill_table[gmouse_3d_current_mode - FIRST_GAME_MOUSE_MODE_SKILL]) != -1) {
                 gmouse_set_cursor(MOUSE_CURSOR_NONE);
@@ -1014,7 +1124,12 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
         }
     }
 
+#ifdef __3DS__
+    if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_DOWN_REPEAT) == MOUSE_EVENT_LEFT_BUTTON_DOWN_REPEAT
+        && (gmouse_3d_current_mode == GAME_MOUSE_MODE_ARROW || gmouse_smart_mode(gmouse_3d_current_mode) != gmouse_3d_current_mode)) {
+#else
     if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_DOWN_REPEAT) == MOUSE_EVENT_LEFT_BUTTON_DOWN_REPEAT && gmouse_3d_current_mode == GAME_MOUSE_MODE_ARROW) {
+#endif
         Object* target = object_under_mouse(-1, true, map_elevation);
         if (target != NULL) {
             int actionMenuItemsCount = 0;

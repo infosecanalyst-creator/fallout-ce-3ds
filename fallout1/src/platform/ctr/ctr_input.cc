@@ -18,6 +18,10 @@
 #include "game/gdialog.h"
 #include "game/map.h"
 #include "game/scripts.h"
+#include "game/combat.h"
+#include "game/gmouse.h"
+#include "game/object.h"
+#include "game/tile.h"
 
 namespace fallout {
 
@@ -30,6 +34,10 @@ namespace fallout {
 #define FLAG_START_DUP 0x20
 #define FLAG_START_DLEFT 0x40
 #define FLAG_START_DRIGHT 0x80
+#define FLAG_SELECT_L 0x100
+#define FLAG_START_ZR 0x200
+#define FLAG_SELECT_X 0x400
+#define FLAG_SELECT_Y 0x800
 
 #define KEY_PRESS(x) ((ctr_input.frame.kHeld & (x)) && (!(oldpad & (x))))
 #define KEY_HELD(x) (ctr_input.frame.kHeld & (x))
@@ -42,7 +50,7 @@ namespace fallout {
 
 ctr_input_t ctr_input;
 
-static u8 key_combi_flags = FLAG_NONE;
+static u16 key_combi_flags = FLAG_NONE;
 static u32 oldpad = 0;
 static bool scaled_rect_top = false;
 static float previousSliderState = -1.0f;
@@ -50,6 +58,87 @@ static float manualScaleFactor = 0.0f;
 
 int offsetX = 0;
 int offsetY = 0;
+
+static bool ctr_is_n3ds(void)
+{
+    static int cached = -1;
+    if (cached < 0) {
+        bool n3ds = false;
+        APT_CheckNew3DS(&n3ds);
+        cached = n3ds ? 1 : 0;
+    }
+    return cached == 1;
+}
+
+static bool ctr_in_gameplay(void)
+{
+    return (ctr_rectMap.active == DISPLAY_FIELD) || (ctr_rectMap.active == DISPLAY_GUI);
+}
+
+// Keep the player inside the visible part of the map. The 3DS screen only
+// shows part of the 640x480 game view, so without this the character walks
+// out of sight and has to be found again by scrolling.
+static int followLastTile = -1;
+
+static void ctr_follow_dude(void)
+{
+    if (!ctr_in_gameplay() || obj_dude == NULL) {
+        followLastTile = -1;
+        return;
+    }
+    if (obj_dude->tile == followLastTile || obj_dude->elevation != map_elevation) {
+        return;
+    }
+    followLastTile = obj_dude->tile;
+
+    int x, y;
+    tile_coord(obj_dude->tile, &x, &y, map_elevation);
+    x += 16;
+    y += 8;
+
+    rectMap_t* r = rectMaps[DISPLAY_FIELD][0];
+
+    // Visible part of the game view (the map area ends at y=380, above the HUD).
+    const float viewW = 640.f, viewH = 380.f;
+    float w = r->src_w < viewW ? r->src_w : viewW;
+    float h = r->src_h < viewH ? r->src_h : viewH;
+    float marginX = w * 0.2f;
+    float marginY = h * 0.2f;
+
+    auto inside = [&](float sx, float sy) {
+        return x >= sx + marginX && x <= sx + w - marginX
+            && y >= sy + marginY && y <= sy + h - marginY;
+    };
+
+    if (inside(r->src_x, r->src_y)) {
+        return;
+    }
+
+    // First slide the 3DS window over the game view...
+    float nx = x - w / 2.f;
+    float ny = y - h / 2.f;
+    if (nx < 0) nx = 0;
+    if (ny < 0) ny = 0;
+    if (nx > offsetX_field_scaled_max) nx = offsetX_field_scaled_max;
+    if (ny > offsetY_field_scaled_max) ny = offsetY_field_scaled_max;
+
+    if (!inside(nx, ny)) {
+        // ...and if the player is near the edge of the game view itself,
+        // scroll the map so the player is centered (the Home key).
+        GNW_add_input_buffer(KEY_HOME);
+        nx = 320.f - w / 2.f;
+        ny = 190.f - h / 2.f;
+        if (nx < 0) nx = 0;
+        if (ny < 0) ny = 0;
+        if (nx > offsetX_field_scaled_max) nx = offsetX_field_scaled_max;
+        if (ny > offsetY_field_scaled_max) ny = offsetY_field_scaled_max;
+    }
+
+    offsetX_field = nx;
+    offsetY_field = ny;
+    r->src_x = nx;
+    r->src_y = ny;
+}
 
 static SwkbdDictWord words[MAX_DICT_WORDS];
 static int num_words;
@@ -173,6 +262,9 @@ void ctr_input_process(void)
 
     ctr_input.frame.kHeld = hidKeysHeld();
 
+    // Runs every frame, including while a touch gesture is being handled.
+    ctr_follow_dude();
+
     if ((ctr_rectMap.active == DISPLAY_FIELD) || (ctr_rectMap.active == DISPLAY_GUI)) {
         float scaleFactorToUse;
         float currentSliderState = osGet3DSliderState();
@@ -220,7 +312,12 @@ void input_frame_axis(int *delta_x, int *delta_y)
         circlePosition cstick;
         hidCstickRead(&cstick);
 
-        // both axis for now
+        // Circle Pad = cursor. On New 3DS the C-stick scrolls the map during
+        // gameplay (camera on the right stick, as in modern tactics games).
+        if (ctr_in_gameplay() && ctr_is_n3ds()) {
+            cstick.dx = 0;
+            cstick.dy = 0;
+        }
         moveX = (int)circle.dx / 15 + (int)cstick.dx / 15;
         moveY = -((int)circle.dy / 15 + (int)cstick.dy / 15);
 
@@ -328,13 +425,50 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
         }
     }
 
+    // Select+L = cycle display mode (whole game screen on the bottom screen)
+    if (KEY_HELD(KEY_SELECT) && KEY_PRESS(KEY_L)) {
+        ctr_input.mode = ((ctr_input.mode + 1) % DISPLAY_MODE_FULL_TOP); // DISPLAY_MODE_LAST
+        setActiveRectMap(DISPLAY_LAST);
+        key_combi_flags |= FLAG_SELECT_L;
+    }
+
+    // The HUD buttons sit on the top screen while the map is on the touch
+    // screen, so every HUD button also has a hardware shortcut:
+    // Select+X = automap, Select+Y = Pip-Boy clock / rest
+    if (KEY_HELD(KEY_SELECT) && KEY_PRESS(KEY_X) && ctr_in_gameplay()) {
+        GNW_add_input_buffer(KEY_TAB);
+        key_combi_flags |= FLAG_SELECT_X;
+    }
+    if (KEY_HELD(KEY_SELECT) && KEY_PRESS(KEY_Y) && ctr_in_gameplay()) {
+        GNW_add_input_buffer(KEY_LOWERCASE_Z);
+        key_combi_flags |= FLAG_SELECT_Y;
+    }
+
+    // Start+ZR = end combat
+    if (KEY_HELD(KEY_START) && KEY_PRESS(KEY_ZR) && ctr_in_gameplay()) {
+        GNW_add_input_buffer(KEY_RETURN);
+        key_combi_flags |= FLAG_START_ZR;
+    }
+
     if (KEY_RELEASED(KEY_SELECT)) {
         if (key_combi_flags) {
             key_combi_flags = FLAG_NONE;
+        } else if (ctr_in_gameplay()) {
+            // Select tap = center the map on the player
+            GNW_add_input_buffer(KEY_HOME);
+            followLastTile = -1;
         } else {
             ctr_input.mode = ((ctr_input.mode + 1) % DISPLAY_MODE_FULL_TOP); // DISPLAY_MODE_LAST
             setActiveRectMap(DISPLAY_LAST);
         }
+    }
+
+    // R (hold) = highlight every item and lootable body on the level
+    if (ctr_in_gameplay() && KEY_PRESS(KEY_R)) {
+        gmouse_highlight_all(true);
+    }
+    if (KEY_RELEASED(KEY_R)) {
+        gmouse_highlight_all(false);
     }
 
     if (key_combi_flags == FLAG_NONE) {
@@ -349,7 +483,6 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
         }
 
         if ((ctr_rectMap.active == DISPLAY_FULL) ||
-                (ctr_rectMap.active == DISPLAY_FIELD) || (ctr_rectMap.active == DISPLAY_GUI) ||
                 (ctr_rectMap.active == DISPLAY_WORLDMAP) || (ctr_rectMap.active == DISPLAY_CHAR_SELECT) ||
                 (ctr_rectMap.active == DISPLAY_CHAR)) {
             if (KEY_HELD(KEY_R)) {
@@ -364,13 +497,13 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
             toggleGameplayRectMap();
         }
 
-        // ZR = end turn in combat
+        // ZR = start combat when exploring, end turn in combat
         if (KEY_PRESS(KEY_ZR) && inGameplay) {
-            GNW_add_input_buffer(KEY_SPACE);
+            GNW_add_input_buffer(isInCombat() ? KEY_SPACE : KEY_LOWERCASE_A);
         }
 
         // X = inventory, Y = Pip-Boy
-        if (inGameplay && !KEY_HELD(KEY_START)) {
+        if (inGameplay && !KEY_HELD(KEY_START) && !KEY_HELD(KEY_SELECT)) {
             if (KEY_PRESS(KEY_X)) {
                 GNW_add_input_buffer(KEY_LOWERCASE_I);
             }
@@ -380,10 +513,32 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
         }
 
         if ((ctr_rectMap.active == DISPLAY_FIELD) || (ctr_rectMap.active == DISPLAY_GUI)) {
+            bool scrollUp, scrollDown, scrollLeft, scrollRight;
+            if (ctr_is_n3ds()) {
+                circlePosition cs;
+                hidCstickRead(&cs);
+                scrollUp = cs.dy > 40;
+                scrollDown = cs.dy < -40;
+                scrollLeft = cs.dx < -40;
+                scrollRight = cs.dx > 40;
+
+                // D-pad = quick actions: Up swap weapon hand, Down weapon mode,
+                // Left Skilldex, Right character sheet
+                if (KEY_PRESS(KEY_DUP)) GNW_add_input_buffer(KEY_LOWERCASE_B);
+                if (KEY_PRESS(KEY_DDOWN)) GNW_add_input_buffer(KEY_LOWERCASE_N);
+                if (KEY_PRESS(KEY_DLEFT)) GNW_add_input_buffer(KEY_LOWERCASE_S);
+                if (KEY_PRESS(KEY_DRIGHT)) GNW_add_input_buffer(KEY_LOWERCASE_C);
+            } else {
+                scrollUp = KEY_HELD(KEY_DUP);
+                scrollDown = KEY_HELD(KEY_DDOWN);
+                scrollLeft = KEY_HELD(KEY_DLEFT);
+                scrollRight = KEY_HELD(KEY_DRIGHT);
+            }
+
             offsetX_field = rectMaps[DISPLAY_FIELD][0]->src_x;
             offsetY_field = rectMaps[DISPLAY_FIELD][0]->src_y;
 
-            if (KEY_HELD(KEY_DUP)) {
+            if (scrollUp) {
                 if (offsetY_field > 0) {
                     int deltaY = (offsetY_field >= 20) ? 20 : offsetY_field;
                     offsetY_field -= deltaY;
@@ -400,7 +555,7 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
                     map_scroll(0, -1);
                 }
             }
-            if (KEY_HELD(KEY_DDOWN)) {
+            if (scrollDown) {
                 if (offsetY_field < offsetY_field_scaled_max) {
                     int deltaY = (offsetY_field_scaled_max - offsetY_field >= 20) ?
                                  20 : offsetY_field_scaled_max - offsetY_field;
@@ -418,7 +573,7 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
                     map_scroll(0, 1);
                 }
             }
-            if (KEY_HELD(KEY_DLEFT)) {
+            if (scrollLeft) {
                 if (offsetX_field > 0) {
                     int deltaX = (offsetX_field >= 20) ? 20 : offsetX_field;
                     offsetX_field -= deltaX;
@@ -435,7 +590,7 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
                     map_scroll(-1, 0);
                 }
             }
-            if (KEY_HELD(KEY_DRIGHT)) {
+            if (scrollRight) {
                 if (offsetX_field < offsetX_field_scaled_max) {
                     int deltaX = (offsetX_field_scaled_max - offsetX_field >= 20) ?
                                  20 : offsetX_field_scaled_max - offsetX_field;
