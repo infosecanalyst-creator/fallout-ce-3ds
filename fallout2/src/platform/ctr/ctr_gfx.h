@@ -35,6 +35,9 @@ void ctr_gfx_reinit(void);
 void ctr_gfx_init(void);
 void ctr_gfx_exit(void);
 
+// One frame of a full-screen citro2d overlay (the manual) on both screens.
+void ctr_gfx_manual_frame(void (*drawTop)(), void (*drawBottom)());
+
 } // namespace fallout
 
 #endif /* FALLOUT_PLATFORM_CTR_GFX_H_ */

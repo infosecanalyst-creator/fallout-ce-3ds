@@ -4,6 +4,7 @@
 
 #include "ctr_input.h"
 #include "ctr_dashboard.h"
+#include "ctr_manual.h"
 #include "ctr_gfx.h"
 #include "ctr_rectmap.h"
 #include "ctr_sys.h"
@@ -397,6 +398,18 @@ void input_frame_axis(int *delta_x, int *delta_y)
 
 void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
 {
+    // The manual: Select+Start anywhere, or a Select tap outside the map.
+    if ((KEY_HELD(KEY_SELECT) && KEY_PRESS(KEY_START)) ||
+            (KEY_RELEASED(KEY_SELECT) && key_combi_flags == FLAG_NONE && !ctr_in_gameplay() &&
+             ctr_rectMap.active != DISPLAY_MOVIE && ctr_rectMap.active != DISPLAY_SPLASH)) {
+        ctr_manual_run();
+        key_combi_flags = FLAG_NONE;
+        hidScanInput();
+        ctr_input.frame.kHeld = hidKeysHeld();
+        oldpad = ctr_input.frame.kHeld;
+        return;
+    }
+
 #ifdef _DEBUG_OVERLAY
     if (KEY_HELD(KEY_START) && KEY_PRESS(KEY_DUP)) {
         ctr_gfx.overlayEnable = !ctr_gfx.overlayEnable;

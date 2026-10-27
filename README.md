@@ -29,6 +29,10 @@ Both are forks of [alexbatalov/fallout1-ce](https://github.com/alexbatalov/fallo
 
 The full audit against stylus and mouse strategy-game conventions is in [docs/UX-AUDIT.md](docs/UX-AUDIT.md).
 
+## Manual
+
+Each game has a built-in manual: press **Select** on the main menu or any menu, or **Select+Start** on the map. The same text is in [docs/MANUAL-FALLOUT1.md](docs/MANUAL-FALLOUT1.md) and [docs/MANUAL-FALLOUT2.md](docs/MANUAL-FALLOUT2.md). Edit `docs/manual-source.txt` and run `python3 tools/gen_manual.py` to update both the in-game and Markdown versions.
+
 ## Controls
 
 | Input | Action |
@@ -54,6 +58,7 @@ The full audit against stylus and mouse strategy-game conventions is in [docs/UX
 | Select+Up/Down, 3D slider | Zoom the map |
 | Start | Options menu / back |
 | Start+X / Start+Y | Quicksave / quickload |
+| Select (menus) / Select+Start (map) | Manual |
 
 ## Install
 

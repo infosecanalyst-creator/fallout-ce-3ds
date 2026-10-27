@@ -1,0 +1,310 @@
+# Fallout for New 3DS: manual
+
+*This is the same manual the game shows on the console (Select on any menu, Select+Start on the map).*
+
+## Welcome
+
+Fallout for New 3DS runs the Fallout Community Edition engine natively on the console. You play the original 1997 game from your own copy.
+
+The game is played on the touch screen with the stylus, the way the PC game is played with a mouse. The top screen is a dashboard: your health, action points, weapon, the enemy you are fighting and the message log. You never need to touch it.
+
+### Reading this manual
+
+- Tap a section on the touch screen to open it.
+- Circle Pad or D-pad up and down: scroll.
+- L and R: previous and next section.
+- B or Start: close. The manual opens again where you left it.
+
+### Opening this manual
+
+| Input | What it does |
+|---|---|
+| Select | On the main menu or any menu: open the manual |
+| Select+Start | On the map: open the manual (hold Select, press Start) |
+
+The game is paused while the manual is open.
+
+## Installing
+
+### Files on the SD card
+
+Put the game in sdmc:/3ds/fallout/:
+
+- fallout-ce.3dsx (the program)
+- MASTER.DAT and CRITTER.DAT from your Fallout install
+- the DATA folder from your Fallout install
+- fallout.cfg
+
+The data files come from the Windows GOG or Steam version. No game data is included with this port.
+
+### Sound
+
+Sound needs sdmc:/3ds/dspfirm.cdc, which you dump once with the DSP1 homebrew. Without it the game runs silently and movies play without sound.
+
+### Updating over Wi-Fi
+
+1. On the 3DS, open the Homebrew Launcher and start ftpd.
+2. From the PC, upload fallout-ce.3dsx to /3ds/fallout/ (port 5000).
+3. Close ftpd and start the game from the Homebrew Launcher.
+
+You never need to take the SD card out. Your saves are not touched by an update.
+
+### Starting the game
+
+Start it from the Homebrew Launcher. The intro movies play first: tap the screen to skip each one. The main menu shows the controls on the top screen.
+
+## The two screens
+
+### Bottom screen: the game
+
+The touch screen shows the map and every menu. Use the stylus as the mouse.
+
+- Tap to act on what you touch.
+- Touch and hold for the action menu.
+- Drag to move items in the inventory and when trading.
+
+### Top screen: the dashboard
+
+| Input | What it does |
+|---|---|
+| Name, date | Your character and the game date and time |
+| HP bar | Green above half, amber above a quarter, red below |
+| AC | Armor class |
+| AP | Action points. Dim when exploring (your maximum); bright in combat, showing what is left this turn. "+N move" is free movement from perks or drugs |
+| Weapon | The item in your active hand, and its ammo. Ammo turns red when the gun is empty |
+| Attack | The current attack mode and its AP cost, for example Single shot 5 AP |
+| Target | In combat: the last enemy you tapped, how hurt it is and your chance to hit it |
+| Level, XP | When not fighting. Poison and radiation show here instead when you have any |
+| Messages | The last seven lines of the message log, newest in bright green |
+
+The dashboard stays on top for the inventory, looting, the Skilldex, the Pip-Boy, the automap, the world map and the options menu. Conversations, the character sheet and save/load show their own pictures on top.
+
+### Changing the layout
+
+| Input | What it does |
+|---|---|
+| ZL | Swap screens: the map goes on top and the original Fallout interface bar on the touch screen |
+| Select+L | Whole-screen view: the entire game picture on the touch screen, with a magnified lens on top. Press again to go back |
+| Select+Up / Down | Zoom the map in or out. The 3D slider zooms too |
+
+## Moving and the camera
+
+### Walking
+
+The Circle Pad walks your character in the direction you push, like a modern game.
+
+- Exploring, the character keeps going while you hold the stick, turns as soon as you turn it, slides along walls, and stops when you let go.
+- In combat each push takes one step to the next hex in that direction and costs 1 AP. Hold the stick to keep stepping.
+
+You can also tap open ground to walk there. The character always runs; change that in Preferences.
+
+### The camera
+
+- The view follows your character and recenters near the edge of the screen.
+| Input | What it does |
+|---|---|
+| Select | Center the map on your character |
+| C-Stick | Scroll the map (New 3DS) |
+
+
+On an original 3DS, which has no C-Stick, the D-pad scrolls the map.
+
+## Tapping and the action menu
+
+### One tap does the right thing
+
+A tap acts on whatever is under the stylus:
+
+- An item on the ground: pick it up.
+- A person: talk.
+- A body or a container: open it to loot.
+- A door, ladder, elevator or switch: use it.
+- An enemy in combat: attack it, walking into range first if needed. Party members are never attacked by a tap.
+- Open ground: walk there.
+
+### The action menu
+
+Touch and hold on anything until the menu appears. It offers what fits the object: Look, Talk, Use, Use item on and Use skill (lockpick, steal, first aid...). Slide to an icon and lift the stylus.
+
+### Buttons that help
+
+| Input | What it does |
+|---|---|
+| R (hold) | Outline every item and lootable body on the level. In combat it also lists your chance to hit each visible enemy in the message log |
+| B | Use the active item: attack with your weapon, reload, or use the item in your hand on a target |
+| L | Right click: cycles the cursor between move, look and attack, as on the PC |
+| A | Left click. Hold A to drag with the Circle Pad cursor in menus |
+
+## Combat
+
+### Turns and action points
+
+Combat is turn based. Everything you do costs action points (AP): walking 1 per hex, attacking the cost shown on the dashboard, opening the inventory 4. When your AP are spent the turn passes.
+
+| Input | What it does |
+|---|---|
+| ZR | Start combat. During combat: end your turn |
+| Start+ZR | End combat (only when no hostile is near) |
+| Tap an enemy | Attack it |
+| B | Attack with the active item without tapping, then tap the target |
+| D-pad Down | Next attack mode (single shot, burst, aimed...) |
+| D-pad Up | Swap hands |
+
+### Knowing your odds
+
+The dashboard's Target line shows the last enemy you tapped: how hurt it is and your chance to hit with the current weapon and mode. Hold R to see the chance against every enemy at once.
+
+### Healing
+
+| Input | What it does |
+|---|---|
+| Select+A | Quick heal: uses a Stimpak, or a Super Stimpak if you have no Stimpak. Costs 4 AP in combat, the same as using it from the inventory |
+
+## Inventory, looting and trading
+
+| Input | What it does |
+|---|---|
+| X | Inventory |
+| B or Start | Close |
+
+In the inventory, drag items between your pack, the hands and the armor slot. Drop an item on your character's picture to use it. Touch and hold an item for Look, Use, Unload and Drop.
+
+When looting a body or container, drag items across.
+
+When trading, drag items into the middle tables, then tap Offer. Your character's Barter skill sets the prices.
+
+## Character, skills and Pip-Boy
+
+| Input | What it does |
+|---|---|
+| D-pad Right | Character sheet |
+| D-pad Left | Skilldex |
+| Y | Pip-Boy |
+| Select+X | Automap |
+| Select+Y | Pip-Boy clock, to rest or wait |
+
+### Character sheet
+
+The sheet is taller than the screen. Push the Circle Pad or C-Stick down to scroll from your stats to your skills, traits and perks. Tap a stat or skill to read its description on the top screen. When you level up, tap a skill and use the plus and minus buttons to spend skill points. B or Start closes the sheet without keeping new changes, so tap Done to keep them.
+
+### Skilldex
+
+Tap a skill (Sneak, Lockpick, Steal, Traps, First Aid, Doctor, Science, Repair), then tap the person or object to use it on.
+
+### Pip-Boy
+
+Your quest notes, maps, the date and the alarm clock for resting. Pip-Boy is not available in combat.
+
+## Talking
+
+Tap a person to talk. Their portrait and words are on the top screen; your replies are on the touch screen as large buttons. Tap one to say it. Some replies only appear with enough Intelligence, Speech or Charisma.
+
+Tap Barter in a conversation to trade.
+
+## The world map
+
+Leave a town by walking off the edge of the map. On the world map, tap where you want to go and your character travels there while the days pass. Random encounters can stop you on the way. Tap a town's circle to enter it, then pick an entrance.
+
+## Saving and loading
+
+### Quick save and quick load
+
+| Input | What it does |
+|---|---|
+| Start+X | Quick save |
+| Start+Y | Quick load |
+
+The first quick save of a session asks for a slot and a name. After that Start+X saves straight to that slot.
+
+### The options menu
+
+Start opens the options menu: Save game, Load game, Preferences, Exit game and Done. Save and load show the slot list on the touch screen and the slot's picture and description on top.
+
+Save often. Fallout is an unforgiving game.
+
+### Where saves are kept
+
+sdmc:/3ds/fallout/DATA/SAVEGAME/SLOT01 to SLOT10.
+
+## Button chart
+
+### On the map
+
+| Input | What it does |
+|---|---|
+| Tap | Act on what you touch |
+| Hold | Action menu |
+| Circle Pad | Walk |
+| C-Stick | Scroll the map |
+| A | Left click |
+| B | Use the active item |
+| L | Right click (cursor mode) |
+| R (hold) | Outline lootables; hit chances in combat |
+| X | Inventory |
+| Y | Pip-Boy |
+| D-pad Up | Swap hands |
+| D-pad Down | Next attack mode |
+| D-pad Left | Skilldex |
+| D-pad Right | Character sheet |
+| ZR | Start combat / end turn |
+| Start+ZR | End combat |
+| ZL | Swap screens |
+| Select | Center on your character |
+| Select+A | Quick heal |
+| Select+X | Automap |
+| Select+Y | Pip-Boy clock |
+| Select+L | Whole-screen view |
+| Select+Up/Down | Zoom |
+| Select+Start | This manual |
+| Start | Options menu |
+| Start+X | Quick save |
+| Start+Y | Quick load |
+
+### In menus
+
+| Input | What it does |
+|---|---|
+| Tap | Click |
+| Circle Pad | Move the cursor; scroll the character sheet |
+| A | Left click (hold to drag) |
+| B | Back |
+| L | Right click |
+| Start | Back |
+| Select | This manual |
+
+## Preferences
+
+Start, then Preferences, changes the game settings. This port ships with:
+
+- Running always on: the character runs instead of walking.
+- Combat speed fast, and your own moves sped up too.
+
+Text, violence level, subtitles, brightness and sound volume work as on the PC.
+
+## Tips
+
+- Hold R whenever you enter a new area. It shows every lootable body and item at once.
+- Tap the enemy you want before attacking so the dashboard shows your chance to hit.
+- Use Select+A in combat instead of opening the inventory: same cost, fewer taps.
+- Skill books, Stimpaks and ammo are worth more than they look. Check bodies.
+- Rest with the Pip-Boy clock (Select+Y) to heal for free outside combat.
+- Save before talking to anyone important and before every fight you can see coming.
+- If you get lost on the map, press Select to center on your character.
+
+## Troubleshooting
+
+| Input | What it does |
+|---|---|
+| No sound | Dump dspfirm.cdc to sdmc:/3ds/ with the DSP1 homebrew |
+| Movies silent | The same: movies need dspfirm.cdc for sound |
+| Lost the character | Press Select. If the map is zoomed in, Select+Down zooms out |
+| Picture looks odd | Select+L returns to the normal layout; ZL swaps the screens back |
+| Map loads slowly | Big maps take a few seconds to read from the SD card. A fast card helps |
+| Stuck in a menu | B or Start backs out of every menu |
+
+### Credits
+
+Fallout Community Edition by Alexander Batalov. 3DS platform layer by MrHuu. This port: dual-screen layout, dashboard, controls and fixes by Ryan Gurney with Claude.
+
+Fallout is (c) Bethesda Softworks. Interplay made the original games.
+

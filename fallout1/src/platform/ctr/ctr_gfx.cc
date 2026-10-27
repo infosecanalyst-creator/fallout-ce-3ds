@@ -894,7 +894,7 @@ void ctr_help_draw()
         helpTextBuf = C2D_TextBufNew(2048);
         C2D_TextParse(&helpTitle, helpTextBuf, "FALLOUT");
         C2D_TextOptimize(&helpTitle);
-        C2D_TextParse(&helpSub, helpTextBuf, "Controls");
+        C2D_TextParse(&helpSub, helpTextBuf, "Select: manual");
         C2D_TextOptimize(&helpSub);
         for (int c = 0; c < 2; c++) {
             for (int r = 0; r < 9; r++) {
@@ -954,6 +954,20 @@ void ctr_hint_draw(const char* hint)
     C2D_DrawRectSolid(0, 224, 0.5f, 400 * kx, 16, C2D_Color32(0, 0, 0, 0xc0));
     C2D_DrawText(&hintTextObj, C2D_WithColor | C2D_AlignCenter, 200 * kx, 225, 0.6f, 0.42f * kx, 0.42f, C2D_Color32(0xff, 0xc8, 0x40, 0xff));
     C2D_Flush();
+}
+
+
+void ctr_gfx_manual_frame(void (*drawTop)(), void (*drawBottom)())
+{
+    C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+    C2D_Prepare();
+    C2D_TargetClear(topRenderTarget, C2D_Color32(0, 0, 0, 0xff));
+    C2D_SceneBegin(topRenderTarget);
+    drawTop();
+    C2D_TargetClear(bottomRenderTarget, C2D_Color32(0, 0, 0, 0xff));
+    C2D_SceneBegin(bottomRenderTarget);
+    drawBottom();
+    C3D_FrameEnd(0);
 }
 
 } // namespace fallout
