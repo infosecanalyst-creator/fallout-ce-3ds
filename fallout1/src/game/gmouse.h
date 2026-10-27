@@ -96,6 +96,7 @@ void gmouse_3d_set_mode(int a1);
 int gmouse_3d_get_mode();
 #ifdef __3DS__
 void gmouse_highlight_all(bool enable);
+void gameStickMove(int dx, int dy);
 #endif
 void gmouse_3d_toggle_mode();
 void gmouse_3d_refresh();

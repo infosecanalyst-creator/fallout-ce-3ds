@@ -7,6 +7,9 @@ int display_init();
 int display_reset();
 void display_exit();
 void display_print(char* string);
+#ifdef __3DS__
+int display_get_recent_lines(const char** lines, int count, unsigned int* version);
+#endif
 void display_clear();
 void display_redraw();
 void display_scroll_up(int btn, int keyCode);

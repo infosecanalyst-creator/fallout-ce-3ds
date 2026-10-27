@@ -7,6 +7,9 @@ int displayMonitorInit();
 int displayMonitorReset();
 void displayMonitorExit();
 void displayMonitorAddMessage(char* string);
+#ifdef __3DS__
+int displayMonitorGetRecentLines(const char** lines, int count, unsigned int* version);
+#endif
 void displayMonitorDisable();
 void displayMonitorEnable();
 

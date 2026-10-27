@@ -1,6 +1,7 @@
 #include "game/gmouse.h"
 
 #include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -16,11 +17,15 @@
 #include "game/intface.h"
 #include "game/item.h"
 #include "game/map.h"
+#include "game/map_defs.h"
 #include "game/object.h"
 #include "game/protinst.h"
 #include "game/proto.h"
 #include "game/skilldex.h"
 #include "game/tile.h"
+#ifdef __3DS__
+#include "platform/ctr/ctr_dashboard.h"
+#endif
 #include "platform_compat.h"
 #include "plib/color/color.h"
 #include "plib/gnw/gnw.h"
@@ -869,6 +874,7 @@ static int gmouse_smart_mode(int mode)
         for (Object* o = obj_find_first_at(map_elevation); o != NULL; o = obj_find_next_at()) {
             if (o->tile == tile && gmouse_is_smart_enemy(o)) {
                 gmouse_smart_target = o;
+                ctrDashboardSetTarget(o);
                 return GAME_MOUSE_MODE_CROSSHAIR;
             }
         }
@@ -883,6 +889,7 @@ static int gmouse_smart_mode(int mode)
     case OBJ_TYPE_CRITTER:
         if (gmouse_is_smart_enemy(obj)) {
             gmouse_smart_target = obj;
+            ctrDashboardSetTarget(obj);
             return GAME_MOUSE_MODE_CROSSHAIR;
         }
         return GAME_MOUSE_MODE_ARROW;
@@ -950,6 +957,85 @@ void gmouse_highlight_all(bool enable)
             }
         }
     }
+}
+// Circle Pad movement: walk the player in the hex direction that best matches
+// the stick (on screen), like the D-pad/stick movement in Dungeon Master and
+// SimGolf. dx/dy are stick values (dy up = positive); 0,0 = released.
+void gameStickMove(int dx, int dy)
+{
+    static int lastSector = -1;
+    static int lastFromTile = -1;
+    static int lastToTile = -1;
+
+    if (!gmouse_initialized || obj_dude == NULL) {
+        return;
+    }
+
+    if (dx == 0 && dy == 0) {
+        lastSector = -1; // the current short stretch finishes, then the player stops
+        lastToTile = -1;
+        return;
+    }
+
+    if ((combat_state & 0x02) == 0 || !intface_is_enabled() || gmouse_get_cursor() >= MOUSE_CURSOR_WAIT_PLANET) {
+        return;
+    }
+
+    float len = sqrtf((float)(dx * dx + dy * dy));
+    float sx = dx / len;
+    float sy = -dy / len; // screen y grows downwards
+
+    // 16 direction sectors: re-aim when the stick turns noticeably.
+    int sector = (int)floorf((atan2f(sy, sx) + (float)M_PI) / (2.0f * (float)M_PI) * 16.0f + 0.5f) & 15;
+    if (sector == lastSector && anim_busy(obj_dude)) {
+        return; // keep walking the current stretch
+    }
+    lastSector = sector;
+
+    // Aim at a point on screen in the stick's direction, so any angle walks
+    // straight (hex neighbours alone can't go straight left/right/up/down).
+    // In combat aim one hex away so AP is spent precisely.
+    int actionPoints = -1;
+    float reach = 96.0f;
+    if (isInCombat()) {
+        actionPoints = obj_dude->data.critter.combat.ap + combat_free_move;
+        if (actionPoints <= 0) {
+            return;
+        }
+        reach = 32.0f;
+    }
+
+    int x0, y0;
+    tile_coord(obj_dude->tile, &x0, &y0, obj_dude->elevation);
+    x0 += 16;
+    y0 += 8;
+
+    int tile = -1;
+    for (int attempt = 0; attempt < 4; attempt++, reach += 16.0f) {
+        int t = tile_num((int)(x0 + sx * reach), (int)(y0 + sy * reach), obj_dude->elevation);
+        if (t >= 0 && t < HEX_GRID_SIZE && t != obj_dude->tile) {
+            tile = t;
+            break;
+        }
+    }
+    if (tile == -1) {
+        return;
+    }
+    if (tile == lastToTile && obj_dude->tile == lastFromTile) {
+        return; // that way is blocked; don't re-request it every frame
+    }
+    lastFromTile = obj_dude->tile;
+    lastToTile = tile;
+
+    register_begin(ANIMATION_REQUEST_RESERVED);
+    bool running = false;
+    configGetBool(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_RUNNING_KEY, &running);
+    if (running) {
+        register_object_run_to_tile(obj_dude, tile, obj_dude->elevation, actionPoints, 0);
+    } else {
+        register_object_move_to_tile(obj_dude, tile, obj_dude->elevation, actionPoints, 0);
+    }
+    register_end();
 }
 #endif
 

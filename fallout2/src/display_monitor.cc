@@ -94,6 +94,11 @@ static int _disp_start;
 // 0x56FB58
 static unsigned int gDisplayMonitorLastBeepTimestamp;
 
+#ifdef __3DS__
+// Bumped whenever the message log changes (3DS top-screen dashboard cache).
+static unsigned int gDisplayMonitorVersion = 0;
+#endif
+
 static std::ofstream gConsoleFileStream;
 static int gConsoleFilePrintCount = 0;
 
@@ -235,6 +240,10 @@ void displayMonitorAddMessage(char* str)
         return;
     }
 
+#ifdef __3DS__
+    gDisplayMonitorVersion++;
+#endif
+
     // SFALL
     consoleFileAddMessage(str);
 
@@ -326,6 +335,9 @@ void displayMonitorAddMessage(char* str)
 // 0x431A2C
 static void display_clear()
 {
+#ifdef __3DS__
+    gDisplayMonitorVersion++;
+#endif
     int index;
 
     if (gDisplayMonitorInitialized) {
@@ -481,5 +493,25 @@ static void consoleFileFlush()
         gConsoleFileStream.flush();
     }
 }
+
+#ifdef __3DS__
+// Most recent `count` message-log lines, oldest first.
+int displayMonitorGetRecentLines(const char** lines, int count, unsigned int* version)
+{
+    *version = gDisplayMonitorVersion;
+    if (!gDisplayMonitorInitialized || gDisplayMonitorLinesCapacity <= 0) {
+        return 0;
+    }
+
+    int n = 0;
+    for (int back = count; back >= 1; back--) {
+        int index = (_disp_curr + gDisplayMonitorLinesCapacity - back) % gDisplayMonitorLinesCapacity;
+        if (gDisplayMonitorLines[index][0] != '\0') {
+            lines[n++] = gDisplayMonitorLines[index];
+        }
+    }
+    return n;
+}
+#endif
 
 } // namespace fallout

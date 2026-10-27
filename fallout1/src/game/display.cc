@@ -79,6 +79,10 @@ static int max_ptr;
 // 0x56E2DE4
 static int disp_start;
 
+#ifdef __3DS__
+static unsigned int disp_version = 0;
+#endif
+
 // 0x42BBE0
 int display_init()
 {
@@ -196,6 +200,10 @@ void display_print(char* str)
         return;
     }
 
+#ifdef __3DS__
+    disp_version++;
+#endif
+
     int oldFont = text_curr();
     text_font(DISPLAY_MONITOR_FONT);
 
@@ -281,6 +289,10 @@ void display_print(char* str)
 void display_clear()
 {
     int index;
+
+#ifdef __3DS__
+    disp_version++;
+#endif
 
     if (disp_init) {
         for (index = 0; index < max_ptr; index++) {
@@ -387,5 +399,25 @@ void display_enable()
         display_enabled = true;
     }
 }
+
+#ifdef __3DS__
+// Most recent `count` message-log lines, oldest first.
+int display_get_recent_lines(const char** lines, int count, unsigned int* version)
+{
+    *version = disp_version;
+    if (!disp_init || max_ptr <= 0) {
+        return 0;
+    }
+
+    int n = 0;
+    for (int back = count; back >= 1; back--) {
+        int index = (disp_curr + max_ptr - back) % max_ptr;
+        if (disp_str[index][0] != '\0') {
+            lines[n++] = disp_str[index];
+        }
+    }
+    return n;
+}
+#endif
 
 } // namespace fallout

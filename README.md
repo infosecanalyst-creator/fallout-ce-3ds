@@ -12,7 +12,8 @@ Both are forks of [alexbatalov/fallout1-ce](https://github.com/alexbatalov/fallo
 
 | Area | Change |
 |---|---|
-| Layout | Map defaults to the **bottom touchscreen** (stylus = mouse), HUD and message log on the top screen. ZL swaps; the choice is remembered. |
+| Layout | The **bottom touchscreen is the game** (stylus = mouse); the **top screen is an information dashboard**: HP bar, AP pips, AC, weapon / attack mode / AP cost / ammo, the enemy you last tapped (health and hit chance), level/XP or poison/rads, date and time, and a large message log. Inventory, loot and Skilldex also keep the dashboard on top instead of a duplicate picture. ZL swaps map and HUD. |
+| Movement | The **Circle Pad walks the player** in any direction (one hex per push in combat, continuous when exploring), like Dungeon Master / SimGolf. |
 | Smart tap | A tap acts on whatever it touches: pick up, talk, loot, open, use, or attack a hostile in combat (running into reach first if needed). Open ground = move. Long-press = action menu. No cursor-mode switching needed. |
 | Highlight | Hold R to outline every item and lootable body on the level (touch has no hover); in combat it also lists your hit chance against each visible enemy. |
 | Quick heal | Select+A uses a Stimpak (or Super Stimpak) without opening the inventory. |
@@ -31,7 +32,7 @@ The full audit against stylus and mouse strategy-game conventions is in [docs/UX
 |---|---|
 | Tap | Act on what you touch (move / pick up / talk / loot / use / attack) |
 | Long-press | Action menu (look, use skill, use item on...) |
-| Circle Pad | Move cursor |
+| Circle Pad | Walk (the stylus is the pointer; Circle Pad moves the cursor in menus) |
 | C-stick | Scroll map (New 3DS; D-pad scrolls on Old 3DS) |
 | A | Left click (hold to drag) |
 | B | Active item button: attack with weapon, reload, or use item on a target |

@@ -49,6 +49,14 @@ Every HUD button that sits on the untouchable top screen now has a hardware shor
 | Active item button (attack / reload / use item on…) | HUD button on the untouchable top screen | **B** (L keeps the classic right-click) |
 | Accidental display-mode change | Select tapped outside gameplay switched to the full-screen view | Select tap only recenters in gameplay; display mode is **Select+L** only |
 
+## Third pass: dual-screen model (same as the SimGolf / Dungeon Master ports)
+
+| Area | Before | After |
+|---|---|---|
+| Movement | Circle Pad moved a mouse cursor (duplicating the stylus) | **Circle Pad walks the player** toward any screen direction; one hex per push in combat (AP spent like a tap), continuous when exploring |
+| Top screen in gameplay | Fallout's interface bar, rearranged, with dead (untouchable) buttons | **Dashboard** drawn with the system font: HP bar, AP pips, AC, weapon, attack mode + AP cost, ammo, last tapped enemy's health and hit chance, level/XP or poison/rads, date/time, 7-line message log |
+| Inventory / loot / Skilldex | Same picture on both screens | Menu on the touchscreen, dashboard on top |
+
 ## Not done
 
 - D-pad navigation of dialogue replies: the replies are already large stylus targets on the touchscreen, so a hardware path adds little.

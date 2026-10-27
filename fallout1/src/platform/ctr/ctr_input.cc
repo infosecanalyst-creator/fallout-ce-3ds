@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "ctr_input.h"
 #include "ctr_gfx.h"
@@ -268,6 +269,17 @@ void ctr_input_process(void)
     // Runs every frame, including while a touch gesture is being handled.
     ctr_follow_dude();
 
+    // Circle Pad = walk the player, Dungeon Master / SimGolf style.
+    if (ctr_in_gameplay()) {
+        circlePosition cp;
+        hidCircleRead(&cp);
+        if (abs(cp.dx) > 40 || abs(cp.dy) > 40) {
+            gameStickMove(cp.dx, cp.dy);
+        } else {
+            gameStickMove(0, 0);
+        }
+    }
+
     if ((ctr_rectMap.active == DISPLAY_FIELD) || (ctr_rectMap.active == DISPLAY_GUI)) {
         float scaleFactorToUse;
         float currentSliderState = osGet3DSliderState();
@@ -320,6 +332,12 @@ void input_frame_axis(int *delta_x, int *delta_y)
         if (ctr_in_gameplay() && ctr_is_n3ds()) {
             cstick.dx = 0;
             cstick.dy = 0;
+        }
+        // During gameplay the Circle Pad walks the player (see
+        // ctr_input_process); the stylus is the pointer.
+        if (ctr_in_gameplay()) {
+            circle.dx = 0;
+            circle.dy = 0;
         }
         moveX = (int)circle.dx / 15 + (int)cstick.dx / 15;
         moveY = -((int)circle.dy / 15 + (int)cstick.dy / 15);

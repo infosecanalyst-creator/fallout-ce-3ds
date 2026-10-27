@@ -1,7 +1,9 @@
+#include <string.h>
 #include <malloc.h>
 
 #include "ctr_input.h"
 #include "ctr_gfx.h"
+#include "ctr_dashboard.h"
 #include "ctr_rectmap.h"
 #include "ctr_sys.h"
 
@@ -215,6 +217,8 @@ inline void drawRect(const float subTexX, const float subTexY, const float subTe
 
 void drawRects()
 {
+    bool dashOnTop = false;
+
     beginRender(false);
     drawTopRenderTarget(0x000000);
 
@@ -253,20 +257,14 @@ void drawRects()
             break;
 
         case DISPLAY_FIELD:
-            for (int i = 0; i < numRectsInMap[DISPLAY_GUI]; i++) {
-                drawRect(rectMaps[DISPLAY_GUI][i]->src_x, rectMaps[DISPLAY_GUI][i]->src_y,
-                        rectMaps[DISPLAY_GUI][i]->src_w, rectMaps[DISPLAY_GUI][i]->src_h,
-                        40+rectMaps[DISPLAY_GUI][i]->dst_x, rectMaps[DISPLAY_GUI][i]->dst_y,
-                        rectMaps[DISPLAY_GUI][i]->dst_w, rectMaps[DISPLAY_GUI][i]->dst_h
-                );
-            }
-            for (int i = 0; i < getIndicatorSlotNum(); i++) {
-                drawRect(rectMaps[DISPLAY_GUI_INDICATOR][i]->src_x, rectMaps[DISPLAY_GUI_INDICATOR][i]->src_y,
-                        rectMaps[DISPLAY_GUI_INDICATOR][i]->src_w, rectMaps[DISPLAY_GUI_INDICATOR][i]->src_h,
-                        40+rectMaps[DISPLAY_GUI_INDICATOR][i]->dst_x, rectMaps[DISPLAY_GUI_INDICATOR][i]->dst_y,
-                        rectMaps[DISPLAY_GUI_INDICATOR][i]->dst_w, rectMaps[DISPLAY_GUI_INDICATOR][i]->dst_h
-                );
-            }
+        case DISPLAY_INVENTORY:
+        case DISPLAY_INVENTORY_USE:
+        case DISPLAY_INVENTORY_LOOT:
+        case DISPLAY_SKILLDEX:
+        case DISPLAY_PAUSE:
+            // Map (or a menu) is on the touchscreen: the top screen is the
+            // information dashboard, drawn after the bottom screen.
+            dashOnTop = true;
             break;
 
         case DISPLAY_GUI:
@@ -470,6 +468,10 @@ void drawRects()
 #ifdef _DEBUG_OVERLAY
     show_overlay();
 #endif
+
+    if (dashOnTop) {
+        ctr_dashboard_draw();
+    }
 
     finishRender();
 }
@@ -677,6 +679,156 @@ void ctr_gfx_exit()
     C3D_Fini();
     romfsExit();
     cfguExit();
+}
+
+// ---------------------------------------------------------------------------
+// Top-screen dashboard (citro2d text, rebuilt only when the data changes)
+// ---------------------------------------------------------------------------
+static C2D_TextBuf dashTextBuf = nullptr;
+static CtrDashboard dashPrev;
+static bool dashHavePrev = false;
+
+enum {
+    DASH_T_NAME, DASH_T_TIME, DASH_T_HP, DASH_T_AC, DASH_T_AP, DASH_T_WEAPON,
+    DASH_T_AMMO, DASH_T_ATTACK, DASH_T_INFO, DASH_T_HP_LABEL, DASH_T_AP_LABEL,
+    DASH_T_COUNT
+};
+static C2D_Text dashText[DASH_T_COUNT];
+static C2D_Text dashLines[CTR_DASH_LINES];
+static int dashLineCount = 0;
+
+static void dashParse(C2D_Text* t, const char* str)
+{
+    C2D_TextParse(t, dashTextBuf, str);
+    C2D_TextOptimize(t);
+}
+
+static void dashRebuild(const CtrDashboard* d)
+{
+    char buf[128];
+    C2D_TextBufClear(dashTextBuf);
+
+    dashParse(&dashText[DASH_T_NAME], d->name);
+    dashParse(&dashText[DASH_T_TIME], d->time);
+    snprintf(buf, sizeof(buf), "%d / %d", d->hp, d->hpMax);
+    dashParse(&dashText[DASH_T_HP], buf);
+    snprintf(buf, sizeof(buf), "AC %d", d->ac);
+    dashParse(&dashText[DASH_T_AC], buf);
+    if (d->inCombat) {
+        if (d->apBonus > 0) {
+            snprintf(buf, sizeof(buf), "%d / %d  +%d move", d->ap, d->apMax, d->apBonus);
+        } else {
+            snprintf(buf, sizeof(buf), "%d / %d", d->ap, d->apMax);
+        }
+    } else {
+        snprintf(buf, sizeof(buf), "%d", d->apMax);
+    }
+    dashParse(&dashText[DASH_T_AP], buf);
+    dashParse(&dashText[DASH_T_WEAPON], d->weapon);
+    if (d->hasAmmo) {
+        snprintf(buf, sizeof(buf), "Ammo %d / %d", d->ammo, d->ammoMax);
+    } else {
+        buf[0] = '\0';
+    }
+    dashParse(&dashText[DASH_T_AMMO], buf);
+    dashParse(&dashText[DASH_T_ATTACK], d->attack);
+
+    if (d->hasTarget) {
+        snprintf(buf, sizeof(buf), "Target: %s - %s - %d%% to hit", d->target, d->targetState, d->targetHit);
+    } else if (d->poison > 0 || d->rads > 0) {
+        snprintf(buf, sizeof(buf), "Level %d   Poison %d   Rads %d", d->level, d->poison, d->rads);
+    } else {
+        snprintf(buf, sizeof(buf), "Level %d   XP %d / %d", d->level, d->xp, d->xpNext);
+    }
+    dashParse(&dashText[DASH_T_INFO], buf);
+    dashParse(&dashText[DASH_T_HP_LABEL], "HP");
+    dashParse(&dashText[DASH_T_AP_LABEL], "AP");
+
+    dashLineCount = d->lineCount;
+    for (int i = 0; i < d->lineCount; i++) {
+        dashParse(&dashLines[i], d->lines[i]);
+    }
+}
+
+void ctr_dashboard_draw()
+{
+    if (dashTextBuf == nullptr) {
+        dashTextBuf = C2D_TextBufNew(4096);
+    }
+
+    CtrDashboard d;
+    ctrDashboardGather(&d);
+    if (!d.valid) {
+        return;
+    }
+    if (!dashHavePrev || memcmp(&d, &dashPrev, sizeof(d)) != 0) {
+        dashRebuild(&d);
+        dashPrev = d;
+        dashHavePrev = true;
+    }
+
+    // 800px wide mode doubles horizontal resolution: scale x to match.
+    const float kx = ctr_gfx.isWide ? 2.f : 1.f;
+    const u32 bg = C2D_Color32(0x0b, 0x14, 0x0b, 0xff);
+    const u32 panel = C2D_Color32(0x16, 0x26, 0x16, 0xff);
+    const u32 green = C2D_Color32(0x5c, 0xff, 0x5c, 0xff);
+    const u32 dim = C2D_Color32(0x3c, 0xb0, 0x3c, 0xff);
+    const u32 amber = C2D_Color32(0xff, 0xc8, 0x40, 0xff);
+    const u32 red = C2D_Color32(0xff, 0x50, 0x40, 0xff);
+
+    auto rect = [&](float x, float y, float w, float h, u32 c) {
+        C2D_DrawRectSolid(x * kx, y, 0.5f, w * kx, h, c);
+    };
+    auto text = [&](C2D_Text* t, float x, float y, float sc, u32 c, bool right = false) {
+        C2D_DrawText(t, C2D_WithColor | (right ? C2D_AlignRight : 0), x * kx, y, 0.6f, sc * kx, sc, c);
+    };
+
+    C2D_Prepare();
+    C2D_SceneBegin(topRenderTarget); // also makes the top screen the draw target
+
+    rect(0, 0, 400, 240, bg);
+
+    // Header: name + date/time
+    text(&dashText[DASH_T_NAME], 8, 2, 0.6f, green);
+    text(&dashText[DASH_T_TIME], 392, 5, 0.45f, dim, true);
+
+    // HP bar
+    text(&dashText[DASH_T_HP_LABEL], 8, 25, 0.5f, green);
+    rect(36, 27, 270, 14, panel);
+    float hpRatio = d.hpMax > 0 ? (float)d.hp / (float)d.hpMax : 0.f;
+    if (hpRatio < 0) hpRatio = 0;
+    if (hpRatio > 1) hpRatio = 1;
+    u32 hpColor = hpRatio > 0.5f ? green : (hpRatio > 0.25f ? amber : red);
+    rect(36, 27, 270 * hpRatio, 14, hpColor);
+    text(&dashText[DASH_T_HP], 171, 26, 0.42f, C2D_Color32(0, 0, 0, 0xff));
+    text(&dashText[DASH_T_AC], 392, 25, 0.5f, green, true);
+
+    // AP pips
+    text(&dashText[DASH_T_AP_LABEL], 8, 47, 0.5f, green);
+    int pips = d.apMax > 14 ? 14 : d.apMax;
+    for (int i = 0; i < pips; i++) {
+        bool on = d.inCombat ? (i < d.ap) : true;
+        rect(36 + i * 15, 50, 12, 10, on ? (d.inCombat ? green : dim) : panel);
+    }
+    text(&dashText[DASH_T_AP], 36 + pips * 15 + 6, 47, 0.45f, d.inCombat ? green : dim);
+
+    // Weapon / attack / ammo
+    text(&dashText[DASH_T_WEAPON], 8, 67, 0.52f, green);
+    text(&dashText[DASH_T_AMMO], 392, 69, 0.45f, (d.hasAmmo && d.ammo == 0) ? red : green, true);
+    text(&dashText[DASH_T_ATTACK], 8, 85, 0.47f, dim);
+
+    // Target (combat) or level/status
+    text(&dashText[DASH_T_INFO], 8, 103, 0.47f, d.hasTarget ? amber : dim);
+
+    // Message log
+    rect(0, 123, 400, 1, dim);
+    float y = 127;
+    for (int i = 0; i < dashLineCount; i++) {
+        text(&dashLines[i], 8, y, 0.45f, i == dashLineCount - 1 ? green : dim);
+        y += 15.5f;
+    }
+
+    C2D_Flush();
 }
 
 } // namespace fallout

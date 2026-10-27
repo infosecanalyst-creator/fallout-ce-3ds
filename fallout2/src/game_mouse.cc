@@ -1,6 +1,7 @@
 #include "game_mouse.h"
 
 #include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -31,6 +32,10 @@
 #include "svga.h"
 #include "text_font.h"
 #include "tile.h"
+#ifdef __3DS__
+#include "platform/ctr/ctr_dashboard.h"
+#include "platform/ctr/ctr_sys.h"
+#endif
 #include "window_manager.h"
 
 #ifdef __3DS__
@@ -929,6 +934,7 @@ static int gameMouseSmartMode(int mode)
         for (Object* o = objectFindFirstAtLocation(gElevation, tile); o != nullptr; o = objectFindNextAtLocation()) {
             if (gameMouseIsSmartEnemy(o)) {
                 gameMouseSmartTarget = o;
+                ctrDashboardSetTarget(o);
                 return GAME_MOUSE_MODE_CROSSHAIR;
             }
         }
@@ -943,6 +949,7 @@ static int gameMouseSmartMode(int mode)
     case OBJ_TYPE_CRITTER:
         if (gameMouseIsSmartEnemy(obj)) {
             gameMouseSmartTarget = obj;
+            ctrDashboardSetTarget(obj);
             return GAME_MOUSE_MODE_CROSSHAIR;
         }
         return GAME_MOUSE_MODE_ARROW;
@@ -1012,6 +1019,84 @@ void gameMouseHighlightAll(bool enable)
             }
         }
     }
+}
+
+// Circle Pad movement: walk the player in the hex direction that best matches
+// the stick (on screen), like the D-pad/stick movement in Dungeon Master and
+// SimGolf. dx/dy are stick values (dy up = positive); 0,0 = released.
+void gameStickMove(int dx, int dy)
+{
+    static int lastSector = -1;
+    static int lastFromTile = -1;
+    static int lastToTile = -1;
+
+    if (!gGameMouseInitialized || gDude == nullptr) {
+        return;
+    }
+
+    if (dx == 0 && dy == 0) {
+        lastSector = -1; // the current short stretch finishes, then the player stops
+        lastToTile = -1;
+        return;
+    }
+
+    if ((gCombatState & 0x02) == 0 || !interfaceBarEnabled() || gGameMouseCursor >= MOUSE_CURSOR_WAIT_PLANET) {
+        return;
+    }
+
+    float len = sqrtf((float)(dx * dx + dy * dy));
+    float sx = dx / len;
+    float sy = -dy / len; // screen y grows downwards
+
+    // 16 direction sectors: re-aim when the stick turns noticeably.
+    int sector = (int)floorf((atan2f(sy, sx) + (float)M_PI) / (2.0f * (float)M_PI) * 16.0f + 0.5f) & 15;
+    if (sector == lastSector && animationIsBusy(gDude)) {
+        return; // keep walking the current stretch
+    }
+    lastSector = sector;
+
+    // Aim at a point on screen in the stick's direction, so any angle walks
+    // straight (hex neighbours alone can't go straight left/right/up/down).
+    // In combat aim one hex away so AP is spent precisely.
+    int actionPoints = -1;
+    float reach = 96.0f;
+    if (isInCombat()) {
+        actionPoints = gDude->data.critter.combat.ap + _combat_free_move;
+        if (actionPoints <= 0) {
+            return;
+        }
+        reach = 32.0f;
+    }
+
+    int x0, y0;
+    tileToScreenXY(gDude->tile, &x0, &y0, gDude->elevation);
+    x0 += 16;
+    y0 += 8;
+
+    int tile = -1;
+    for (int attempt = 0; attempt < 4; attempt++, reach += 16.0f) {
+        int t = tileFromScreenXY((int)(x0 + sx * reach), (int)(y0 + sy * reach), gDude->elevation);
+        if (t >= 0 && t < HEX_GRID_SIZE && t != gDude->tile) {
+            tile = t;
+            break;
+        }
+    }
+    if (tile == -1) {
+        return;
+    }
+    if (tile == lastToTile && gDude->tile == lastFromTile) {
+        return; // that way is blocked; don't re-request it every frame
+    }
+    lastFromTile = gDude->tile;
+    lastToTile = tile;
+
+    reg_anim_begin(ANIMATION_REQUEST_RESERVED);
+    if (settings.preferences.running) {
+        animationRegisterRunToTile(gDude, tile, gDude->elevation, actionPoints, 0);
+    } else {
+        animationRegisterMoveToTile(gDude, tile, gDude->elevation, actionPoints, 0);
+    }
+    reg_anim_end();
 }
 #endif
 

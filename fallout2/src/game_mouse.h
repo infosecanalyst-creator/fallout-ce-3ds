@@ -91,6 +91,7 @@ void gameMouseSetMode(int a1);
 int gameMouseGetMode();
 #ifdef __3DS__
 void gameMouseHighlightAll(bool enable);
+void gameStickMove(int dx, int dy);
 #endif
 void gameMouseCycleMode();
 void _gmouse_3d_refresh();
