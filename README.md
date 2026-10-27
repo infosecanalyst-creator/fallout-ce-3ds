@@ -13,13 +13,16 @@ Both are forks of [alexbatalov/fallout1-ce](https://github.com/alexbatalov/fallo
 | Area | Change |
 |---|---|
 | Layout | The **bottom touchscreen is the game** (stylus = mouse); the **top screen is an information dashboard**: HP bar, AP pips, AC, weapon / attack mode / AP cost / ammo, the enemy you last tapped (health and hit chance), level/XP or poison/rads, date and time, and a large message log. Inventory, loot and Skilldex also keep the dashboard on top instead of a duplicate picture. ZL swaps map and HUD. |
-| Movement | The **Circle Pad walks the player** in any direction (one hex per push in combat, continuous when exploring), like Dungeon Master / SimGolf. |
+| Movement | The **Circle Pad walks the player** in any direction, like Dungeon Master / SimGolf: continuous when exploring (turns instantly, slides along walls, stops on release); in combat each push steps one hex to the neighbour nearest the stick's angle. |
 | Smart tap | A tap acts on whatever it touches: pick up, talk, loot, open, use, or attack a hostile in combat (running into reach first if needed). Open ground = move. Long-press = action menu. No cursor-mode switching needed. |
 | Highlight | Hold R to outline every item and lootable body on the level (touch has no hover); in combat it also lists your hit chance against each visible enemy. |
 | Quick heal | Select+A uses a Stimpak (or Super Stimpak) without opening the inventory. |
+| Back | B and Start back out of any in-game menu (inventory, Pip-Boy, character sheet, Skilldex, automap, options). |
+| Out-of-game top screen | Main menu and other screens outside a game show a controls card on the top screen. The character sheet shows a hint that the Circle Pad scrolls down to the skills. |
 | Camera | Follows the player and recenters near the edge of the view; C-stick scrolls (New 3DS); Select recenters. |
 | HUD shortcuts | Every HUD button on the untouchable top screen has a hardware shortcut (see controls). |
 | Defaults | Always run, fast combat, Fallout 2 quicksave without slot/name prompts (`AutoQuickSave=3`), karma change messages. |
+| Fallout 1 saving | Saving failed when the SD folder's case differed from the config (`DATA` vs `master_patches=data`): the slot file list came back empty. Directory listing now falls back to upper case. |
 | Movie freeze fix | `SDL_OpenAudioDevice` returns 0 on failure, not -1; without `dspfirm.cdc` every movie used to hang forever in `_MVE_sndSync`. Movies now play silently. |
 | SD streaming | Fallout 2 reads compressed DAT entries in 32 KB chunks (was 1 KB) with a 32 KB stdio buffer; Fallout 1's DAT handle gets a 16 KB buffer. |
 | Build | Single Docker build (`./build.sh`), pinned devkitARM image and SDL2 commit. |
@@ -32,10 +35,10 @@ The full audit against stylus and mouse strategy-game conventions is in [docs/UX
 |---|---|
 | Tap | Act on what you touch (move / pick up / talk / loot / use / attack) |
 | Long-press | Action menu (look, use skill, use item on...) |
-| Circle Pad | Walk (the stylus is the pointer; Circle Pad moves the cursor in menus) |
+| Circle Pad | Walk (the stylus is the pointer; Circle Pad moves the cursor in menus and scrolls the character sheet) |
 | C-stick | Scroll map (New 3DS; D-pad scrolls on Old 3DS) |
 | A | Left click (hold to drag) |
-| B | Active item button: attack with weapon, reload, or use item on a target |
+| B | On the map: active item button (attack with weapon, reload, or use item on a target). In menus: back |
 | L | Right click (classic cursor-mode cycle) |
 | R (hold) | Highlight items and lootable bodies; in combat also lists your chance to hit each visible enemy |
 | Select+A | Quick heal (Stimpak, then Super Stimpak; 4 AP in combat) |
@@ -49,7 +52,7 @@ The full audit against stylus and mouse strategy-game conventions is in [docs/UX
 | Select+X / Select+Y | Automap / Pip-Boy clock (rest) |
 | Select+L | Cycle display mode (whole game screen) |
 | Select+Up/Down, 3D slider | Zoom the map |
-| Start | Menu / back |
+| Start | Options menu / back |
 | Start+X / Start+Y | Quicksave / quickload |
 
 ## Install
@@ -80,7 +83,7 @@ Requires Docker. The first run builds a toolchain image containing SDL2 for 3DS.
 
 ## Testing
 
-Tested in the Azahar emulator (New 3DS mode): boot, menus, new game, map/HUD layout, touch movement, inventory, Pip-Boy, screen swap, quicksave/quickload, combat end turn. Azahar doesn't emulate the 800px top-screen mode, so top-screen checks used a build with wide mode disabled.
+Tested in the Azahar emulator (New 3DS mode), both games: main menu, new game, save and load, Circle Pad walking in all directions (exploring and in combat), C-stick scrolling, camera follow, tap-to-attack, R highlight, quick heal, every menu's top screen, and backing out with B / Start. The 800px wide top-screen mode is off, so the emulator and the console show the same picture.
 
 ## License
 

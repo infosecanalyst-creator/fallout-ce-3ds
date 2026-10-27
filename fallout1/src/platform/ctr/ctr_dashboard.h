@@ -42,10 +42,14 @@ struct CtrDashboard {
 
 // Game side (dashboard_3ds.cc)
 void ctrDashboardGather(CtrDashboard* dash);
+bool ctrDashboardAvailable();
+void ctrDashboardSetInGame(bool inGame);
 void ctrDashboardSetTarget(void* critter);
 
 // Renderer (ctr_gfx.cc)
 void ctr_dashboard_draw();
+void ctr_help_draw();
+void ctr_hint_draw(const char* hint);
 
 } // namespace fallout
 

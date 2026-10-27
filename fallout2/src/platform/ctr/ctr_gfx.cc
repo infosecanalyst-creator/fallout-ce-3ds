@@ -215,6 +215,8 @@ inline void drawRect(const float subTexX, const float subTexY, const float subTe
 void drawRects()
 {
     bool dashOnTop = false;
+    bool helpOnTop = false;
+    const char* hintText = nullptr;
 
     beginRender(ctr_rectMap.active == DISPLAY_MOVIE);
     drawTopRenderTarget(0x000000);
@@ -280,6 +282,7 @@ void drawRects()
             break;
 
         case DISPLAY_CHAR:
+            hintText = "Circle Pad / C-Stick: scroll down for skills";
             for (int i = 0; i < numRectsInMap[DISPLAY_CHAR_TOP]; i++) {
                 drawRect(rectMaps[DISPLAY_CHAR_TOP][i]->src_x, rectMaps[DISPLAY_CHAR_TOP][i]->src_y,
                         rectMaps[DISPLAY_CHAR_TOP][i]->src_w, rectMaps[DISPLAY_CHAR_TOP][i]->src_h,
@@ -301,15 +304,25 @@ void drawRects()
         case DISPLAY_WORLDMAP:
         case DISPLAY_PIPBOY:
         case DISPLAY_FULL:
-            drawRect(offsetX, (240 - offsetY), 400, 240, 0,   0, 400, 240);
+            if (ctr_input.mode != DISPLAY_MODE_ADAPT) {
+                // Whole-screen mode (Select+L): top screen is a zoom lens.
+                drawRect(offsetX, (240 - offsetY), 400, 240, 0,   0, 400, 240);
+            } else if (ctrDashboardAvailable()) {
+                dashOnTop = true;
+            } else {
+                // Main menu and other out-of-game screens: controls card.
+                helpOnTop = true;
+            }
             break;
 
         default:
-            drawRect(rectMaps[DISPLAY_FULL][0]->src_x, rectMaps[DISPLAY_FULL][0]->src_y,
-                    rectMaps[DISPLAY_FULL][0]->src_w, rectMaps[DISPLAY_FULL][0]->src_h,
-                    40+rectMaps[DISPLAY_FULL][0]->dst_x, rectMaps[DISPLAY_FULL][0]->dst_y,
-                    rectMaps[DISPLAY_FULL][0]->dst_w, rectMaps[DISPLAY_FULL][0]->dst_h
-            );
+            if (ctrDashboardAvailable()) {
+                // Any other in-game window (automap, elevator, dialog boxes,
+                // death screen...): the dashboard, never a duplicate picture.
+                dashOnTop = true;
+                break;
+            }
+            helpOnTop = true;
             break;
     }
 
@@ -469,6 +482,11 @@ void drawRects()
 
     if (dashOnTop) {
         ctr_dashboard_draw();
+    } else if (helpOnTop) {
+        ctr_help_draw();
+    }
+    if (hintText != nullptr) {
+        ctr_hint_draw(hintText);
     }
 
     finishRender();
@@ -739,7 +757,9 @@ void ctr_gfx_init()
     gfxInitDefault();
     ctr_debug_log("ctr_gfx_init: gfxInitDefault done");
 
-    if (is2DS == 1) {
+    // 800px top-screen mode is off: the dashboard and every top-screen
+    // layout are drawn for 400x240, identical on hardware and in emulators.
+    if (false && is2DS == 1) {
         gfxSetWide(true);
         ctr_gfx.isWide = gfxIsWide();
     } else
@@ -867,7 +887,11 @@ static void dashRebuild(const CtrDashboard* d)
     dashParse(&dashText[DASH_T_ATTACK], d->attack);
 
     if (d->hasTarget) {
-        snprintf(buf, sizeof(buf), "Target: %s - %s - %d%% to hit", d->target, d->targetState, d->targetHit);
+        if (d->targetHit > 0) {
+            snprintf(buf, sizeof(buf), "Target: %s - %s - %d%% to hit", d->target, d->targetState, d->targetHit);
+        } else {
+            snprintf(buf, sizeof(buf), "Target: %s - %s", d->target, d->targetState);
+        }
     } else if (d->poison > 0 || d->rads > 0) {
         snprintf(buf, sizeof(buf), "Level %d   Poison %d   Rads %d", d->level, d->poison, d->rads);
     } else {
@@ -963,6 +987,109 @@ void ctr_dashboard_draw()
 
     C2D_Flush();
     gpuStateReady = false; // citro2d changed the GPU state
+}
+
+
+// ---------------------------------------------------------------------------
+// Controls card: top screen outside a running game (main menu, char select)
+// ---------------------------------------------------------------------------
+static C2D_TextBuf helpTextBuf = nullptr;
+static C2D_Text helpTitle, helpSub;
+static C2D_Text helpKeys[2][9], helpActs[2][9];
+
+void ctr_help_draw()
+{
+    static const char* const rows[2][9][2] = {
+        {
+            { "Tap", "Act on what you touch" },
+            { "Hold", "Action menu" },
+            { "Circle Pad", "Walk" },
+            { "C-Stick", "Scroll map" },
+            { "A / L", "Click / cursor mode" },
+            { "B", "Use weapon or item" },
+            { "R (hold)", "Show lootables" },
+            { "X / Y", "Inventory / Pip-Boy" },
+            { "D-Pad", "Hand/mode/skill/char" },
+        },
+        {
+            { "ZR", "Combat / end turn" },
+            { "Start+ZR", "End combat" },
+            { "ZL", "Swap screens" },
+            { "Select", "Center on player" },
+            { "Select+A", "Quick heal" },
+            { "Select+X / Y", "Automap / Rest" },
+            { "Select+L", "Whole-screen view" },
+            { "Select+Up/Dn", "Zoom" },
+            { "Start+X / Y", "Quick save / load" },
+        },
+    };
+
+    if (helpTextBuf == nullptr) {
+        helpTextBuf = C2D_TextBufNew(2048);
+        C2D_TextParse(&helpTitle, helpTextBuf, "FALLOUT 2");
+        C2D_TextOptimize(&helpTitle);
+        C2D_TextParse(&helpSub, helpTextBuf, "Controls");
+        C2D_TextOptimize(&helpSub);
+        for (int c = 0; c < 2; c++) {
+            for (int r = 0; r < 9; r++) {
+                C2D_TextParse(&helpKeys[c][r], helpTextBuf, rows[c][r][0]);
+                C2D_TextOptimize(&helpKeys[c][r]);
+                C2D_TextParse(&helpActs[c][r], helpTextBuf, rows[c][r][1]);
+                C2D_TextOptimize(&helpActs[c][r]);
+            }
+        }
+    }
+
+    const float kx = ctr_gfx.isWide ? 2.f : 1.f;
+    const u32 bg = C2D_Color32(0x0b, 0x14, 0x0b, 0xff);
+    const u32 green = C2D_Color32(0x5c, 0xff, 0x5c, 0xff);
+    const u32 dim = C2D_Color32(0x3c, 0xb0, 0x3c, 0xff);
+    const u32 amber = C2D_Color32(0xff, 0xc8, 0x40, 0xff);
+
+    C2D_Prepare();
+    C2D_SceneBegin(topRenderTarget);
+    C2D_DrawRectSolid(0, 0, 0.5f, 400 * kx, 240, bg);
+
+    C2D_DrawText(&helpTitle, C2D_WithColor, 8 * kx, 4, 0.6f, 0.8f * kx, 0.8f, amber);
+    C2D_DrawText(&helpSub, C2D_WithColor | C2D_AlignRight, 392 * kx, 12, 0.6f, 0.5f * kx, 0.5f, dim);
+    C2D_DrawRectSolid(0, 34, 0.5f, 400 * kx, 1, dim);
+
+    for (int c = 0; c < 2; c++) {
+        float x = c == 0 ? 6.f : 206.f;
+        for (int r = 0; r < 9; r++) {
+            float y = 42 + r * 21.5f;
+            C2D_DrawText(&helpKeys[c][r], C2D_WithColor, x * kx, y, 0.6f, 0.42f * kx, 0.42f, green);
+            C2D_DrawText(&helpActs[c][r], C2D_WithColor, (x + (c == 0 ? 68 : 80)) * kx, y, 0.6f, 0.42f * kx, 0.42f, dim);
+        }
+    }
+
+    C2D_Flush();
+    gpuStateReady = false; // citro2d changed the GPU state
+}
+
+
+// Small one-line hint strip along the bottom of the top screen.
+void ctr_hint_draw(const char* hint)
+{
+    static C2D_TextBuf hintBuf = nullptr;
+    static C2D_Text hintTextObj;
+    static const char* hintLast = nullptr;
+    if (hintBuf == nullptr) {
+        hintBuf = C2D_TextBufNew(256);
+    }
+    if (hint != hintLast) {
+        C2D_TextBufClear(hintBuf);
+        C2D_TextParse(&hintTextObj, hintBuf, hint);
+        C2D_TextOptimize(&hintTextObj);
+        hintLast = hint;
+    }
+    const float kx = ctr_gfx.isWide ? 2.f : 1.f;
+    C2D_Prepare();
+    C2D_SceneBegin(topRenderTarget);
+    C2D_DrawRectSolid(0, 224, 0.5f, 400 * kx, 16, C2D_Color32(0, 0, 0, 0xc0));
+    C2D_DrawText(&hintTextObj, C2D_WithColor | C2D_AlignCenter, 200 * kx, 225, 0.6f, 0.42f * kx, 0.42f, C2D_Color32(0xff, 0xc8, 0x40, 0xff));
+    C2D_Flush();
+    gpuStateReady = false;
 }
 
 } // namespace fallout

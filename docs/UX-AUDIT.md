@@ -57,6 +57,24 @@ Every HUD button that sits on the untouchable top screen now has a hardware shor
 | Top screen in gameplay | Fallout's interface bar, rearranged, with dead (untouchable) buttons | **Dashboard** drawn with the system font: HP bar, AP pips, AC, weapon, attack mode + AP cost, ammo, last tapped enemy's health and hit chance, level/XP or poison/rads, date/time, 7-line message log |
 | Inventory / loot / Skilldex | Same picture on both screens | Menu on the touchscreen, dashboard on top |
 
+## Fourth pass: hands-on test fixes
+
+Found by playing Fallout 1 in the emulator after a hardware report that the controls felt broken and the top screen was cut off.
+
+| Problem | Fix |
+|---|---|
+| Circle Pad stopped dead after one blocked step: a failed walk request was never retried while the stick was held | Retries every 150 ms; candidate tiles must be free and reachable |
+| Turning the stick while walking did nothing until the current stretch ended | The current walk is cancelled and re-aimed at once |
+| Walking into a wall at an angle stopped the player | Slides along the obstacle (tries up to 45 degrees either side) |
+| Player kept walking several tiles after letting go | Stops at the next tile on release |
+| In combat, a push aimed two hexes away vertically and was rejected | Steps to the free neighbouring hex nearest the stick's angle |
+| Options menu couldn't be closed with Start | Start backs out of every in-game menu; B does too (3DS convention) |
+| Pip-Boy, world map and options showed a cropped zoom of the game on top | Dashboard on top in every in-game screen; the zoom lens only with Select+L |
+| Main menu showed a dashboard for a character that doesn't exist yet | Controls card on the top screen outside a game |
+| Character sheet hid the skills list with no clue how to reach it | Hint on the top screen; Circle Pad scroll at half speed |
+| C-stick scrolled in jumps | 8 px steps at most 10 per second |
+| Fallout 1 couldn't save ("Unable to save game") | Case-insensitive directory listing |
+
 ## Not done
 
 - D-pad navigation of dialogue replies: the replies are already large stylus targets on the touchscreen, so a hardware path adds little.

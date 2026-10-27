@@ -128,6 +128,17 @@ DB_DATABASE* master_db_handle;
 // 0x58CC1C
 DB_DATABASE* critter_db_handle;
 
+#ifdef CTR_DEBUG_LOG
+// Debug builds (-DCTR_DEBUG_LOG): engine debug output to the SD card.
+static int ctr_debug_file(char* str)
+{
+    static FILE* f = NULL;
+    if (f == NULL) f = fopen("sdmc:/3ds/fallout/debug.log", "w");
+    if (f != NULL) { fputs(str, f); fflush(f); }
+    return 0;
+}
+#endif
+
 // 0x43B080
 int game_init(const char* windowTitle, bool isMapper, int font, int flags, int argc, char** argv)
 {
@@ -138,6 +149,9 @@ int game_init(const char* windowTitle, bool isMapper, int font, int flags, int a
     }
 
     gconfig_init(isMapper, argc, argv);
+#ifdef CTR_DEBUG_LOG
+    debug_register_func(ctr_debug_file);
+#endif
 
     game_in_mapper = isMapper;
 

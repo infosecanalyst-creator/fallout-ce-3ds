@@ -2582,6 +2582,16 @@ static int db_findfirst(const char* path, DB_FIND_DATA* findData)
     compat_makepath(basePath, drive, dir, NULL, NULL);
 
     findData->dir = opendir(basePath);
+#ifdef __3DS__
+    if (findData->dir == NULL) {
+        // SD folders may differ in case from the config ("data" vs "DATA");
+        // FAT on hardware ignores case but some file servers don't.
+        char upperPath[COMPAT_MAX_PATH];
+        strcpy(upperPath, basePath);
+        compat_strupr(upperPath);
+        findData->dir = opendir(upperPath);
+    }
+#endif
     if (findData->dir == NULL) {
         return -1;
     }

@@ -22,7 +22,21 @@
 
 namespace fallout {
 
+static bool gDashInGame = false;
+
+void ctrDashboardSetInGame(bool inGame)
+{
+    gDashInGame = inGame;
+}
+
 static Object* gDashTarget = NULL;
+
+// True while a game is running (player exists and the interface bar is up).
+bool ctrDashboardAvailable()
+{
+    Object* item;
+    return gDashInGame && obj_dude != NULL && intface_get_current_item(&item) == 0;
+}
 
 void ctrDashboardSetTarget(void* critter)
 {

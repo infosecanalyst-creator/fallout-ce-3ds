@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "ctr_input.h"
+#include "ctr_dashboard.h"
 #include "ctr_gfx.h"
 #include "ctr_rectmap.h"
 #include "ctr_sys.h"
@@ -143,6 +144,20 @@ static void ctr_follow_dude(void)
     offsetY_field = ny;
     r->src_x = nx;
     r->src_y = ny;
+}
+
+
+// Map scrolling from the C-stick / D-pad: the engine scrolls a whole tile
+// chunk per call, so limit it to ~10 steps a second instead of every frame.
+static void ctr_map_scroll(int dx, int dy)
+{
+    static u64 last = 0;
+    u64 now = osGetTime();
+    if (now - last < 100) {
+        return;
+    }
+    last = now;
+    mapScroll(dx, dy);
 }
 
 static SwkbdDictWord words[MAX_DICT_WORDS];
@@ -367,7 +382,7 @@ void input_frame_axis(int *delta_x, int *delta_y)
             }
         } else if (ctr_rectMap.active == DISPLAY_CHAR) {
             if (!isAgeWindow && !isSexWindow) {
-                offsetY_char += moveY;
+                offsetY_char += moveY / 2; // half speed: easier to stop on traits/perks
 
                 if (offsetY_char < 0)
                     offsetY_char=0;
@@ -440,9 +455,11 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
         if (key_combi_flags) {
             key_combi_flags = FLAG_NONE;
         } else {
+            // In a running game Start always backs out (options menu,
+            // elevator, any dialog box); outside it, not on the main menu.
             if ((ctr_rectMap.active != DISPLAY_MOVIE) &&
-                    (ctr_rectMap.active != DISPLAY_MAIN) &&
-                    (ctr_rectMap.active != DISPLAY_FULL)) {
+                    (ctrDashboardAvailable() ||
+                     ((ctr_rectMap.active != DISPLAY_MAIN) && (ctr_rectMap.active != DISPLAY_FULL)))) {
                 enqueueInputEvent(KEY_ESCAPE);
             }
         }
@@ -501,7 +518,14 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
         // L = right click (cycles the cursor: move / attack / examine).
         // B = the HUD's active-item button during gameplay (attack with the
         // weapon, reload, or use the item on a target); right click elsewhere.
-        if (KEY_PRESS(KEY_L) || (KEY_PRESS(KEY_B) && !ctr_in_gameplay())) {
+        // B outside the map = Back (3DS convention) while a game is running,
+        // except in conversations; elsewhere it stays a right click.
+        bool bIsBack = !ctr_in_gameplay() && ctrDashboardAvailable() &&
+                ctr_rectMap.active != DISPLAY_DIALOG && ctr_rectMap.active != DISPLAY_MOVIE;
+        if (KEY_PRESS(KEY_B) && bIsBack && !KEY_HELD(KEY_SELECT) && !KEY_HELD(KEY_START)) {
+            enqueueInputEvent(KEY_ESCAPE);
+        }
+        if (KEY_PRESS(KEY_L) || (KEY_PRESS(KEY_B) && !ctr_in_gameplay() && !bIsBack)) {
             *buttons |= MOUSE_STATE_RIGHT_BUTTON_DOWN;
         }
         if (KEY_PRESS(KEY_B) && ctr_in_gameplay()) {
@@ -571,7 +595,7 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
 
             if (scrollUp) {
                 if (offsetY_field > 0) {
-                    int deltaY = (offsetY_field >= 20) ? 20 : offsetY_field;
+                    int deltaY = (offsetY_field >= 8) ? 8 : offsetY_field;
                     offsetY_field -= deltaY;
                     if (ctr_rectMap.active != DISPLAY_GUI) {
                         *delta_y -= deltaY;
@@ -583,13 +607,13 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
                         }
                     }
                 } else {
-                    mapScroll(0, -1);
+                    ctr_map_scroll(0, -1);
                 }
             }
             if (scrollDown) {
                 if (offsetY_field < offsetY_field_scaled_max) {
-                    int deltaY = (offsetY_field_scaled_max - offsetY_field >= 20) ?
-                                 20 : offsetY_field_scaled_max - offsetY_field;
+                    int deltaY = (offsetY_field_scaled_max - offsetY_field >= 8) ?
+                                 8 : offsetY_field_scaled_max - offsetY_field;
                     offsetY_field += deltaY;
                     if (ctr_rectMap.active != DISPLAY_GUI) {
                         *delta_y += deltaY;
@@ -601,12 +625,12 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
                         }
                     }
                 } else {
-                    mapScroll(0, 1);
+                    ctr_map_scroll(0, 1);
                 }
             }
             if (scrollLeft) {
                 if (offsetX_field > 0) {
-                    int deltaX = (offsetX_field >= 20) ? 20 : offsetX_field;
+                    int deltaX = (offsetX_field >= 8) ? 8 : offsetX_field;
                     offsetX_field -= deltaX;
                     if (ctr_rectMap.active != DISPLAY_GUI) {
                         *delta_x -= deltaX;
@@ -618,13 +642,13 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
                         }
                     }
                 } else {
-                    mapScroll(-1, 0);
+                    ctr_map_scroll(-1, 0);
                 }
             }
             if (scrollRight) {
                 if (offsetX_field < offsetX_field_scaled_max) {
-                    int deltaX = (offsetX_field_scaled_max - offsetX_field >= 20) ?
-                                 20 : offsetX_field_scaled_max - offsetX_field;
+                    int deltaX = (offsetX_field_scaled_max - offsetX_field >= 8) ?
+                                 8 : offsetX_field_scaled_max - offsetX_field;
                     offsetX_field += deltaX;
                     if (ctr_rectMap.active != DISPLAY_GUI) {
                         *delta_x += deltaX;
@@ -636,7 +660,7 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
                         }
                     }
                 } else {
-                    mapScroll(1, 0);
+                    ctr_map_scroll(1, 0);
                 }
             }
             rectMaps[DISPLAY_FIELD][0]->src_x = offsetX_field;

@@ -43,6 +43,7 @@
 
 #ifdef __3DS__
 #include "platform/ctr/ctr_rectmap.h"
+#include "platform/ctr/ctr_dashboard.h"
 #include "platform/ctr/ctr_sys.h"
 #ifdef _DEBUG_PERF
 #include "platform/ctr/ctr_perf.h"
@@ -359,6 +360,14 @@ static void main_unload_new()
 // 0x480E48
 static void mainLoop()
 {
+#ifdef __3DS__
+    // The top-screen dashboard only shows while a game is actually running.
+    struct InGameScope {
+        InGameScope() { ctrDashboardSetInGame(true); }
+        ~InGameScope() { ctrDashboardSetInGame(false); }
+    } inGameScope;
+#endif
+
     bool cursorWasHidden = cursorIsHidden();
     if (cursorWasHidden) {
         mouseShowCursor();

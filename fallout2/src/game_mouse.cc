@@ -1027,16 +1027,32 @@ void gameMouseHighlightAll(bool enable)
 void gameStickMove(int dx, int dy)
 {
     static int lastSector = -1;
-    static int lastFromTile = -1;
-    static int lastToTile = -1;
+    static int lastTarget = -1;
+    static unsigned int lastFailTime = 0;
 
-    if (!gGameMouseInitialized || gDude == nullptr) {
+    if (!gGameMouseInitialized || gDude == NULL) {
         return;
     }
 
     if (dx == 0 && dy == 0) {
-        lastSector = -1; // the current short stretch finishes, then the player stops
-        lastToTile = -1;
+        // Stick released: stop at the next tile instead of finishing the stretch.
+        if (lastTarget != -1 && !isInCombat() && animationIsBusy(gDude) && lastTarget != gDude->tile) {
+            unsigned char rotations[800];
+            int steps = _make_path(gDude, gDude->tile, lastTarget, rotations, 0);
+            if (steps > 1) {
+                int stopTile = tileGetTileInDirection(gDude->tile, rotations[0], 1);
+                reg_anim_clear(gDude);
+                reg_anim_begin(ANIMATION_REQUEST_RESERVED);
+                if (settings.preferences.running) {
+                    animationRegisterRunToTile(gDude, stopTile, gDude->elevation, -1, 0);
+                } else {
+                    animationRegisterMoveToTile(gDude, stopTile, gDude->elevation, -1, 0);
+                }
+                reg_anim_end();
+            }
+        }
+        lastSector = -1;
+        lastTarget = -1;
         return;
     }
 
@@ -1044,28 +1060,35 @@ void gameStickMove(int dx, int dy)
         return;
     }
 
+    bool combat = isInCombat();
+    bool busy = animationIsBusy(gDude) != 0;
+
     float len = sqrtf((float)(dx * dx + dy * dy));
-    float sx = dx / len;
-    float sy = -dy / len; // screen y grows downwards
+    float angle = atan2f((float)dy / len, (float)dx / len); // stick: +y is up
 
     // 16 direction sectors: re-aim when the stick turns noticeably.
-    int sector = (int)floorf((atan2f(sy, sx) + (float)M_PI) / (2.0f * (float)M_PI) * 16.0f + 0.5f) & 15;
-    if (sector == lastSector && animationIsBusy(gDude)) {
-        return; // keep walking the current stretch
-    }
-    lastSector = sector;
+    int sector = (int)floorf((angle + (float)M_PI) / (2.0f * (float)M_PI) * 16.0f + 0.5f) & 15;
 
-    // Aim at a point on screen in the stick's direction, so any angle walks
-    // straight (hex neighbours alone can't go straight left/right/up/down).
-    // In combat aim one hex away so AP is spent precisely.
+    if (busy) {
+        if (combat) {
+            return; // one hex per step in combat: wait for the step to finish
+        }
+        if (sector == lastSector && lastTarget != -1 && tileDistanceBetween(gDude->tile, lastTarget) > 2) {
+            return; // keep walking the current stretch
+        }
+    }
+
+    // Don't hammer the pathfinder when the way is blocked.
+    if (sector == lastSector && lastTarget == -1 && getTicksSince(lastFailTime) < 150) {
+        return;
+    }
+
     int actionPoints = -1;
-    float reach = 96.0f;
-    if (isInCombat()) {
+    if (combat) {
         actionPoints = gDude->data.critter.combat.ap + _combat_free_move;
         if (actionPoints <= 0) {
             return;
         }
-        reach = 32.0f;
     }
 
     int x0, y0;
@@ -1073,22 +1096,68 @@ void gameStickMove(int dx, int dy)
     x0 += 16;
     y0 += 8;
 
+    // Aim at a point on screen in the stick's direction so any angle walks
+    // straight (hex neighbours alone can't go straight left/right/up/down).
+    // If that way is blocked, slide along the obstacle (up to 45 degrees off).
+    static const float exploreReach[] = { 160.0f, 128.0f, 96.0f, 64.0f, 40.0f };
+    static const float combatReach[] = { 32.0f, 44.0f };
+    static const int offsets[] = { 0, 1, -1, 2, -2 };
+    const float* reaches = combat ? combatReach : exploreReach;
+    int reachCount = combat ? 2 : 5;
+
     int tile = -1;
-    for (int attempt = 0; attempt < 4; attempt++, reach += 16.0f) {
-        int t = tileFromScreenXY((int)(x0 + sx * reach), (int)(y0 + sy * reach), gDude->elevation);
-        if (t >= 0 && t < HEX_GRID_SIZE && t != gDude->tile) {
-            tile = t;
-            break;
+    if (combat) {
+        // One hex per push: the free neighbour closest to the stick's angle.
+        float bestDiff = (float)M_PI / 2.0f;
+        for (int rotation = 0; rotation < 6; rotation++) {
+            int t = tileGetTileInDirection(gDude->tile, rotation, 1);
+            if (t < 0 || t >= HEX_GRID_SIZE) {
+                continue;
+            }
+            int nx, ny;
+            tileToScreenXY(t, &nx, &ny, gDude->elevation);
+            float na = atan2f(-(float)(ny + 8 - y0), (float)(nx + 16 - x0));
+            float diff = fabsf(na - angle);
+            if (diff > (float)M_PI) {
+                diff = 2.0f * (float)M_PI - diff;
+            }
+            if (diff < bestDiff && _make_path(gDude, gDude->tile, t, NULL, 1) == 1) {
+                bestDiff = diff;
+                tile = t;
+            }
         }
     }
+    for (int o = 0; o < 5 && tile == -1 && !combat; o++) {
+        float a = angle + offsets[o] * ((float)M_PI / 8.0f);
+        float sx = cosf(a);
+        float sy = -sinf(a);
+        for (int r = 0; r < reachCount; r++) {
+            int t = tileFromScreenXY((int)(x0 + sx * reaches[r]), (int)(y0 + sy * reaches[r]), gDude->elevation);
+            if (t < 0 || t >= HEX_GRID_SIZE || t == gDude->tile) {
+                continue;
+            }
+            int steps = _make_path(gDude, gDude->tile, t, NULL, 1); // 1: destination must be free
+            int direct = tileDistanceBetween(gDude->tile, t);
+            if (steps > 0 && steps <= direct * 2 + 2 && (!combat || steps == 1)) {
+                tile = t;
+                break;
+            }
+        }
+    }
+
+    lastSector = sector;
     if (tile == -1) {
+        lastTarget = -1;
+        lastFailTime = getTicks();
         return;
     }
-    if (tile == lastToTile && gDude->tile == lastFromTile) {
-        return; // that way is blocked; don't re-request it every frame
+    if (busy && tile == lastTarget) {
+        return;
     }
-    lastFromTile = gDude->tile;
-    lastToTile = tile;
+
+    if (busy) {
+        reg_anim_clear(gDude); // turn while walking
+    }
 
     reg_anim_begin(ANIMATION_REQUEST_RESERVED);
     if (settings.preferences.running) {
@@ -1096,7 +1165,12 @@ void gameStickMove(int dx, int dy)
     } else {
         animationRegisterMoveToTile(gDude, tile, gDude->elevation, actionPoints, 0);
     }
-    reg_anim_end();
+    if (reg_anim_end() == 0) {
+        lastTarget = tile;
+    } else {
+        lastTarget = -1;
+        lastFailTime = getTicks();
+    }
 }
 #endif
 
