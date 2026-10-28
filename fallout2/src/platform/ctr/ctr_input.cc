@@ -46,6 +46,7 @@ namespace fallout {
 #define FLAG_SELECT_Y 0x800
 #define FLAG_SELECT_A 0x1000
 #define FLAG_SELECT_B 0x2000
+#define FLAG_SELECT_R 0x4000
 
 #define KEY_PRESS(x) ((ctr_input.frame.kHeld & (x)) && (!(oldpad & (x))))
 #define KEY_HELD(x) (ctr_input.frame.kHeld & (x))
@@ -505,6 +506,23 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
         key_combi_flags |= FLAG_SELECT_Y;
     }
 
+#ifdef CTR_EMUTEST
+    // Emulator testing only: Select+ZL leaves the map for the world map.
+    if (KEY_HELD(KEY_SELECT) && KEY_PRESS(KEY_ZL) && ctr_in_gameplay()) {
+        MapTransition transition;
+        memset(&transition, 0, sizeof(transition));
+        transition.map = -2;
+        mapSetTransition(&transition);
+        key_combi_flags |= FLAG_SELECT_R;
+    }
+#endif
+
+    // Select+R = sharper 800-pixel top screen on/off
+    if (KEY_HELD(KEY_SELECT) && KEY_PRESS(KEY_R)) {
+        ctr_gfx_toggle_wide();
+        key_combi_flags |= FLAG_SELECT_R;
+    }
+
     // Select+B = reload the active weapon
     if (KEY_HELD(KEY_SELECT) && KEY_PRESS(KEY_B) && ctr_in_gameplay() && interfaceBarEnabled()) {
         interfaceQuickReload();
@@ -534,7 +552,7 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
     }
 
     // R (hold) = highlight every item and lootable body on the level
-    if (ctr_in_gameplay() && KEY_PRESS(KEY_R)) {
+    if (ctr_in_gameplay() && KEY_PRESS(KEY_R) && !KEY_HELD(KEY_SELECT)) {
         gameMouseHighlightAll(true);
     }
     if (KEY_RELEASED(KEY_R)) {
@@ -589,7 +607,7 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
         bool inGameplay = (ctr_rectMap.active == DISPLAY_FIELD) || (ctr_rectMap.active == DISPLAY_GUI);
 
         // ZL = swap which screen shows the map (choice is remembered)
-        if (KEY_PRESS(KEY_ZL) && inGameplay) {
+        if (KEY_PRESS(KEY_ZL) && inGameplay && !KEY_HELD(KEY_SELECT)) {
             toggleGameplayRectMap();
         }
 

@@ -1,8 +1,12 @@
 #include "game/inventry.h"
+#ifdef __3DS__
+#include "platform/ctr/ctr_dashboard.h"
+#endif
 
 #include <assert.h>
 #include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <algorithm>
@@ -3138,6 +3142,13 @@ int inven_from_button(int keyCode, Object** a2, Object*** a3, Object** a4)
         quantity = 1;
     }
 
+#ifdef __3DS__
+    // The top screen shows the details of the item touched or hovered.
+    if (item != NULL) {
+        ctrCardSetItem(item, quantity);
+    }
+#endif
+
     return quantity;
 }
 
@@ -4163,6 +4174,9 @@ int inven_steal_container(Object* a1, Object* a2)
 // 0x4676C0
 int move_inventory(Object* a1, int a2, Object* a3, bool a4)
 {
+#ifdef __3DS__
+    ctrCardSetItem(a1, 1); // details on the top screen
+#endif
     bool v38 = true;
 
     Rect rect;
@@ -4223,6 +4237,11 @@ int move_inventory(Object* a1, int a2, Object* a3, bool a4)
         gsound_play_sfx_file("ipickup1");
     }
 
+#ifdef __3DS__
+    int ctrStartX, ctrStartY;
+    mouse_get_position(&ctrStartX, &ctrStartY);
+    unsigned int ctrStartTime = get_time();
+#endif
     do {
         sharedFpsLimiter.mark();
 
@@ -4231,6 +4250,17 @@ int move_inventory(Object* a1, int a2, Object* a3, bool a4)
         renderPresent();
         sharedFpsLimiter.throttle();
     } while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
+#ifdef __3DS__
+    // A quick tap (no drag) moves the item to the other side.
+    bool ctrTapMove = false;
+    {
+        int ctrEndX, ctrEndY;
+        mouse_get_position(&ctrEndX, &ctrEndY);
+        ctrTapMove = abs(ctrEndX - ctrStartX) + abs(ctrEndY - ctrStartY) <= 6 && elapsed_time(ctrStartTime) < 400;
+    }
+#else
+    const bool ctrTapMove = false;
+#endif
 
     if (inventoryFrm != NULL) {
         art_ptr_unlock(inventoryFrmHandle);
@@ -4241,7 +4271,7 @@ int move_inventory(Object* a1, int a2, Object* a3, bool a4)
     MessageListItem messageListItem;
 
     if (a4) {
-        if (mouseHitTestInWindow(i_wid, INVENTORY_LOOT_RIGHT_SCROLLER_X, INVENTORY_LOOT_RIGHT_SCROLLER_Y, INVENTORY_LOOT_RIGHT_SCROLLER_MAX_X, INVENTORY_SLOT_HEIGHT * inven_cur_disp + INVENTORY_LOOT_RIGHT_SCROLLER_Y)) {
+        if (ctrTapMove || mouseHitTestInWindow(i_wid, INVENTORY_LOOT_RIGHT_SCROLLER_X, INVENTORY_LOOT_RIGHT_SCROLLER_Y, INVENTORY_LOOT_RIGHT_SCROLLER_MAX_X, INVENTORY_SLOT_HEIGHT * inven_cur_disp + INVENTORY_LOOT_RIGHT_SCROLLER_Y)) {
             int quantityToMove;
             if (quantity > 1) {
                 quantityToMove = do_move_timer(INVENTORY_WINDOW_TYPE_MOVE_ITEMS, a1, quantity);
@@ -4270,7 +4300,7 @@ int move_inventory(Object* a1, int a2, Object* a3, bool a4)
             }
         }
     } else {
-        if (mouseHitTestInWindow(i_wid, INVENTORY_LOOT_LEFT_SCROLLER_X, INVENTORY_LOOT_LEFT_SCROLLER_Y, INVENTORY_LOOT_LEFT_SCROLLER_MAX_X, INVENTORY_SLOT_HEIGHT * inven_cur_disp + INVENTORY_LOOT_LEFT_SCROLLER_Y)) {
+        if (ctrTapMove || mouseHitTestInWindow(i_wid, INVENTORY_LOOT_LEFT_SCROLLER_X, INVENTORY_LOOT_LEFT_SCROLLER_Y, INVENTORY_LOOT_LEFT_SCROLLER_MAX_X, INVENTORY_SLOT_HEIGHT * inven_cur_disp + INVENTORY_LOOT_LEFT_SCROLLER_Y)) {
             int quantityToMove;
             if (quantity > 1) {
                 quantityToMove = do_move_timer(INVENTORY_WINDOW_TYPE_MOVE_ITEMS, a1, quantity);
@@ -4358,6 +4388,9 @@ static int barter_attempt_transaction(Object* a1, Object* a2, Object* a3, Object
 // 0x467BD4
 static void barter_move_inventory(Object* a1, int quantity, int a3, int a4, Object* a5, Object* a6, bool a7)
 {
+#ifdef __3DS__
+    ctrCardSetItem(a1, quantity); // details on the top screen
+#endif
     Rect rect;
     if (a7) {
         rect.ulx = 23;
@@ -4396,6 +4429,11 @@ static void barter_move_inventory(Object* a1, int quantity, int a3, int a4, Obje
         gsound_play_sfx_file("ipickup1");
     }
 
+#ifdef __3DS__
+    int ctrStartX, ctrStartY;
+    mouse_get_position(&ctrStartX, &ctrStartY);
+    unsigned int ctrStartTime = get_time();
+#endif
     do {
         sharedFpsLimiter.mark();
 
@@ -4404,6 +4442,17 @@ static void barter_move_inventory(Object* a1, int quantity, int a3, int a4, Obje
         renderPresent();
         sharedFpsLimiter.throttle();
     } while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
+#ifdef __3DS__
+    // A quick tap (no drag) moves the item to the other side.
+    bool ctrTapMove = false;
+    {
+        int ctrEndX, ctrEndY;
+        mouse_get_position(&ctrEndX, &ctrEndY);
+        ctrTapMove = abs(ctrEndX - ctrStartX) + abs(ctrEndY - ctrStartY) <= 6 && elapsed_time(ctrStartTime) < 400;
+    }
+#else
+    const bool ctrTapMove = false;
+#endif
 
     if (inventoryFrm != NULL) {
         art_ptr_unlock(inventoryFrmHandle);
@@ -4413,7 +4462,7 @@ static void barter_move_inventory(Object* a1, int quantity, int a3, int a4, Obje
     MessageListItem messageListItem;
 
     if (a7) {
-        if (mouseHitTestInWindow(i_wid, INVENTORY_TRADE_INNER_LEFT_SCROLLER_TRACKING_X, INVENTORY_TRADE_INNER_LEFT_SCROLLER_TRACKING_Y, INVENTORY_TRADE_INNER_LEFT_SCROLLER_TRACKING_MAX_X, INVENTORY_SLOT_HEIGHT * inven_cur_disp + INVENTORY_TRADE_INNER_LEFT_SCROLLER_TRACKING_Y)) {
+        if (ctrTapMove || mouseHitTestInWindow(i_wid, INVENTORY_TRADE_INNER_LEFT_SCROLLER_TRACKING_X, INVENTORY_TRADE_INNER_LEFT_SCROLLER_TRACKING_Y, INVENTORY_TRADE_INNER_LEFT_SCROLLER_TRACKING_MAX_X, INVENTORY_SLOT_HEIGHT * inven_cur_disp + INVENTORY_TRADE_INNER_LEFT_SCROLLER_TRACKING_Y)) {
             int quantityToMove = quantity > 1 ? do_move_timer(INVENTORY_WINDOW_TYPE_MOVE_ITEMS, a1, quantity) : 1;
             if (quantityToMove != -1) {
                 if (item_move_force(inven_dude, a6, a1, quantityToMove) == -1) {
@@ -4426,7 +4475,7 @@ static void barter_move_inventory(Object* a1, int quantity, int a3, int a4, Obje
             }
         }
     } else {
-        if (mouseHitTestInWindow(i_wid, INVENTORY_TRADE_INNER_RIGHT_SCROLLER_TRACKING_X, INVENTORY_TRADE_INNER_RIGHT_SCROLLER_TRACKING_Y, INVENTORY_TRADE_INNER_RIGHT_SCROLLER_TRACKING_MAX_X, INVENTORY_SLOT_HEIGHT * inven_cur_disp + INVENTORY_TRADE_INNER_RIGHT_SCROLLER_TRACKING_Y)) {
+        if (ctrTapMove || mouseHitTestInWindow(i_wid, INVENTORY_TRADE_INNER_RIGHT_SCROLLER_TRACKING_X, INVENTORY_TRADE_INNER_RIGHT_SCROLLER_TRACKING_Y, INVENTORY_TRADE_INNER_RIGHT_SCROLLER_TRACKING_MAX_X, INVENTORY_SLOT_HEIGHT * inven_cur_disp + INVENTORY_TRADE_INNER_RIGHT_SCROLLER_TRACKING_Y)) {
             int quantityToMove = quantity > 1 ? do_move_timer(INVENTORY_WINDOW_TYPE_MOVE_ITEMS, a1, quantity) : 1;
             if (quantityToMove != -1) {
                 if (item_move_force(a5, a6, a1, quantityToMove) == -1) {
@@ -4446,6 +4495,9 @@ static void barter_move_inventory(Object* a1, int quantity, int a3, int a4, Obje
 // 0x467E84
 static void barter_move_from_table_inventory(Object* a1, int quantity, int a3, Object* a4, Object* a5, bool a6)
 {
+#ifdef __3DS__
+    ctrCardSetItem(a1, quantity); // details on the top screen
+#endif
     Rect rect;
     if (a6) {
         rect.ulx = INVENTORY_TRADE_INNER_LEFT_SCROLLER_X_PAD;
@@ -4489,6 +4541,11 @@ static void barter_move_from_table_inventory(Object* a1, int quantity, int a3, O
         gsound_play_sfx_file("ipickup1");
     }
 
+#ifdef __3DS__
+    int ctrStartX, ctrStartY;
+    mouse_get_position(&ctrStartX, &ctrStartY);
+    unsigned int ctrStartTime = get_time();
+#endif
     do {
         sharedFpsLimiter.mark();
 
@@ -4497,6 +4554,17 @@ static void barter_move_from_table_inventory(Object* a1, int quantity, int a3, O
         renderPresent();
         sharedFpsLimiter.throttle();
     } while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
+#ifdef __3DS__
+    // A quick tap (no drag) moves the item to the other side.
+    bool ctrTapMove = false;
+    {
+        int ctrEndX, ctrEndY;
+        mouse_get_position(&ctrEndX, &ctrEndY);
+        ctrTapMove = abs(ctrEndX - ctrStartX) + abs(ctrEndY - ctrStartY) <= 6 && elapsed_time(ctrStartTime) < 400;
+    }
+#else
+    const bool ctrTapMove = false;
+#endif
 
     if (inventoryFrm != NULL) {
         art_ptr_unlock(inventoryFrmHandle);
@@ -4506,7 +4574,7 @@ static void barter_move_from_table_inventory(Object* a1, int quantity, int a3, O
     MessageListItem messageListItem;
 
     if (a6) {
-        if (mouseHitTestInWindow(i_wid, INVENTORY_TRADE_LEFT_SCROLLER_TRACKING_X, INVENTORY_TRADE_LEFT_SCROLLER_TRACKING_Y, INVENTORY_TRADE_LEFT_SCROLLER_TRACKING_MAX_X, INVENTORY_SLOT_HEIGHT * inven_cur_disp + INVENTORY_TRADE_LEFT_SCROLLER_TRACKING_Y)) {
+        if (ctrTapMove || mouseHitTestInWindow(i_wid, INVENTORY_TRADE_LEFT_SCROLLER_TRACKING_X, INVENTORY_TRADE_LEFT_SCROLLER_TRACKING_Y, INVENTORY_TRADE_LEFT_SCROLLER_TRACKING_MAX_X, INVENTORY_SLOT_HEIGHT * inven_cur_disp + INVENTORY_TRADE_LEFT_SCROLLER_TRACKING_Y)) {
             int quantityToMove = quantity > 1 ? do_move_timer(INVENTORY_WINDOW_TYPE_MOVE_ITEMS, a1, quantity) : 1;
             if (quantityToMove != -1) {
                 if (item_move_force(a5, inven_dude, a1, quantityToMove) == -1) {
@@ -4519,7 +4587,7 @@ static void barter_move_from_table_inventory(Object* a1, int quantity, int a3, O
             }
         }
     } else {
-        if (mouseHitTestInWindow(i_wid, INVENTORY_TRADE_RIGHT_SCROLLER_TRACKING_X, INVENTORY_TRADE_RIGHT_SCROLLER_TRACKING_Y, INVENTORY_TRADE_RIGHT_SCROLLER_TRACKING_MAX_X, INVENTORY_SLOT_HEIGHT * inven_cur_disp + INVENTORY_TRADE_RIGHT_SCROLLER_TRACKING_Y)) {
+        if (ctrTapMove || mouseHitTestInWindow(i_wid, INVENTORY_TRADE_RIGHT_SCROLLER_TRACKING_X, INVENTORY_TRADE_RIGHT_SCROLLER_TRACKING_Y, INVENTORY_TRADE_RIGHT_SCROLLER_TRACKING_MAX_X, INVENTORY_SLOT_HEIGHT * inven_cur_disp + INVENTORY_TRADE_RIGHT_SCROLLER_TRACKING_Y)) {
             int quantityToMove = quantity > 1 ? do_move_timer(INVENTORY_WINDOW_TYPE_MOVE_ITEMS, a1, quantity) : 1;
             if (quantityToMove != -1) {
                 if (item_move_force(a5, a4, a1, quantityToMove) == -1) {
@@ -4641,6 +4709,13 @@ static void display_table_inventories(int win, Object* a2, Object* a3, int a4)
 // 0x4684E4
 void barter_inventory(int win, Object* a2, Object* a3, Object* a4, int a5)
 {
+#ifdef __3DS__
+    // The top screen shows the barter summary and touched items while open.
+    struct BarterScope {
+        BarterScope() { ctrCardClear(); }
+        ~BarterScope() { ctrBarterEnd(); }
+    } barterScope;
+#endif
     barter_mod = a5;
 
     if (inven_init() == -1) {
@@ -4729,6 +4804,19 @@ void barter_inventory(int win, Object* a2, Object* a3, Object* a4, int a5)
         }
 
         barter_mod = a5 + modifier;
+
+#ifdef __3DS__
+        {
+            CtrBarter summary;
+            memset(&summary, 0, sizeof(summary));
+            snprintf(summary.merchant, sizeof(summary.merchant), "%s", object_name(a2));
+            summary.offer = item_total_cost(a3);
+            summary.ask = barter_compute_value(obj_dude, a2);
+            summary.yourCaps = item_caps_total(obj_dude);
+            summary.theirCaps = item_caps_total(a2);
+            ctrBarterSet(&summary);
+        }
+#endif
 
         if (keyCode == KEY_LOWERCASE_T || modifier <= -30) {
             item_move_all(a4, a2);

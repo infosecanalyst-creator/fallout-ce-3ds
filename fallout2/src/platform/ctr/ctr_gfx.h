@@ -32,6 +32,7 @@ void ctr_gfx_set_dirty_rect(int y0, int y1);
 void ctr_gfx_invalidate_gpu_state(void);
 
 void ctr_gfx_reinit(void);
+void ctr_gfx_toggle_wide(void);
 void ctr_gfx_init(void);
 void ctr_gfx_exit(void);
 

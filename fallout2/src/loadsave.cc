@@ -1,4 +1,7 @@
 #include "loadsave.h"
+#ifdef __3DS__
+#include "platform/ctr/ctr_dashboard.h"
+#endif
 
 #include <assert.h>
 #include <stdio.h>
@@ -197,6 +200,10 @@ static const int gLoadSaveFrmIds[LOAD_SAVE_FRM_COUNT] = {
 // 0x5193B8
 static int _slot_cursor = 0;
 
+#ifdef __3DS__
+static bool ctrLsSaving = false; // which screen the top-screen slot card describes
+#endif
+
 // 0x5193BC
 static bool _quick_done = false;
 
@@ -367,6 +374,9 @@ void _ResetLoadSave()
 // 0x47B88C
 int lsgSaveGame(int mode)
 {
+#ifdef __3DS__
+    ctrLsSaving = true;
+#endif
     ScopedGameMode gm(GameMode::kSaveGame);
 
     MessageListItem messageListItem;
@@ -895,6 +905,9 @@ static int _QuickSnapShot()
 // 0x47C640
 int lsgLoadGame(int mode)
 {
+#ifdef __3DS__
+    ctrLsSaving = false;
+#endif
     ScopedGameMode gm(GameMode::kLoadGame);
 
     MessageListItem messageListItem;
@@ -3039,5 +3052,39 @@ static int _EraseSave()
 
     return 0;
 }
+
+
+#ifdef __3DS__
+// Top-screen slot card for the save/load screen.
+bool ctrLoadSaveGetSlot(CtrSlotInfo* info)
+{
+    memset(info, 0, sizeof(*info));
+    if (_slot_cursor < 0 || _slot_cursor >= 10) {
+        return false;
+    }
+    info->valid = true;
+    info->saving = ctrLsSaving;
+    info->slot = _slot_cursor + 1;
+    if (_LSstatus[_slot_cursor] != SLOT_STATE_OCCUPIED) {
+        info->empty = true;
+        return true;
+    }
+    LoadSaveSlotData* ptr = &(_LSData[_slot_cursor]);
+    snprintf(info->name, sizeof(info->name), "%s", ptr->characterName);
+    snprintf(info->desc, sizeof(info->desc), "%s", ptr->description);
+    static const char* months[] = { "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
+    int minutes = ptr->gameTime / 600;
+    snprintf(info->date, sizeof(info->date), "%02d %s %d  %02d:%02d",
+        ptr->gameDay, months[(ptr->gameMonth + 11) % 12], ptr->gameYear, minutes / 60 % 24, minutes % 60);
+    const char* c = mapGetCityName(ptr->map);
+    const char* p = mapGetName(ptr->map, ptr->elevation);
+    snprintf(info->place, sizeof(info->place), "%s%s%s", c != NULL ? c : "",
+        (c != NULL && p != NULL && p[0] != '\0') ? ": " : "", p != NULL ? p : "");
+    for (char* q = info->name; *q; q++) if ((unsigned char)*q >= 0x80) *q = '?';
+    for (char* q = info->desc; *q; q++) if ((unsigned char)*q >= 0x80) *q = '?';
+    for (char* q = info->place; *q; q++) if ((unsigned char)*q >= 0x80) *q = '?';
+    return true;
+}
+#endif
 
 } // namespace fallout

@@ -75,6 +75,20 @@ Found by playing Fallout 1 in the emulator after a hardware report that the cont
 | C-stick scrolled in jumps | 8 px steps at most 10 per second |
 | Fallout 1 couldn't save ("Unable to save game") | Case-insensitive directory listing |
 
+## Fifth pass: QA/UX review follow-up
+
+| Area | Before | After |
+|---|---|---|
+| Inventory and loot | Item stats only in the original panel at half size | Item card on top: weapon damage/range/AP/ammo/ST, armor DT/DR per damage type, ammo modifiers, weight, value, description |
+| Trading | Conversation picture on top; prices at 0.7 scale | Offer value vs. what they want, accept/short-by verdict, their caps, item card |
+| Moving items | Drag only | Tap moves an item to the other side when looting or trading |
+| Save/load | Stretched crop of the original preview, clipped description | 1:1 preview with the slot's character, date, place and description in the system font |
+| World map | HP/AP dashboard | Location, terrain, destination, known places, car fuel (F2) |
+| Pip-Boy | Half-size text | Magnified reading pane on top following the stylus |
+| Fallout 1 quick save | Slot and name dialog | Silent rotation through slots 1-3 |
+| Top screen sharpness | 400 px only | Select+R: 800 px mode (opt-in, untested in emulators, which can't show it) |
+| Loading | Every file open scanned directories for case | Direct open first |
+
 ## Not done
 
 - D-pad navigation of dialogue replies: the replies are already large stylus targets on the touchscreen, so a hardware path adds little.

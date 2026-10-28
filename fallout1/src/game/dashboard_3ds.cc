@@ -2,6 +2,7 @@
 // the map is on the touchscreen. Rendered by platform/ctr/ctr_gfx.cc.
 #ifdef __3DS__
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -16,6 +17,7 @@
 #include "game/inventry.h"
 #include "game/map.h"
 #include "game/object.h"
+#include "game/proto.h"
 #include "game/proto_types.h"
 #include "game/scripts.h"
 #include "game/stat.h"
@@ -318,6 +320,152 @@ void ctrDashboardGather(CtrDashboard* d)
     for (int i = 0; i < d->msgCount; i++) {
         memcpy(d->msgs[i], joined[first + i], CTR_DASH_MSG_TEXT);
     }
+}
+
+
+// ---------------------------------------------------------------------------
+// Item card / barter summary
+// ---------------------------------------------------------------------------
+static CtrItemCard gCard;
+static CtrBarter gBarter;
+
+static void cardCopyText(char* dst, size_t size, const char* src)
+{
+    size_t n = 0;
+    if (src != NULL) {
+        for (; *src != '\0' && n + 1 < size; src++) {
+            unsigned char c = (unsigned char)*src;
+            dst[n++] = (c >= 0x20 && c < 0x80) ? (char)c : ' ';
+        }
+    }
+    dst[n] = '\0';
+}
+
+static void cardRow(const char* key, const char* fmt, ...)
+{
+    if (gCard.rowCount >= CTR_CARD_ROWS) {
+        return;
+    }
+    snprintf(gCard.key[gCard.rowCount], sizeof(gCard.key[0]), "%s", key);
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(gCard.val[gCard.rowCount], sizeof(gCard.val[0]), fmt, args);
+    va_end(args);
+    gCard.rowCount++;
+}
+
+static const char* damageTypeName(int type)
+{
+    static const char* names[] = { "normal", "laser", "fire", "plasma", "electrical", "EMP", "explosive" };
+    return type >= 0 && type < 7 ? names[type] : "";
+}
+
+void ctrCardSetItem(void* ptr, int quantity)
+{
+    Object* item = (Object*)ptr;
+    if (item == NULL) {
+        return;
+    }
+    unsigned int version = gCard.version + 1;
+    memset(&gCard, 0, sizeof(gCard));
+    gCard.version = version;
+    gCard.valid = true;
+    gCard.quantity = quantity;
+    cardCopyText(gCard.name, sizeof(gCard.name), object_name(item));
+
+    Proto* proto = NULL;
+    if (proto_ptr(item->pid, &proto) == -1) {
+        proto = NULL;
+    }
+
+    switch (item_get_type(item)) {
+    case ITEM_TYPE_WEAPON:
+        snprintf(gCard.type, sizeof(gCard.type), "Weapon");
+        if (proto != NULL) {
+            ProtoItemWeaponData* w = &(proto->item.data.weapon);
+            cardRow("Damage", "%d-%d %s", w->minDamage, w->maxDamage, damageTypeName(w->damageType));
+            if (w->actionPointCost2 > 0 && w->maxRange2 > 0) {
+                cardRow("Range", "%d / %d", w->maxRange1, w->maxRange2);
+                cardRow("AP cost", "%d / %d", w->actionPointCost1, w->actionPointCost2);
+            } else {
+                cardRow("Range", "%d", w->maxRange1);
+                cardRow("AP cost", "%d", w->actionPointCost1);
+            }
+            if (w->ammoCapacity > 0) {
+                const char* ammo = w->ammoTypePid != -1 ? proto_name(w->ammoTypePid) : "";
+                char ammoName[40];
+                cardCopyText(ammoName, sizeof(ammoName), ammo);
+                cardRow("Ammo", "%d / %d  %s", item_w_curr_ammo(item), item_w_max_ammo(item), ammoName);
+            }
+            if (w->minStrength > 0) {
+                cardRow("Min ST", "%d", w->minStrength);
+            }
+        }
+        break;
+    case ITEM_TYPE_ARMOR:
+        snprintf(gCard.type, sizeof(gCard.type), "Armor");
+        cardRow("AC", "%d", item_ar_ac(item));
+        cardRow("Normal", "%d / %d%%", item_ar_dt(item, DAMAGE_TYPE_NORMAL), item_ar_dr(item, DAMAGE_TYPE_NORMAL));
+        cardRow("Laser", "%d / %d%%", item_ar_dt(item, DAMAGE_TYPE_LASER), item_ar_dr(item, DAMAGE_TYPE_LASER));
+        cardRow("Fire", "%d / %d%%", item_ar_dt(item, DAMAGE_TYPE_FIRE), item_ar_dr(item, DAMAGE_TYPE_FIRE));
+        cardRow("Plasma", "%d / %d%%", item_ar_dt(item, DAMAGE_TYPE_PLASMA), item_ar_dr(item, DAMAGE_TYPE_PLASMA));
+        cardRow("Explode", "%d / %d%%", item_ar_dt(item, DAMAGE_TYPE_EXPLOSION), item_ar_dr(item, DAMAGE_TYPE_EXPLOSION));
+        break;
+    case ITEM_TYPE_AMMO:
+        snprintf(gCard.type, sizeof(gCard.type), "Ammo");
+        if (proto != NULL) {
+            ProtoItemAmmoData* a = &(proto->item.data.ammo);
+            cardRow("AC mod", "%+d", a->armorClassModifier);
+            cardRow("DR mod", "%+d%%", a->damageResistanceModifier);
+            cardRow("Damage", "x%d / %d", a->damageMultiplier, a->damageDivisor > 0 ? a->damageDivisor : 1);
+            cardRow("Rounds", "%d per box", a->quantity);
+        }
+        break;
+    case ITEM_TYPE_DRUG:
+        snprintf(gCard.type, sizeof(gCard.type), "Drug");
+        break;
+    case ITEM_TYPE_CONTAINER:
+        snprintf(gCard.type, sizeof(gCard.type), "Container");
+        break;
+    case ITEM_TYPE_KEY:
+        snprintf(gCard.type, sizeof(gCard.type), "Key");
+        break;
+    default:
+        snprintf(gCard.type, sizeof(gCard.type), "Item");
+        break;
+    }
+
+    cardRow("Weight", "%d lbs", item_weight(item));
+    cardRow("Value", "$%d", item_cost(item));
+    cardCopyText(gCard.desc, sizeof(gCard.desc), object_description(item));
+}
+
+void ctrCardClear()
+{
+    unsigned int version = gCard.version + 1;
+    memset(&gCard, 0, sizeof(gCard));
+    gCard.version = version;
+}
+
+const CtrItemCard* ctrCardGet()
+{
+    return &gCard;
+}
+
+void ctrBarterSet(const CtrBarter* barter)
+{
+    gBarter = *barter;
+    gBarter.active = true;
+}
+
+void ctrBarterEnd()
+{
+    gBarter.active = false;
+}
+
+const CtrBarter* ctrBarterGet()
+{
+    return &gBarter;
 }
 
 } // namespace fallout

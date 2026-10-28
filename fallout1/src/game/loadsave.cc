@@ -1,6 +1,11 @@
 #include "game/loadsave.h"
+#ifdef __3DS__
+#include "platform/ctr/ctr_dashboard.h"
+#endif
 
 #include <assert.h>
+#include <sys/stat.h>
+#include <time.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -174,6 +179,10 @@ static const int lsgrphs[LOAD_SAVE_FRM_COUNT] = {
 // 0x50595C
 static int slot_cursor = 0;
 
+#ifdef __3DS__
+static bool ctrLsSaving = false; // which screen the top-screen slot card describes
+#endif
+
 // 0x505960
 static bool quick_done = false;
 
@@ -340,8 +349,46 @@ void ResetLoadSave()
 }
 
 // 0x46D9C4
+#ifdef __3DS__
+// Quick saves rotate through slots 1-3 without asking (like Fallout 2 with
+// sfall's AutoQuickSave=3): the oldest or an empty one is overwritten.
+static long long ctrSlotTime(int slot)
+{
+    // The header records the real date and time of the save.
+    snprintf(gmpath, sizeof(gmpath), "%s\\%s%.2d\\%s", "SAVEGAME", "SLOT", slot + 1, "SAVE.DAT");
+    flptr = db_fopen(gmpath, "rb");
+    if (flptr == NULL) {
+        return 0;
+    }
+    int rc = LoadHeader(slot);
+    db_fclose(flptr);
+    if (rc == -1) {
+        return 0;
+    }
+    LoadSaveSlotData* ptr = &(LSData[slot]);
+    return (((long long)ptr->fileYear * 13 + ptr->fileMonth) * 32 + ptr->fileDay) * 100000000LL + ptr->fileTime;
+}
+
+static int ctrQuickSlot(bool newest)
+{
+    int best = 0;
+    long long bestTime = ctrSlotTime(0);
+    for (int slot = 1; slot < 3; slot++) {
+        long long t = ctrSlotTime(slot);
+        if (newest ? t > bestTime : t < bestTime) {
+            best = slot;
+            bestTime = t;
+        }
+    }
+    return best;
+}
+#endif
+
 int SaveGame(int mode)
 {
+#ifdef __3DS__
+    ctrLsSaving = true;
+#endif
     MessageListItem messageListItem;
 
     ls_error_code = 0;
@@ -351,6 +398,12 @@ int SaveGame(int mode)
         patches = emgpath;
     }
 
+#ifdef __3DS__
+    if (mode == LOAD_SAVE_MODE_QUICK) {
+        slot_cursor = ctrQuickSlot(false);
+        quick_done = true;
+    }
+#endif
     if (mode == LOAD_SAVE_MODE_QUICK && quick_done) {
         snprintf(gmpath, sizeof(gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
         strcat(gmpath, "SAVE.DAT");
@@ -360,6 +413,14 @@ int SaveGame(int mode)
             LoadHeader(slot_cursor);
             db_fclose(flptr);
         }
+#ifdef __3DS__
+        {
+            int map = map_get_index_number();
+            const char* city = map_get_short_name(map);
+            snprintf(LSData[slot_cursor].description, LOAD_SAVE_DESCRIPTION_LENGTH, "Quick: %s",
+                city != NULL ? city : "");
+        }
+#endif
 
         thumbnail_image[1] = NULL;
         int v6 = QuickSnapShot();
@@ -861,6 +922,9 @@ static int QuickSnapShot()
 // 0x46E754
 int LoadGame(int mode)
 {
+#ifdef __3DS__
+    ctrLsSaving = false;
+#endif
     MessageListItem messageListItem;
 
     const char* body[] = {
@@ -875,6 +939,12 @@ int LoadGame(int mode)
         patches = emgpath;
     }
 
+#ifdef __3DS__
+    if (mode == LOAD_SAVE_MODE_QUICK) {
+        slot_cursor = ctrQuickSlot(true);
+        quick_done = ctrSlotTime(slot_cursor) != 0;
+    }
+#endif
     if (mode == LOAD_SAVE_MODE_QUICK && quick_done) {
         int quickSaveWindowX = (screenGetWidth() - LS_WINDOW_WIDTH) / 2;
         int quickSaveWindowY = (screenGetHeight() - LS_WINDOW_HEIGHT) / 2;
@@ -1700,7 +1770,13 @@ static void GetTimeDate(short* day, short* month, short* year, int* hour)
     *day = local->tm_mday;
     *month = local->tm_mon + 1;
     *year = local->tm_year + 1900;
+#ifdef __3DS__
+    // Seconds into the day, so quick saves can be ordered (the original stored
+    // hour + minute).
+    *hour = local->tm_hour * 3600 + local->tm_min * 60 + local->tm_sec;
+#else
     *hour = local->tm_hour + local->tm_min;
+#endif
 }
 
 // 0x46FF80
@@ -2876,5 +2952,39 @@ static int EraseSave()
 
     return 0;
 }
+
+
+#ifdef __3DS__
+// Top-screen slot card for the save/load screen.
+bool ctrLoadSaveGetSlot(CtrSlotInfo* info)
+{
+    memset(info, 0, sizeof(*info));
+    if (slot_cursor < 0 || slot_cursor >= 10) {
+        return false;
+    }
+    info->valid = true;
+    info->saving = ctrLsSaving;
+    info->slot = slot_cursor + 1;
+    if (LSstatus[slot_cursor] != SLOT_STATE_OCCUPIED) {
+        info->empty = true;
+        return true;
+    }
+    LoadSaveSlotData* ptr = &(LSData[slot_cursor]);
+    snprintf(info->name, sizeof(info->name), "%s", ptr->characterName);
+    snprintf(info->desc, sizeof(info->desc), "%s", ptr->description);
+    static const char* months[] = { "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" };
+    int minutes = ptr->gameTime / 600;
+    snprintf(info->date, sizeof(info->date), "%02d %s %d  %02d:%02d",
+        ptr->gameDay, months[(ptr->gameMonth + 11) % 12], ptr->gameYear, minutes / 60 % 24, minutes % 60);
+    const char* c = map_get_short_name(ptr->map);
+    const char* p = map_get_elev_idx(ptr->map, ptr->elevation);
+    snprintf(info->place, sizeof(info->place), "%s%s%s", c != NULL ? c : "",
+        (c != NULL && p != NULL && p[0] != '\0') ? ": " : "", p != NULL ? p : "");
+    for (char* q = info->name; *q; q++) if ((unsigned char)*q >= 0x80) *q = '?';
+    for (char* q = info->desc; *q; q++) if ((unsigned char)*q >= 0x80) *q = '?';
+    for (char* q = info->place; *q; q++) if ((unsigned char)*q >= 0x80) *q = '?';
+    return true;
+}
+#endif
 
 } // namespace fallout

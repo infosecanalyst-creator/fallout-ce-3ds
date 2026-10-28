@@ -79,7 +79,7 @@ CFLAGS	:=	-g -Wall -mword-relocations \
 			-fomit-frame-pointer -ffunction-sections \
 			$(ARCH)
 
-CFLAGS	+=	$(INCLUDE) -D__3DS__ -DSDL_MAIN_HANDLED -Dunix
+CFLAGS	+=	$(INCLUDE) -D__3DS__ -DSDL_MAIN_HANDLED -Dunix $(EXTRA_DEFS)
 
 CFLAGS	+=	-Ofast -funroll-loops -fno-math-errno -ffast-math -flto=auto
 #CFLAGS	+=	-D_DEBUG -D_DEBUG_OVERLAY -D_DEBUG_LINK

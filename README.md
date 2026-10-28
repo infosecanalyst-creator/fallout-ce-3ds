@@ -13,6 +13,9 @@ Both are forks of [alexbatalov/fallout1-ce](https://github.com/alexbatalov/fallo
 | Area | Change |
 |---|---|
 | Layout | The **bottom touchscreen is the game** (stylus = mouse); the **top screen is an information dashboard**: HP bar, AP pips, AC, weapon / attack mode / AP cost / ammo, whose turn it is in combat, the enemy you last tapped or the one attacking you (health and hit chance), the other hand, level/XP, caps and carry weight (or poison/rads), date and time, a full-width message log and a one-line button hint on screens that need one. Inventory, loot and Skilldex also keep the dashboard on top instead of a duplicate picture. ZL swaps map and HUD. |
+| Top screen per screen | Inventory and looting: a card with the touched item's stats and description. Trading: offer value, what they want, whether they'll accept. Save/load: the slot's picture, character, date, place and description. World map: location, terrain, destination, known places, car fuel. Pip-Boy: a magnified reading pane. Main menu: a controls card. |
+| Tap to move items | Looting and trading: tap an item to move it to the other side (drag still works; stacks ask how many). |
+| Sharper top screen | Select+R switches the top screen to 800 pixels wide (remembered; not on the original 2DS). |
 | Movement | The **Circle Pad walks the player** in any direction, like Dungeon Master / SimGolf: continuous when exploring (turns instantly, slides along walls, stops on release); in combat each push steps one hex to the neighbour nearest the stick's angle. |
 | Smart tap | A tap acts on whatever it touches: pick up, talk, loot, open, use, or attack a hostile in combat (running into reach first if needed). Open ground = move. Long-press = action menu. No cursor-mode switching needed. |
 | Highlight | Hold R to outline every item and lootable body on the level (touch has no hover); in combat it also lists your hit chance against each visible enemy. |
@@ -22,6 +25,8 @@ Both are forks of [alexbatalov/fallout1-ce](https://github.com/alexbatalov/fallo
 | Camera | Follows the player and recenters near the edge of the view; C-stick scrolls (New 3DS); Select recenters. |
 | HUD shortcuts | Every HUD button on the untouchable top screen has a hardware shortcut (see controls). |
 | Defaults | Always run, fast combat, Fallout 2 quicksave without slot/name prompts (`AutoQuickSave=3`), karma change messages. |
+| Fallout 1 quick save | Rotates silently through slots 1-3 (like Fallout 2's AutoQuickSave=3); quick load loads the newest. |
+| Faster file opens | Files are opened directly first; the case-insensitive directory scan (slow on SD) only runs if that fails. |
 | Fallout 1 saving | Saving failed when the SD folder's case differed from the config (`DATA` vs `master_patches=data`): the slot file list came back empty. Directory listing now falls back to upper case. |
 | Movie freeze fix | `SDL_OpenAudioDevice` returns 0 on failure, not -1; without `dspfirm.cdc` every movie used to hang forever in `_MVE_sndSync`. Movies now play silently. |
 | SD streaming | Fallout 2 reads compressed DAT entries in 32 KB chunks (was 1 KB) with a 32 KB stdio buffer; Fallout 1's DAT handle gets a 16 KB buffer. |
@@ -57,6 +62,7 @@ Each game has a built-in manual: press **Select** on the main menu or any menu, 
 | Select | Center map on the player (in menus: open the manual) |
 | Select+X / Select+Y | Automap / Pip-Boy clock (rest) |
 | Select+L | Cycle display mode (whole game screen) |
+| Select+R | Sharper 800-pixel top screen on/off |
 | Select+Up/Down, 3D slider | Zoom the map |
 | Start | Options menu / back |
 | Start+X / Start+Y | Quicksave / quickload |

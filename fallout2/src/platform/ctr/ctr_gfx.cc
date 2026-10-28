@@ -13,6 +13,7 @@
 
 #include "window_manager.h"
 #include "memory.h"
+#include "mouse.h"
 
 namespace fallout {
 
@@ -216,7 +217,27 @@ void drawRects()
 {
     bool dashOnTop = false;
     bool helpOnTop = false;
+    int cardOnTop = 0; // 1 = item card, 2 = barter
+    bool loadsaveOnTop = false;
+    bool worldOnTop = false;
     const char* hintText = nullptr;
+
+    {
+        // A new inventory/loot screen starts without a stale item card.
+        static int lastActive = -1;
+        int active = ctr_rectMap.active;
+        auto isInv = [](int r) {
+            return r == DISPLAY_INVENTORY || r == DISPLAY_INVENTORY_USE || r == DISPLAY_INVENTORY_LOOT
+                || r == DISPLAY_INVENTORY_TRADE;
+        };
+        // (Only when coming from the map or a conversation: the quantity
+        // dialog in between keeps the card.)
+        if (isInv(active) && (lastActive == DISPLAY_FIELD || lastActive == DISPLAY_GUI
+                || lastActive == DISPLAY_DIALOG || lastActive == -1)) {
+            ctrCardClear();
+        }
+        lastActive = active;
+    }
 
     beginRender(ctr_rectMap.active == DISPLAY_MOVIE);
     drawTopRenderTarget(0x000000);
@@ -234,8 +255,12 @@ void drawRects()
             );
             break;
 
-        case DISPLAY_DIALOG:
         case DISPLAY_INVENTORY_TRADE:
+            // Barter: offer summary and the touched item's details.
+            cardOnTop = 2;
+            break;
+
+        case DISPLAY_DIALOG:
             for (int i = 0; i < numRectsInMap[DISPLAY_DIALOG_TOP]; i++) {
                 drawRect(rectMaps[DISPLAY_DIALOG_TOP][i]->src_x, rectMaps[DISPLAY_DIALOG_TOP][i]->src_y,
                         rectMaps[DISPLAY_DIALOG_TOP][i]->src_w, rectMaps[DISPLAY_DIALOG_TOP][i]->src_h,
@@ -246,19 +271,19 @@ void drawRects()
             break;
 
         case DISPLAY_LOADSAVE:
-            for (int i = 0; i < numRectsInMap[DISPLAY_LOADSAVE_TOP]; i++) {
-                drawRect(rectMaps[DISPLAY_LOADSAVE_TOP][i]->src_x, rectMaps[DISPLAY_LOADSAVE_TOP][i]->src_y,
-                        rectMaps[DISPLAY_LOADSAVE_TOP][i]->src_w, rectMaps[DISPLAY_LOADSAVE_TOP][i]->src_h,
-                        rectMaps[DISPLAY_LOADSAVE_TOP][i]->dst_x, rectMaps[DISPLAY_LOADSAVE_TOP][i]->dst_y,
-                        rectMaps[DISPLAY_LOADSAVE_TOP][i]->dst_w, rectMaps[DISPLAY_LOADSAVE_TOP][i]->dst_h
-                );
-            }
+            // The slot's preview picture at 1:1; the slot card is drawn around it.
+            drawRect(366, 58, 224, 133, 8, 26, 224, 133);
+            loadsaveOnTop = true;
             break;
 
-        case DISPLAY_FIELD:
         case DISPLAY_INVENTORY:
         case DISPLAY_INVENTORY_USE:
         case DISPLAY_INVENTORY_LOOT:
+            cardOnTop = ctrDashboardAvailable() ? 1 : 0;
+            dashOnTop = cardOnTop == 0;
+            break;
+
+        case DISPLAY_FIELD:
         case DISPLAY_SKILLDEX:
         case DISPLAY_PAUSE:
             // Map (or a menu) is on the touchscreen: the top screen is the
@@ -300,9 +325,30 @@ void drawRects()
             );
             break;
 
-        case DISPLAY_OPTIONS:
         case DISPLAY_WORLDMAP:
+            if (ctr_input.mode == DISPLAY_MODE_ADAPT && ctrDashboardAvailable()) {
+                worldOnTop = true;
+                break;
+            }
+            drawRect(offsetX, (240 - offsetY), 400, 240, 0,   0, 400, 240);
+            break;
+
         case DISPLAY_PIPBOY:
+            if (ctr_input.mode == DISPLAY_MODE_ADAPT) {
+                // Reading pane: the Pip-Boy screen magnified around where the
+                // stylus last touched (the bottom screen shows it at half size).
+                int mx, my;
+                mouseGetPosition(&mx, &my);
+                int srcY = my - 112;
+                if (srcY < 46) srcY = 46;
+                if (srcY > 46 + 410 - 224) srcY = 46 + 410 - 224;
+                drawRect(254, srcY, 374, 224, 0, 0, 400, 240);
+                break;
+            }
+            drawRect(offsetX, (240 - offsetY), 400, 240, 0,   0, 400, 240);
+            break;
+
+        case DISPLAY_OPTIONS:
         case DISPLAY_FULL:
             if (ctr_input.mode != DISPLAY_MODE_ADAPT) {
                 // Whole-screen mode (Select+L): top screen is a zoom lens.
@@ -484,6 +530,12 @@ void drawRects()
         ctr_dashboard_draw();
     } else if (helpOnTop) {
         ctr_help_draw();
+    } else if (cardOnTop != 0) {
+        ctr_card_draw(cardOnTop == 2);
+    } else if (loadsaveOnTop) {
+        ctr_loadsave_draw();
+    } else if (worldOnTop) {
+        ctr_worldmap_draw();
     }
     if (hintText != nullptr) {
         ctr_hint_draw(hintText);
@@ -719,6 +771,39 @@ void initTransferTexture()
     setTextureFilter(-1);
 }
 
+static bool ctrWideAllowed = false;
+static const char* kWideSettingFile = "3ds-display.cfg";
+
+static bool ctr_gfx_wide_setting()
+{
+    FILE* f = fopen(kWideSettingFile, "r");
+    if (f == NULL) {
+        return false;
+    }
+    int wide = 0;
+    if (fscanf(f, "wide=%d", &wide) != 1) {
+        wide = 0;
+    }
+    fclose(f);
+    return wide != 0;
+}
+
+// Select+R: switch the top screen between 400 and 800 pixels wide.
+void ctr_gfx_toggle_wide()
+{
+    if (!ctrWideAllowed) {
+        return;
+    }
+    ctr_gfx.isWide = !ctr_gfx.isWide;
+    gfxSetWide(ctr_gfx.isWide);
+    ctr_gfx_reinit();
+    FILE* f = fopen(kWideSettingFile, "w");
+    if (f != NULL) {
+        fprintf(f, "wide=%d\n", ctr_gfx.isWide ? 1 : 0);
+        fclose(f);
+    }
+}
+
 void ctr_gfx_reinit()
 {
     C3D_RenderTargetDelete(topRenderTarget);
@@ -737,6 +822,7 @@ void ctr_gfx_reinit()
     AttrInfo_AddLoader(attrInfo, 1, GPU_FLOAT, 2); // v1=texcoord
 
     Mtx_OrthoTilt(&topProjection, 0, ctr_gfx.isWide ? GSP_SCREEN_HEIGHT_TOP_2X : GSP_SCREEN_HEIGHT_TOP, 0, GSP_SCREEN_WIDTH, 0.1f, 1.f, true);
+    gpuStateReady = false;
 }
 
 void ctr_gfx_init()
@@ -757,9 +843,10 @@ void ctr_gfx_init()
     gfxInitDefault();
     ctr_debug_log("ctr_gfx_init: gfxInitDefault done");
 
-    // 800px top-screen mode is off: the dashboard and every top-screen
-    // layout are drawn for 400x240, identical on hardware and in emulators.
-    if (false && is2DS == 1) {
+    // 800px top-screen mode (sharper text) is optional: Select+R toggles it
+    // and the choice is remembered. The original 2DS can't do it.
+    ctrWideAllowed = is2DS == 1;
+    if (ctrWideAllowed && ctr_gfx_wide_setting()) {
         gfxSetWide(true);
         ctr_gfx.isWide = gfxIsWide();
     } else
@@ -1243,12 +1330,315 @@ void ctr_gfx_manual_frame(void (*drawTop)(), void (*drawBottom)())
     C2D_Prepare();
     C2D_TargetClear(topRenderTarget, C2D_Color32(0, 0, 0, 0xff));
     C2D_SceneBegin(topRenderTarget);
+    C2D_ViewReset();
+    if (ctr_gfx.isWide) {
+        C2D_ViewScale(2.f, 1.f); // the manual is laid out for 400 pixels
+    }
     drawTop();
+    C2D_ViewReset();
     C2D_TargetClear(bottomRenderTarget, C2D_Color32(0, 0, 0, 0xff));
     C2D_SceneBegin(bottomRenderTarget);
     drawBottom();
     C3D_FrameEnd(0);
     gpuStateReady = false; // citro2d changed the GPU state
+}
+
+
+// ---------------------------------------------------------------------------
+// Top-screen cards: item details (inventory, loot, barter), barter summary,
+// save/load slot, world map. Text is re-parsed only when the data changes.
+// ---------------------------------------------------------------------------
+static C2D_TextBuf cardBuf = nullptr;
+
+struct CardLine {
+    C2D_Text text;
+    float x, y, scale;
+    u32 color;
+    u32 flags;
+};
+#define CARD_MAX_LINES 64
+static CardLine cardLines[CARD_MAX_LINES];
+static int cardLineCount = 0;
+static unsigned int cardKey = 0;
+
+static const u32 kCardBg = C2D_Color32(0x0b, 0x14, 0x0b, 0xff);
+static const u32 kCardPanel = C2D_Color32(0x16, 0x26, 0x16, 0xff);
+static const u32 kCardGreen = C2D_Color32(0x5c, 0xff, 0x5c, 0xff);
+static const u32 kCardDim = C2D_Color32(0x8c, 0xd8, 0x8c, 0xff);
+static const u32 kCardLine = C2D_Color32(0x3c, 0xb0, 0x3c, 0xff);
+static const u32 kCardAmber = C2D_Color32(0xff, 0xc8, 0x40, 0xff);
+static const u32 kCardRed = C2D_Color32(0xff, 0x50, 0x40, 0xff);
+
+static void cardBegin()
+{
+    if (cardBuf == nullptr) {
+        cardBuf = C2D_TextBufNew(6144);
+    }
+    if (dashMeasureBuf == nullptr) {
+        dashMeasureBuf = C2D_TextBufNew(512);
+    }
+    C2D_TextBufClear(cardBuf);
+    cardLineCount = 0;
+}
+
+static void cardAdd(const char* str, float x, float y, float scale, u32 color, u32 flags = 0)
+{
+    if (str == nullptr || str[0] == '\0' || cardLineCount >= CARD_MAX_LINES) {
+        return;
+    }
+    CardLine* l = &cardLines[cardLineCount++];
+    C2D_TextParse(&l->text, cardBuf, str);
+    C2D_TextOptimize(&l->text);
+    l->x = x;
+    l->y = y;
+    l->scale = scale;
+    l->color = color;
+    l->flags = flags;
+}
+
+// Adds a wrapped paragraph; returns the y below it.
+static float cardParagraph(const char* str, float x, float y, float width, float bottom, u32 color)
+{
+    char line[160] = "";
+    char trial[320];
+    const char* p = str;
+    while (*p != '\0' && y + 14.f <= bottom) {
+        while (*p == ' ') p++;
+        const char* end = p;
+        while (*end != '\0' && *end != ' ') end++;
+        if (end == p) break;
+        snprintf(trial, sizeof(trial), "%s%s%.*s", line, line[0] != '\0' ? " " : "", (int)(end - p), p);
+        if (line[0] != '\0' && dashMeasure(trial) > width) {
+            cardAdd(line, x, y, kDashLogScale, color);
+            y += 14.f;
+            snprintf(line, sizeof(line), "%.*s", (int)(end - p), p);
+        } else {
+            snprintf(line, sizeof(line), "%s", trial);
+        }
+        p = end;
+    }
+    if (line[0] != '\0' && y + 14.f <= bottom) {
+        cardAdd(line, x, y, kDashLogScale, color);
+        y += 14.f;
+    }
+    return y;
+}
+
+static unsigned int cardHash(const void* data, size_t size, unsigned int seed)
+{
+    const unsigned char* p = (const unsigned char*)data;
+    unsigned int h = seed ^ 2166136261u;
+    for (size_t i = 0; i < size; i++) {
+        h = (h ^ p[i]) * 16777619u;
+    }
+    return h;
+}
+
+static void cardFlush(bool background, float bgTop = 0)
+{
+    const float kx = ctr_gfx.isWide ? 2.f : 1.f;
+    C2D_Prepare();
+    C2D_SceneBegin(topRenderTarget);
+    if (background) {
+        C2D_DrawRectSolid(0, bgTop, 0.4f, 400 * kx, 240 - bgTop, kCardBg);
+    }
+    for (int i = 0; i < cardLineCount; i++) {
+        CardLine* l = &cardLines[i];
+        C2D_DrawText(&l->text, C2D_WithColor | l->flags, l->x * kx, l->y, 0.6f, l->scale * kx, l->scale, l->color);
+    }
+}
+
+static void cardRect(float x, float y, float w, float h, u32 color)
+{
+    const float kx = ctr_gfx.isWide ? 2.f : 1.f;
+    C2D_DrawRectSolid(x * kx, y, 0.5f, w * kx, h, color);
+}
+
+// Item rows in two columns starting at y; returns the y below them.
+static float cardItemRows(const CtrItemCard* c, float y)
+{
+    int half = (c->rowCount + 1) / 2;
+    for (int i = 0; i < c->rowCount; i++) {
+        int col = i / half;
+        int row = i % half;
+        float x = col == 0 ? 8.f : 204.f;
+        cardAdd(c->key[i], x, y + row * 15.f, 0.45f, kCardGreen);
+        cardAdd(c->val[i], x + 62.f, y + row * 15.f, 0.45f, kCardDim);
+    }
+    return y + half * 15.f;
+}
+
+static void cardFooter(const CtrDashboard* d)
+{
+    char buf[96];
+    snprintf(buf, sizeof(buf), "HP %d/%d    Carry %d/%d lbs    $%d", d->hp, d->hpMax, d->weight, d->weightMax, d->caps);
+    cardAdd(buf, 200, 225, 0.42f, (d->weightMax > 0 && d->weight > d->weightMax) ? kCardRed : kCardDim, C2D_AlignCenter);
+}
+
+void ctr_card_draw(bool barter)
+{
+    CtrDashboard d;
+    ctrDashboardGather(&d);
+    const CtrItemCard* c = ctrCardGet();
+    const CtrBarter* b = ctrBarterGet();
+
+    unsigned int key = cardHash(c, sizeof(*c), barter ? 1 : 2);
+    key = cardHash(&d.hp, sizeof(d.hp), key);
+    key = cardHash(&d.weight, sizeof(d.weight), key);
+    key = cardHash(&d.caps, sizeof(d.caps), key);
+    if (barter) {
+        key = cardHash(b, sizeof(*b), key);
+    }
+    if (key != cardKey || cardBuf == nullptr) {
+        cardKey = key;
+        cardBegin();
+        char buf[160];
+        float y = 26.f;
+        if (barter && b->active) {
+            snprintf(buf, sizeof(buf), "Trading with %s", b->merchant);
+            cardAdd(buf, 8, 2, 0.56f, kCardAmber);
+            snprintf(buf, sizeof(buf), "Your offer  $%d", b->offer);
+            cardAdd(buf, 8, 26, 0.5f, kCardGreen);
+            snprintf(buf, sizeof(buf), "They want  $%d", b->ask);
+            cardAdd(buf, 392, 26, 0.5f, kCardGreen, C2D_AlignRight);
+            if (b->offer == 0) {
+                cardAdd("Drag items onto your table to make an offer, then tap Offer", 200, 44, 0.42f, kCardDim, C2D_AlignCenter);
+            } else if (b->offer >= b->ask) {
+                cardAdd("They will accept this trade: tap Offer", 200, 44, 0.45f, kCardGreen, C2D_AlignCenter);
+            } else {
+                snprintf(buf, sizeof(buf), "Not enough: add $%d more", b->ask - b->offer);
+                cardAdd(buf, 200, 44, 0.45f, kCardRed, C2D_AlignCenter);
+            }
+            snprintf(buf, sizeof(buf), "Their caps $%d", b->theirCaps);
+            cardAdd(buf, 392, 2 + 4, 0.42f, kCardDim, C2D_AlignRight);
+            y = 66.f;
+        }
+        if (c->valid) {
+            float titleY = barter ? y : 2.f;
+            float scale = barter ? 0.5f : 0.58f;
+            if (c->quantity > 1) {
+                snprintf(buf, sizeof(buf), "%s  x%d", c->name, c->quantity);
+            } else {
+                snprintf(buf, sizeof(buf), "%s", c->name);
+            }
+            cardAdd(buf, 8, titleY, scale, barter ? kCardGreen : kCardAmber);
+            cardAdd(c->type, 392, titleY + 3, 0.45f, kCardLine, C2D_AlignRight);
+            y = barter ? y + 18.f : 26.f;
+            y = cardItemRows(c, y) + 4.f;
+            cardParagraph(c->desc, 8, y, 384, 222, kCardDim);
+        } else if (!barter) {
+            cardAdd("Inventory", 8, 2, 0.58f, kCardAmber);
+            cardAdd("Touch an item to see its details here.", 200, 110, 0.5f, kCardDim, C2D_AlignCenter);
+        } else {
+            cardAdd("Touch an item to see its details here.", 200, 130, 0.45f, kCardDim, C2D_AlignCenter);
+        }
+        cardFooter(&d);
+    }
+
+    cardFlush(true);
+    cardRect(0, 22, 400, 1, kCardLine);
+    if (barter && b->active) {
+        cardRect(0, 62, 400, 1, kCardLine);
+    }
+    cardRect(0, 223, 400, 1, kCardLine);
+    C2D_Flush();
+    gpuStateReady = false;
+}
+
+void ctr_loadsave_draw()
+{
+    CtrSlotInfo s;
+    if (!ctrLoadSaveGetSlot(&s) || !s.valid) {
+        return;
+    }
+    unsigned int key = cardHash(&s, sizeof(s), 3);
+    if (key != cardKey || cardBuf == nullptr) {
+        cardKey = key;
+        cardBegin();
+        char buf[96];
+        snprintf(buf, sizeof(buf), "%s - slot %d", s.saving ? "Save game" : "Load game", s.slot);
+        cardAdd(buf, 8, 2, 0.56f, kCardAmber);
+        float x = 240.f;
+        if (s.empty) {
+            cardAdd("Empty slot", x, 30, 0.5f, kCardGreen);
+            cardAdd(s.saving ? "Tap Done to save here." : "Nothing saved here.", x, 50, 0.42f, kCardDim);
+        } else {
+            cardAdd(s.name, x, 30, 0.5f, kCardGreen);
+            cardAdd(s.date, x, 50, 0.42f, kCardDim);
+            float y = cardParagraph(s.place, x, 68, 152, 160, kCardDim);
+            (void)y;
+            cardAdd("Description", 8, 166, 0.42f, kCardLine);
+            cardParagraph(s.desc, 8, 182, 384, 222, kCardGreen);
+        }
+        cardAdd(s.saving ? "Tap a slot, then Done" : "Tap a slot, then Done to load it", 200, 225, 0.42f, kCardDim, C2D_AlignCenter);
+    }
+    // The preview picture is drawn by the normal top-screen pass at 1:1; only
+    // the area around it is painted here.
+    const float kx = ctr_gfx.isWide ? 2.f : 1.f;
+    C2D_Prepare();
+    C2D_SceneBegin(topRenderTarget);
+    C2D_DrawRectSolid(0, 0, 0.4f, 400 * kx, 24, kCardBg);
+    C2D_DrawRectSolid(0, 24, 0.4f, 8 * kx, 136, kCardBg);
+    C2D_DrawRectSolid(232 * kx, 24, 0.4f, 168 * kx, 136, kCardBg);
+    C2D_DrawRectSolid(0, 160, 0.4f, 400 * kx, 80, kCardBg);
+    cardFlush(false);
+    cardRect(0, 22, 400, 1, kCardLine);
+    cardRect(0, 223, 400, 1, kCardLine);
+    C2D_Flush();
+    gpuStateReady = false;
+}
+
+void ctr_worldmap_draw()
+{
+    CtrWorldInfo w;
+    if (!ctrWorldmapGetInfo(&w) || !w.valid) {
+        return;
+    }
+    CtrDashboard d;
+    ctrDashboardGather(&d);
+    unsigned int key = cardHash(&w, sizeof(w), 4);
+    key = cardHash(d.time, sizeof(d.time), key);
+    key = cardHash(&d.hp, sizeof(d.hp), key);
+    if (key != cardKey || cardBuf == nullptr) {
+        cardKey = key;
+        cardBegin();
+        char buf[128];
+        cardAdd("World map", 8, 2, 0.56f, kCardAmber);
+        cardAdd(d.time, 392, 5, 0.45f, kCardDim, C2D_AlignRight);
+        snprintf(buf, sizeof(buf), "Location: %s", w.here);
+        cardAdd(buf, 8, 28, 0.5f, kCardGreen);
+        if (w.terrain[0] != '\0') {
+            snprintf(buf, sizeof(buf), "Terrain: %s", w.terrain);
+            cardAdd(buf, 8, 46, 0.45f, kCardDim);
+        }
+        if (w.moving) {
+            snprintf(buf, sizeof(buf), "Heading for: %s", w.dest);
+            cardAdd(buf, 8, 64, 0.5f, kCardAmber);
+        } else {
+            cardAdd("Tap the map, or a place on the right, to travel.", 8, 64, 0.45f, kCardDim);
+        }
+        if (w.fuelPercent >= 0) {
+            snprintf(buf, sizeof(buf), "Car fuel: %d%%", w.fuelPercent);
+            cardAdd(buf, 392, 46, 0.45f, w.fuelPercent < 20 ? kCardRed : kCardDim, C2D_AlignRight);
+        }
+        snprintf(buf, sizeof(buf), "HP %d/%d", d.hp, d.hpMax);
+        cardAdd(buf, 392, 28, 0.45f, d.hpMax > 0 && d.hp * 2 < d.hpMax ? kCardRed : kCardDim, C2D_AlignRight);
+        cardAdd("Known places", 8, 88, 0.45f, kCardLine);
+        for (int i = 0; i < w.knownCount; i++) {
+            int col = i % 3;
+            int row = i / 3;
+            float yy = 104 + row * 15.f;
+            if (yy > 208) break;
+            cardAdd(w.known[i], 8 + col * 130.f, yy, 0.42f, kCardDim);
+        }
+        cardAdd("Encounters can stop you on the way. Tap a town circle to enter it.", 200, 225, 0.4f, kCardDim, C2D_AlignCenter);
+    }
+    cardFlush(true);
+    cardRect(0, 22, 400, 1, kCardLine);
+    cardRect(0, 84, 400, 1, kCardLine);
+    cardRect(0, 223, 400, 1, kCardLine);
+    C2D_Flush();
+    gpuStateReady = false;
 }
 
 } // namespace fallout

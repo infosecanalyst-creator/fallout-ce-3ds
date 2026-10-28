@@ -1,4 +1,7 @@
 #include "game/worldmap.h"
+#ifdef __3DS__
+#include "platform/ctr/ctr_dashboard.h"
+#endif
 
 #include <assert.h>
 #include <stdio.h>
@@ -3779,5 +3782,45 @@ static void BlackOut()
 
     memset(world_buf, colorTable[0], WM_WINDOW_WIDTH * WM_WINDOW_HEIGHT);
 }
+
+
+#ifdef __3DS__
+// Top-screen information while the world map is on the touchscreen.
+bool ctrWorldmapGetInfo(CtrWorldInfo* info)
+{
+    static const char* const townNames[TOWN_COUNT] = {
+        "Vault 13", "Vault 15", "Shady Sands", "Junktown", "Raiders", "Necropolis",
+        "The Hub", "Brotherhood", "Military Base", "The Glow", "Boneyard", "Cathedral",
+    };
+    memset(info, 0, sizeof(*info));
+    info->valid = true;
+    info->fuelPercent = -1;
+    int here = InCity(world_xpos, world_ypos);
+    snprintf(info->here, sizeof(info->here), "%s", here >= 0 && here < TOWN_COUNT ? townNames[here] : "The wasteland");
+    // Travelling = the party moved during the last second.
+    static int lastX = -1;
+    static int lastY = -1;
+    static unsigned int lastMove = 0;
+    if (world_xpos != lastX || world_ypos != lastY) {
+        if (lastX != -1) {
+            lastMove = get_time();
+        }
+        lastX = world_xpos;
+        lastY = world_ypos;
+    }
+    info->moving = lastMove != 0 && elapsed_time(lastMove) < 1000
+        && (world_xpos != target_xpos || world_ypos != target_ypos);
+    if (info->moving) {
+        int dest = InCity(target_xpos, target_ypos);
+        snprintf(info->dest, sizeof(info->dest), "%s", dest >= 0 && dest < TOWN_COUNT ? townNames[dest] : "A spot in the wasteland");
+    }
+    for (int town = 0; town < TOWN_COUNT && info->knownCount < CTR_WORLD_KNOWN; town++) {
+        if (game_global_vars[cityXgvar[town]] == 1 || (first_visit_flag & (1 << town)) != 0) {
+            snprintf(info->known[info->knownCount++], sizeof(info->known[0]), "%s", townNames[town]);
+        }
+    }
+    return true;
+}
+#endif
 
 } // namespace fallout

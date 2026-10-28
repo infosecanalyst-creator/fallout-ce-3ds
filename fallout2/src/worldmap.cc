@@ -1,4 +1,7 @@
 #include "worldmap.h"
+#ifdef __3DS__
+#include "platform/ctr/ctr_dashboard.h"
+#endif
 
 #include <assert.h>
 #include <ctype.h>
@@ -6690,5 +6693,50 @@ void wmForceEncounter(int map, unsigned int flags)
         wmForceEncounterFlags &= ~(1 << 31);
     }
 }
+
+
+#ifdef __3DS__
+// Top-screen information while the world map is on the touchscreen.
+bool ctrWorldmapGetInfo(CtrWorldInfo* info)
+{
+    memset(info, 0, sizeof(*info));
+    if (wmAreaInfoList == nullptr) {
+        return false;
+    }
+    info->valid = true;
+    int here = wmGenData.currentAreaId;
+    if (here >= 0 && here < wmMaxAreaNum && wmAreaIsKnown(here)) {
+        snprintf(info->here, sizeof(info->here), "%s", wmAreaInfoList[here].name);
+    } else {
+        snprintf(info->here, sizeof(info->here), "The wasteland");
+    }
+    info->moving = wmGenData.isWalking;
+    if (info->moving) {
+        int dest = -1;
+        wmMatchWorldPosToArea(wmGenData.walkDestinationX, wmGenData.walkDestinationY, &dest);
+        if (dest >= 0 && dest < wmMaxAreaNum && wmAreaIsKnown(dest)) {
+            snprintf(info->dest, sizeof(info->dest), "%s", wmAreaInfoList[dest].name);
+        } else {
+            snprintf(info->dest, sizeof(info->dest), "A spot in the wasteland");
+        }
+    }
+    SubtileInfo* subtile = nullptr;
+    if (!wmWorldPosInvalid(wmGenData.worldPosX, wmGenData.worldPosY)
+        && wmFindCurSubTileFromPos(wmGenData.worldPosX, wmGenData.worldPosY, &subtile) == 0
+        && subtile != nullptr && subtile->terrain >= 0 && subtile->terrain < wmMaxTerrainTypes) {
+        snprintf(info->terrain, sizeof(info->terrain), "%s", wmTerrainTypeList[subtile->terrain].lookupName);
+    }
+    info->fuelPercent = wmGenData.isInCar ? wmGenData.carFuel * 100 / CAR_FUEL_MAX : -1;
+    for (int area = 0; area < wmMaxAreaNum && info->knownCount < CTR_WORLD_KNOWN; area++) {
+        if (wmAreaIsKnown(area) && wmAreaInfoList[area].name[0] != '\0') {
+            snprintf(info->known[info->knownCount++], sizeof(info->known[0]), "%s", wmAreaInfoList[area].name);
+        }
+    }
+    for (int k = 0; k < info->knownCount; k++) {
+        for (char* q = info->known[k]; *q; q++) if ((unsigned char)*q >= 0x80) *q = '?';
+    }
+    return true;
+}
+#endif
 
 } // namespace fallout

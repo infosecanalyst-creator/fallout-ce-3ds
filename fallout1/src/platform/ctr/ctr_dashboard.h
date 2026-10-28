@@ -52,6 +52,70 @@ bool ctrDashboardAvailable();
 void ctrDashboardSetInGame(bool inGame);
 void ctrDashboardSetTarget(void* critter);
 
+// Item card: details of the last item touched in the inventory, loot or
+// barter screens (filled from the item when it is touched, so it never keeps
+// a pointer to an object that may be freed later).
+#define CTR_CARD_ROWS 8
+struct CtrItemCard {
+    bool valid;
+    unsigned int version;
+    char name[48];
+    char type[24];
+    int quantity;
+    int rowCount;
+    char key[CTR_CARD_ROWS][16];
+    char val[CTR_CARD_ROWS][48];
+    char desc[512];
+};
+void ctrCardSetItem(void* item, int quantity);
+void ctrCardClear();
+const CtrItemCard* ctrCardGet();
+
+// Barter summary, updated by the barter screen every frame while it is open.
+struct CtrBarter {
+    bool active;
+    char merchant[40];
+    int offer; // value of what the player put on the table
+    int ask; // what the merchant wants for their side, after barter skills
+    int yourCaps;
+    int theirCaps;
+};
+void ctrBarterSet(const CtrBarter* barter);
+void ctrBarterEnd();
+const CtrBarter* ctrBarterGet();
+
+// Save/load: the slot under the cursor (implemented in loadsave.cc).
+struct CtrSlotInfo {
+    bool valid;
+    bool empty;
+    bool saving;
+    int slot;
+    char name[32];
+    char desc[32];
+    char date[40];
+    char place[64];
+};
+bool ctrLoadSaveGetSlot(CtrSlotInfo* info);
+
+// World map (implemented in worldmap.cc).
+#define CTR_WORLD_KNOWN 24
+struct CtrWorldInfo {
+    bool valid;
+    bool moving;
+    char here[48];
+    char dest[48];
+    char terrain[32];
+    int fuelPercent; // -1 = no car
+    int knownCount;
+    char known[CTR_WORLD_KNOWN][28];
+};
+bool ctrWorldmapGetInfo(CtrWorldInfo* info);
+
+// Renderers (ctr_gfx.cc)
+void ctr_card_draw(bool barter);
+void ctr_loadsave_draw();
+void ctr_worldmap_draw();
+
 // Renderer (ctr_gfx.cc)
 void ctr_dashboard_draw();
 void ctr_help_draw();

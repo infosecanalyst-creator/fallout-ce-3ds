@@ -29,6 +29,7 @@ extern ctr_gfx_t ctr_gfx;
 void ctr_gfx_draw(SDL_Surface* gSdlSurface);
 
 void ctr_gfx_reinit(void);
+void ctr_gfx_toggle_wide(void);
 void ctr_gfx_init(void);
 void ctr_gfx_exit(void);
 

@@ -230,6 +230,16 @@ FILE* compat_fopen(const char* path, const char* mode)
     char nativePath[COMPAT_MAX_PATH];
     strcpy(nativePath, path);
     compat_windows_path_to_native(nativePath);
+#ifdef __3DS__
+    // The SD card's FAT ignores case, so open directly; only fall back to the
+    // directory scan (one readdir per path component, slow on SD) on failure.
+    if (mode[0] == 'r') {
+        FILE* stream = fopen(nativePath, mode);
+        if (stream != NULL) {
+            return stream;
+        }
+    }
+#endif
     compat_resolve_path(nativePath);
     return fopen(nativePath, mode);
 }
