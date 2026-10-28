@@ -1483,7 +1483,7 @@ int get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x, 
 
     win_draw(win);
 #ifdef __3DS__
-    ctr_input_swkbd("Enter your name", text, text);
+    ctr_input_swkbd("Enter your name", text, text, maxLength + 1);
     buf_fill(windowBuffer + windowWidth * y + x, nameWidth, text_height(), windowWidth, backgroundColor);
     text_to_buf(windowBuffer + windowWidth * y + x, copy, windowWidth, windowWidth, textColor);
     renderPresent();

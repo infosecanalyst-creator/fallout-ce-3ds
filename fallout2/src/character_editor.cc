@@ -1950,7 +1950,7 @@ static int _get_input_str(int win, int cancelKeyCode, char* text, int maxLength,
 
     windowRefresh(win);
 #ifdef __3DS__
-    ctr_input_swkbd("Enter your name", text, text);
+    ctr_input_swkbd("Enter your name", text, text, maxLength + 1);
     bufferFill(windowBuffer + windowWidth * y + x, nameWidth, fontGetLineHeight(), windowWidth, backgroundColor);
     fontDrawText(windowBuffer + windowWidth * y + x, copy, windowWidth, windowWidth, textColor);
     renderPresent();

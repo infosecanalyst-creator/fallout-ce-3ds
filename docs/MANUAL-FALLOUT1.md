@@ -220,6 +220,8 @@ The first quick save of a session asks for a slot and a name. After that Start+X
 
 Start opens the options menu: Save game, Load game, Preferences, Exit game and Done. Save and load show the slot list on the touch screen and the slot's picture and description on top.
 
+To save, tap a slot and then Done. The 3DS keyboard opens with the name of the place already filled in: tap OK to save, or type your own description first. Cancel goes back to the slot list without saving.
+
 Save often. Fallout is an unforgiving game.
 
 ### Where saves are kept

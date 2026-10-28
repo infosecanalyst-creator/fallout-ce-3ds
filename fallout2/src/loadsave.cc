@@ -2201,6 +2201,34 @@ static int _LoadTumbSlot(int slot)
 // 0x47ED5C
 static int _GetComment(int slot)
 {
+#ifdef __3DS__
+    {
+        // The system keyboard replaces the description box, which would be
+        // split across both screens. A new save is named after the place.
+        char description[LOAD_SAVE_DESCRIPTION_LENGTH];
+        if (_LSstatus[_slot_cursor] == SLOT_STATE_OCCUPIED) {
+            strncpy(description, _LSData[slot].description, LOAD_SAVE_DESCRIPTION_LENGTH);
+            description[LOAD_SAVE_DESCRIPTION_LENGTH - 1] = '\0';
+        } else {
+            int map = mapGetCurrentMap();
+            const char* city = mapGetCityName(map);
+            const char* place = mapGetName(map, gElevation);
+            snprintf(description, sizeof(description), "%s%s%s",
+                city != NULL ? city : "",
+                (city != NULL && place != NULL && place[0] != '\0') ? ": " : "",
+                place != NULL ? place : "");
+            if (description[0] == '\0') {
+                strcpy(description, "Saved game");
+            }
+        }
+        if (ctr_input_swkbd("Save description", description, description, sizeof(description)) == -1) {
+            return 0; // Cancel: back to the slot list
+        }
+        strncpy(_LSData[slot].description, description, LOAD_SAVE_DESCRIPTION_LENGTH);
+        _LSData[slot].description[LOAD_SAVE_DESCRIPTION_LENGTH - 1] = '\0';
+        return 1;
+    }
+#endif
     // Maintain original position in original resolution, otherwise center it.
     int commentWindowX = screenGetWidth() != 640
         ? (screenGetWidth() - _loadsaveFrmImages[LOAD_SAVE_FRM_BOX].getWidth()) / 2
@@ -2349,7 +2377,7 @@ static int _get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* de
 #ifdef __3DS__
     int rc = 1;
     renderPresent();
-    ctr_input_swkbd("", text, description);
+    ctr_input_swkbd("Save description", text, description, maxLength + 1);
     bufferFill(windowBuffer + windowWidth * y + x, fontGetStringWidth(text), lineHeight, windowWidth, backgroundColor);
     fontDrawText(windowBuffer + windowWidth * y + x, text, windowWidth, windowWidth, textColor);
     renderPresent();

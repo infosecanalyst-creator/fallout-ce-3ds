@@ -3930,7 +3930,9 @@ static int about_process_input(int input)
             text_font(101);
             int count = 0;
 
-            ctr_input_swkbd("Ask about what?", "", about_input_string);
+            if (ctr_input_swkbd("Ask about what?", "", about_input_string, 128) != 1) {
+                about_input_string[0] = '\0';
+            }
 
             while (about_input_string[count] != '\0') {
                 count++;

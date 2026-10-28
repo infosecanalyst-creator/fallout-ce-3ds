@@ -780,19 +780,24 @@ void ctr_input_swkdb_init(void)
     swkbd_about_lookup_word();
 }
 
-int ctr_input_swkbd(const char *hintText, const char *inText, char *outText)
+int ctr_input_swkbd(const char *hintText, const char *inText, char *outText, size_t outSize)
 {
     SwkbdState swkbd;
     static SwkbdStatusData swkbdStatus;
     static SwkbdLearningData swkbdLearning;
     char mybuf[ABOUT_INPUT_MAX_SIZE];
 
-    swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 2, -1);
+    if (outSize > sizeof(mybuf)) {
+        outSize = sizeof(mybuf);
+    }
+
+    // Limit the keyboard to what the caller's buffer holds.
+    swkbdInit(&swkbd, SWKBD_TYPE_NORMAL, 2, (int)outSize - 1);
     swkbdSetValidation(&swkbd, SWKBD_NOTEMPTY_NOTBLANK, 0, 0);
     swkbdSetInitialText(&swkbd, inText);
     swkbdSetHintText(&swkbd, hintText);
-    swkbdSetButton(&swkbd, SWKBD_BUTTON_LEFT, "Done", true);
-    swkbdSetButton(&swkbd, SWKBD_BUTTON_RIGHT, "Close", false);
+    swkbdSetButton(&swkbd, SWKBD_BUTTON_LEFT, "Cancel", false);
+    swkbdSetButton(&swkbd, SWKBD_BUTTON_RIGHT, "OK", true);
     swkbdSetFeatures(&swkbd,
             SWKBD_PREDICTIVE_INPUT | SWKBD_ALLOW_HOME | SWKBD_ALLOW_RESET | SWKBD_ALLOW_POWER);
     swkbdSetDictionary(&swkbd, words, sizeof(words)/sizeof(SwkbdDictWord));
@@ -804,21 +809,12 @@ int ctr_input_swkbd(const char *hintText, const char *inText, char *outText)
 
     SwkbdButton button = swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
 
-    if (button == SWKBD_BUTTON_LEFT) {
-    strncpy(outText, mybuf, ABOUT_INPUT_MAX_SIZE - 1);
-
-    outText[ABOUT_INPUT_MAX_SIZE - 1] = '\0';
+    if (button == SWKBD_BUTTON_RIGHT) {
+        snprintf(outText, outSize, "%s", mybuf);
         return 1;
-    } else if (button == SWKBD_BUTTON_RIGHT) {
-        outText[0] = '\0';
-        return -1;
     }
-
-    outText[0] = '\0';
-#ifdef _DEBUG
-    debug_printf("swkbd event: %i, %d\n", button, swkbdGetResult(&swkbd));
-#endif
-    return -2;
+    // Cancelled (or the keyboard could not open): leave the text as it was.
+    return button == SWKBD_BUTTON_LEFT ? -1 : -2;
 }
 
 void ctr_input_init(void)

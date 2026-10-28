@@ -2081,6 +2081,34 @@ static int LoadTumbSlot(int a1)
 // 0x470D50
 static int GetComment(int a1)
 {
+#ifdef __3DS__
+    {
+        // The system keyboard replaces the description box, which would be
+        // split across both screens. A new save is named after the place.
+        char description[LOAD_SAVE_DESCRIPTION_LENGTH];
+        if (LSstatus[slot_cursor] == SLOT_STATE_OCCUPIED) {
+            strncpy(description, LSData[a1].description, LOAD_SAVE_DESCRIPTION_LENGTH);
+            description[LOAD_SAVE_DESCRIPTION_LENGTH - 1] = '\0';
+        } else {
+            int map = map_get_index_number();
+            const char* city = map_get_short_name(map);
+            const char* place = map_get_elev_idx(map, map_elevation);
+            snprintf(description, sizeof(description), "%s%s%s",
+                city != NULL ? city : "",
+                (city != NULL && place != NULL && place[0] != '\0') ? ": " : "",
+                place != NULL ? place : "");
+            if (description[0] == '\0') {
+                strcpy(description, "Saved game");
+            }
+        }
+        if (ctr_input_swkbd("Save description", description, description, sizeof(description)) == -1) {
+            return 0; // Cancel: back to the slot list
+        }
+        strncpy(LSData[a1].description, description, LOAD_SAVE_DESCRIPTION_LENGTH);
+        LSData[a1].description[LOAD_SAVE_DESCRIPTION_LENGTH - 1] = '\0';
+        return 1;
+    }
+#endif
     // Maintain original position in original resolution, otherwise center it.
     int commentWindowX = screenGetWidth() != 640
         ? (screenGetWidth() - ginfo[LOAD_SAVE_FRM_BOX].width) / 2
@@ -2228,7 +2256,7 @@ static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* des
 #ifdef __3DS__
     int rc = 1;
     renderPresent();
-    ctr_input_swkbd("", text, description);
+    ctr_input_swkbd("Save description", text, description, maxLength + 1);
     buf_fill(windowBuffer + windowWidth * y + x, text_width(text), lineHeight, windowWidth, backgroundColor);
     text_to_buf(windowBuffer + windowWidth * y + x, text, windowWidth, windowWidth, textColor);
     renderPresent();

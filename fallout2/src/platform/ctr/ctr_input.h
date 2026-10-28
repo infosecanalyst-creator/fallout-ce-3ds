@@ -1,4 +1,5 @@
 #ifndef FALLOUT_PLATFORM_CTR_INPUT_H_
+#include <stddef.h>
 #define FALLOUT_PLATFORM_CTR_INPUT_H_
 
 #include <3ds.h>
@@ -48,7 +49,7 @@ void ctr_input_process(void);
 int ctr_input_frame(void);
 
 void ctr_input_swkdb_init(void);
-int ctr_input_swkbd(const char *hintText, const char *inText, char *outText);
+int ctr_input_swkbd(const char *hintText, const char *inText, char *outText, size_t outSize);
 
 bool ctr_input_key_pressed(void);
 
