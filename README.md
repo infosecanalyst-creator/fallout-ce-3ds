@@ -12,11 +12,11 @@ Both are forks of [alexbatalov/fallout1-ce](https://github.com/alexbatalov/fallo
 
 | Area | Change |
 |---|---|
-| Layout | The **bottom touchscreen is the game** (stylus = mouse); the **top screen is an information dashboard**: HP bar, AP pips, AC, weapon / attack mode / AP cost / ammo, the enemy you last tapped (health and hit chance), level/XP or poison/rads, date and time, and a large message log. Inventory, loot and Skilldex also keep the dashboard on top instead of a duplicate picture. ZL swaps map and HUD. |
+| Layout | The **bottom touchscreen is the game** (stylus = mouse); the **top screen is an information dashboard**: HP bar, AP pips, AC, weapon / attack mode / AP cost / ammo, whose turn it is in combat, the enemy you last tapped or the one attacking you (health and hit chance), the other hand, level/XP, caps and carry weight (or poison/rads), date and time, a full-width message log and a one-line button hint on screens that need one. Inventory, loot and Skilldex also keep the dashboard on top instead of a duplicate picture. ZL swaps map and HUD. |
 | Movement | The **Circle Pad walks the player** in any direction, like Dungeon Master / SimGolf: continuous when exploring (turns instantly, slides along walls, stops on release); in combat each push steps one hex to the neighbour nearest the stick's angle. |
 | Smart tap | A tap acts on whatever it touches: pick up, talk, loot, open, use, or attack a hostile in combat (running into reach first if needed). Open ground = move. Long-press = action menu. No cursor-mode switching needed. |
 | Highlight | Hold R to outline every item and lootable body on the level (touch has no hover); in combat it also lists your hit chance against each visible enemy. |
-| Quick heal | Select+A uses a Stimpak (or Super Stimpak) without opening the inventory. |
+| Quick heal, reload, take all | Select+A uses a Stimpak (or Super Stimpak) and Select+B reloads, without opening the inventory; X takes everything from a body or container. |
 | Back | B and Start back out of any in-game menu (inventory, Pip-Boy, character sheet, Skilldex, automap, options). |
 | Out-of-game top screen | Main menu and other screens outside a game show a controls card on the top screen. The character sheet shows a hint that the Circle Pad scrolls down to the skills. |
 | Camera | Follows the player and recenters near the edge of the view; C-stick scrolls (New 3DS); Select recenters. |
@@ -42,7 +42,9 @@ Each game has a built-in manual: press **Select** on the main menu or any menu, 
 | Circle Pad | Walk (the stylus is the pointer; Circle Pad moves the cursor in menus and scrolls the character sheet) |
 | C-stick | Scroll map (New 3DS; D-pad scrolls on Old 3DS) |
 | A | Left click (hold to drag) |
-| B | On the map: active item button (attack with weapon, reload, or use item on a target). In menus: back |
+| B | On the map: active item button (attack with weapon, reload, or use item on a target); press again to cancel. In menus: back (right click in conversations) |
+| Select+B | Reload the active weapon |
+| X (looting) | Take all |
 | L | Right click (classic cursor-mode cycle) |
 | R (hold) | Highlight items and lootable bodies; in combat also lists your chance to hit each visible enemy |
 | Select+A | Quick heal (Stimpak, then Super Stimpak; 4 AP in combat) |
@@ -52,7 +54,7 @@ Each game has a built-in manual: press **Select** on the main menu or any menu, 
 | ZR | Start combat; in combat, end turn |
 | Start+ZR | End combat |
 | ZL | Swap map between screens |
-| Select | Center map on the player |
+| Select | Center map on the player (in menus: open the manual) |
 | Select+X / Select+Y | Automap / Pip-Boy clock (rest) |
 | Select+L | Cycle display mode (whole game screen) |
 | Select+Up/Down, 3D slider | Zoom the map |

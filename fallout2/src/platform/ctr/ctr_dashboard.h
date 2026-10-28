@@ -7,8 +7,8 @@
 
 namespace fallout {
 
-#define CTR_DASH_LINES 7
-#define CTR_DASH_TEXT 80
+#define CTR_DASH_MSGS 8
+#define CTR_DASH_MSG_TEXT 160
 
 struct CtrDashboard {
     bool valid;
@@ -35,9 +35,15 @@ struct CtrDashboard {
     int poison;
     int rads;
     char time[48];
+    int turn; // 0 = not in combat, 1 = your turn, 2 = someone else's
+    char otherHand[48];
+    int caps;
+    int weight;
+    int weightMax;
+    bool sneaking;
     unsigned int logVersion;
-    int lineCount;
-    char lines[CTR_DASH_LINES][CTR_DASH_TEXT];
+    int msgCount; // whole messages (the log's own line wrapping undone)
+    char msgs[CTR_DASH_MSGS][CTR_DASH_MSG_TEXT];
 };
 
 // Game side (dashboard_3ds.cc)

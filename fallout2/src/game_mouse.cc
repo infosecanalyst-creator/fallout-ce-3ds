@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -23,6 +24,7 @@
 #include "kb.h"
 #include "mouse.h"
 #include "object.h"
+#include "party_member.h"
 #include "proto.h"
 #include "proto_instance.h"
 #include "settings.h"
@@ -910,11 +912,48 @@ bool gameMouseClickOnInterfaceBar()
 // a tap on open ground still moves. B/L keeps the classic mode cycle.
 static Object* gameMouseSmartTarget = nullptr;
 
+// A team is hostile once it has fought the player's side: one of its members
+// attacked the player or a companion, or was attacked by them. Bystanders (shop
+// keepers, brahmin, guards not yet involved) are not attacked by a tap; use B
+// (crosshair) to attack them on purpose.
+static bool gameSmartIsHostileTeam(int team)
+{
+    Object* attacker = gDude->data.critter.combat.whoHitMe;
+    if (attacker != nullptr && attacker->data.critter.combat.team == team) {
+        return true;
+    }
+    // ctr_obj_for_each: callers may be inside a find-first/next loop.
+    struct Query {
+        int team;
+        int playerTeam;
+        bool hostile;
+    } q = { team, gDude->data.critter.combat.team, false };
+    ctr_obj_for_each(gElevation, [](Object* obj, void* ctx) {
+        Query* q = (Query*)ctx;
+        if (FID_TYPE(obj->fid) != OBJ_TYPE_CRITTER) {
+            return true;
+        }
+        Object* hitBy = obj->data.critter.combat.whoHitMe;
+        if (hitBy == nullptr) {
+            return true;
+        }
+        // One of the team was attacked by the player's side, or attacked it.
+        if ((obj->data.critter.combat.team == q->team && hitBy->data.critter.combat.team == q->playerTeam)
+            || (obj->data.critter.combat.team == q->playerTeam && hitBy->data.critter.combat.team == q->team)) {
+            q->hostile = true;
+            return false;
+        }
+        return true;
+    }, &q);
+    return q.hostile;
+}
+
 static bool gameMouseIsSmartEnemy(Object* obj)
 {
     return obj != nullptr && obj != gDude && FID_TYPE(obj->fid) == OBJ_TYPE_CRITTER
         && isInCombat() && !critterIsDead(obj)
-        && obj->data.critter.combat.team != gDude->data.critter.combat.team;
+        && obj->data.critter.combat.team != gDude->data.critter.combat.team
+        && gameSmartIsHostileTeam(obj->data.critter.combat.team);
 }
 
 static int gameMouseSmartMode(int mode)
@@ -1024,11 +1063,20 @@ void gameMouseHighlightAll(bool enable)
 // Circle Pad movement: walk the player in the hex direction that best matches
 // the stick (on screen), like the D-pad/stick movement in Dungeon Master and
 // SimGolf. dx/dy are stick values (dy up = positive); 0,0 = released.
+static int stickLastSector = -1;
+static int stickLastTarget = -1;
+static unsigned int stickLastFail = 0;
+static unsigned int stickLastRequest = 0;
+
+// Forget the stick's walk (another input or a menu took over).
+void gameStickReset()
+{
+    stickLastSector = -1;
+    stickLastTarget = -1;
+}
+
 void gameStickMove(int dx, int dy)
 {
-    static int lastSector = -1;
-    static int lastTarget = -1;
-    static unsigned int lastFailTime = 0;
 
     if (!gGameMouseInitialized || gDude == NULL) {
         return;
@@ -1036,9 +1084,9 @@ void gameStickMove(int dx, int dy)
 
     if (dx == 0 && dy == 0) {
         // Stick released: stop at the next tile instead of finishing the stretch.
-        if (lastTarget != -1 && !isInCombat() && animationIsBusy(gDude) && lastTarget != gDude->tile) {
+        if (stickLastTarget != -1 && getTicksSince(stickLastRequest) < 3000 && !isInCombat() && animationIsBusy(gDude) && stickLastTarget != gDude->tile) {
             unsigned char rotations[800];
-            int steps = _make_path(gDude, gDude->tile, lastTarget, rotations, 0);
+            int steps = _make_path(gDude, gDude->tile, stickLastTarget, rotations, 0);
             if (steps > 1) {
                 int stopTile = tileGetTileInDirection(gDude->tile, rotations[0], 1);
                 reg_anim_clear(gDude);
@@ -1051,8 +1099,8 @@ void gameStickMove(int dx, int dy)
                 reg_anim_end();
             }
         }
-        lastSector = -1;
-        lastTarget = -1;
+        stickLastSector = -1;
+        stickLastTarget = -1;
         return;
     }
 
@@ -1073,13 +1121,17 @@ void gameStickMove(int dx, int dy)
         if (combat) {
             return; // one hex per step in combat: wait for the step to finish
         }
-        if (sector == lastSector && lastTarget != -1 && tileDistanceBetween(gDude->tile, lastTarget) > 2) {
+        int turn = abs(sector - stickLastSector);
+        if (turn > 8) {
+            turn = 16 - turn;
+        }
+        if (stickLastSector != -1 && turn <= 1 && stickLastTarget != -1 && tileDistanceBetween(gDude->tile, stickLastTarget) > 2) {
             return; // keep walking the current stretch
         }
     }
 
     // Don't hammer the pathfinder when the way is blocked.
-    if (sector == lastSector && lastTarget == -1 && getTicksSince(lastFailTime) < 150) {
+    if (sector == stickLastSector && stickLastTarget == -1 && getTicksSince(stickLastFail) < 150) {
         return;
     }
 
@@ -1145,13 +1197,13 @@ void gameStickMove(int dx, int dy)
         }
     }
 
-    lastSector = sector;
+    stickLastSector = sector;
     if (tile == -1) {
-        lastTarget = -1;
-        lastFailTime = getTicks();
+        stickLastTarget = -1;
+        stickLastFail = getTicks();
         return;
     }
-    if (busy && tile == lastTarget) {
+    if (busy && tile == stickLastTarget) {
         return;
     }
 
@@ -1166,10 +1218,11 @@ void gameStickMove(int dx, int dy)
         animationRegisterMoveToTile(gDude, tile, gDude->elevation, actionPoints, 0);
     }
     if (reg_anim_end() == 0) {
-        lastTarget = tile;
+        stickLastTarget = tile;
+        stickLastRequest = getTicks();
     } else {
-        lastTarget = -1;
-        lastFailTime = getTicks();
+        stickLastTarget = -1;
+        stickLastFail = getTicks();
     }
 }
 #endif

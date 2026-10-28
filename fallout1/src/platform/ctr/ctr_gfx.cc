@@ -705,17 +705,25 @@ void ctr_gfx_exit()
 // Top-screen dashboard (citro2d text, rebuilt only when the data changes)
 // ---------------------------------------------------------------------------
 static C2D_TextBuf dashTextBuf = nullptr;
+static C2D_TextBuf dashMeasureBuf = nullptr;
 static CtrDashboard dashPrev;
 static bool dashHavePrev = false;
+static const char* dashHintPrev = nullptr;
+
+#define DASH_LOG_LINES 16
+static const float kDashLogScale = 0.45f;
 
 enum {
     DASH_T_NAME, DASH_T_TIME, DASH_T_HP, DASH_T_AC, DASH_T_AP, DASH_T_WEAPON,
-    DASH_T_AMMO, DASH_T_ATTACK, DASH_T_INFO, DASH_T_HP_LABEL, DASH_T_AP_LABEL,
+    DASH_T_AMMO, DASH_T_ATTACK, DASH_T_OTHER, DASH_T_INFO, DASH_T_INFO_RIGHT,
+    DASH_T_HP_LABEL, DASH_T_AP_LABEL, DASH_T_HINT,
     DASH_T_COUNT
 };
 static C2D_Text dashText[DASH_T_COUNT];
-static C2D_Text dashLines[CTR_DASH_LINES];
-static int dashLineCount = 0;
+static C2D_Text dashLog[DASH_LOG_LINES];
+static bool dashLogFirst[DASH_LOG_LINES]; // first line of a message (gets the bullet)
+static bool dashLogNewest[DASH_LOG_LINES];
+static int dashLogCount = 0;
 
 static void dashParse(C2D_Text* t, const char* str)
 {
@@ -723,13 +731,61 @@ static void dashParse(C2D_Text* t, const char* str)
     C2D_TextOptimize(t);
 }
 
-static void dashRebuild(const CtrDashboard* d)
+static float dashMeasure(const char* str)
 {
-    char buf[128];
+    C2D_Text t;
+    C2D_TextBufClear(dashMeasureBuf);
+    C2D_TextParse(&t, dashMeasureBuf, str);
+    float w = 0, h = 0;
+    C2D_TextGetDimensions(&t, kDashLogScale, kDashLogScale, &w, &h);
+    return w;
+}
+
+// Word-wraps one message at the top screen's width; returns lines written.
+static int dashWrap(const char* msg, char out[][CTR_DASH_MSG_TEXT], int maxLines, float width)
+{
+    int lines = 0;
+    char line[CTR_DASH_MSG_TEXT] = "";
+    char trial[CTR_DASH_MSG_TEXT * 2];
+    const char* p = msg;
+    while (*p != '\0' && lines < maxLines) {
+        while (*p == ' ') p++;
+        const char* end = p;
+        while (*end != '\0' && *end != ' ') end++;
+        if (end == p) break;
+        snprintf(trial, sizeof(trial), "%s%s%.*s", line, line[0] != '\0' ? " " : "", (int)(end - p), p);
+        if (line[0] != '\0' && dashMeasure(trial) > width) {
+            snprintf(out[lines++], CTR_DASH_MSG_TEXT, "%s", line);
+            snprintf(line, sizeof(line), "%.*s", (int)(end - p), p);
+        } else {
+            snprintf(line, sizeof(line), "%s", trial);
+        }
+        p = end;
+    }
+    if (line[0] != '\0' && lines < maxLines) {
+        snprintf(out[lines++], CTR_DASH_MSG_TEXT, "%s", line);
+    }
+    return lines;
+}
+
+static void dashRebuild(const CtrDashboard* d, const char* hint, int logLines)
+{
+    char buf[160];
     C2D_TextBufClear(dashTextBuf);
 
-    dashParse(&dashText[DASH_T_NAME], d->name);
-    dashParse(&dashText[DASH_T_TIME], d->time);
+    if (d->sneaking) {
+        snprintf(buf, sizeof(buf), "%s  [SNEAKING]", d->name);
+        dashParse(&dashText[DASH_T_NAME], buf);
+    } else {
+        dashParse(&dashText[DASH_T_NAME], d->name);
+    }
+    if (d->turn == 1) {
+        dashParse(&dashText[DASH_T_TIME], "COMBAT - YOUR TURN");
+    } else if (d->turn == 2) {
+        dashParse(&dashText[DASH_T_TIME], "COMBAT - ENEMY TURN");
+    } else {
+        dashParse(&dashText[DASH_T_TIME], d->time);
+    }
     snprintf(buf, sizeof(buf), "%d / %d", d->hp, d->hpMax);
     dashParse(&dashText[DASH_T_HP], buf);
     snprintf(buf, sizeof(buf), "AC %d", d->ac);
@@ -746,12 +802,18 @@ static void dashRebuild(const CtrDashboard* d)
     dashParse(&dashText[DASH_T_AP], buf);
     dashParse(&dashText[DASH_T_WEAPON], d->weapon);
     if (d->hasAmmo) {
-        snprintf(buf, sizeof(buf), "Ammo %d / %d", d->ammo, d->ammoMax);
+        if (d->ammo == 0) {
+            snprintf(buf, sizeof(buf), "Ammo 0 / %d - Select+B reload", d->ammoMax);
+        } else {
+            snprintf(buf, sizeof(buf), "Ammo %d / %d", d->ammo, d->ammoMax);
+        }
     } else {
         buf[0] = '\0';
     }
     dashParse(&dashText[DASH_T_AMMO], buf);
     dashParse(&dashText[DASH_T_ATTACK], d->attack);
+    snprintf(buf, sizeof(buf), "Other hand: %s", d->otherHand);
+    dashParse(&dashText[DASH_T_OTHER], buf);
 
     if (d->hasTarget) {
         if (d->targetHit > 0) {
@@ -765,12 +827,71 @@ static void dashRebuild(const CtrDashboard* d)
         snprintf(buf, sizeof(buf), "Level %d   XP %d / %d", d->level, d->xp, d->xpNext);
     }
     dashParse(&dashText[DASH_T_INFO], buf);
+    if (!d->hasTarget) {
+        snprintf(buf, sizeof(buf), "$%d   Wt %d / %d", d->caps, d->weight, d->weightMax);
+    } else {
+        buf[0] = '\0';
+    }
+    dashParse(&dashText[DASH_T_INFO_RIGHT], buf);
     dashParse(&dashText[DASH_T_HP_LABEL], "HP");
     dashParse(&dashText[DASH_T_AP_LABEL], "AP");
+    dashParse(&dashText[DASH_T_HINT], hint != nullptr ? hint : "");
 
-    dashLineCount = d->lineCount;
-    for (int i = 0; i < d->lineCount; i++) {
-        dashParse(&dashLines[i], d->lines[i]);
+    // Message log: newest messages, wrapped at full width, bottom-aligned.
+    static char wrapped[DASH_LOG_LINES * 2][CTR_DASH_MSG_TEXT];
+    static bool first[DASH_LOG_LINES * 2];
+    static bool newest[DASH_LOG_LINES * 2];
+    int total = 0;
+    for (int m = d->msgCount - 1; m >= 0 && total < logLines; m--) {
+        char lines[6][CTR_DASH_MSG_TEXT];
+        int n = dashWrap(d->msgs[m], lines, 6, 372.f);
+        // Prepend this message's lines (we walk from newest to oldest).
+        int keep = n;
+        if (total + keep > logLines) {
+            keep = logLines - total; // only the last lines of an old message fit
+        }
+        memmove(wrapped[keep], wrapped[0], sizeof(wrapped[0]) * total);
+        memmove(first + keep, first, sizeof(bool) * total);
+        memmove(newest + keep, newest, sizeof(bool) * total);
+        for (int i = 0; i < keep; i++) {
+            int src = n - keep + i;
+            memcpy(wrapped[i], lines[src], CTR_DASH_MSG_TEXT);
+            first[i] = src == 0;
+            newest[i] = m == d->msgCount - 1;
+        }
+        total += keep;
+    }
+    dashLogCount = total;
+    for (int i = 0; i < total; i++) {
+        dashParse(&dashLog[i], wrapped[i]);
+        dashLogFirst[i] = first[i];
+        dashLogNewest[i] = newest[i];
+    }
+}
+
+// One-line button reminder for the screen on the touchscreen.
+static const char* dashHint(const CtrDashboard* d)
+{
+    switch (ctr_rectMap.active) {
+    case DISPLAY_FIELD:
+        if (d->turn == 1) {
+            return "ZR end turn    B attack    Hold R odds    Select+A heal";
+        }
+        return nullptr;
+    case DISPLAY_INVENTORY:
+        return "Drag items to hands or armor    Hold for menu    B close";
+    case DISPLAY_INVENTORY_LOOT:
+        return "Drag items across    X take all    B close";
+    case DISPLAY_INVENTORY_USE:
+        return "Tap the item to use    B close";
+    case DISPLAY_SKILLDEX:
+        return "Tap a skill, then what to use it on    B close";
+    case DISPLAY_WORLDMAP:
+        return "Tap a place to travel there";
+    case DISPLAY_PIPBOY:
+        return "Tap the buttons on the left    B close";
+    default:
+        return nullptr;
     }
 }
 
@@ -778,6 +899,7 @@ void ctr_dashboard_draw()
 {
     if (dashTextBuf == nullptr) {
         dashTextBuf = C2D_TextBufNew(4096);
+        dashMeasureBuf = C2D_TextBufNew(512);
     }
 
     CtrDashboard d;
@@ -785,9 +907,19 @@ void ctr_dashboard_draw()
     if (!d.valid) {
         return;
     }
-    if (!dashHavePrev || memcmp(&d, &dashPrev, sizeof(d)) != 0) {
-        dashRebuild(&d);
+    const char* hint = dashHint(&d);
+
+    // Layout: log from y=127 to the hint strip (or the bottom).
+    const float logTop = 127.f;
+    const float logBottom = hint != nullptr ? 222.f : 238.f;
+    const float logStep = 14.5f;
+    int logLines = (int)((logBottom - logTop) / logStep);
+    if (logLines > DASH_LOG_LINES) logLines = DASH_LOG_LINES;
+
+    if (!dashHavePrev || hint != dashHintPrev || memcmp(&d, &dashPrev, sizeof(d)) != 0) {
+        dashRebuild(&d, hint, logLines);
         dashPrev = d;
+        dashHintPrev = hint;
         dashHavePrev = true;
     }
 
@@ -812,9 +944,9 @@ void ctr_dashboard_draw()
 
     rect(0, 0, 400, 240, bg);
 
-    // Header: name + date/time
-    text(&dashText[DASH_T_NAME], 8, 2, 0.6f, green);
-    text(&dashText[DASH_T_TIME], 392, 5, 0.45f, dim, true);
+    // Header: name + date/time, or whose turn it is in combat
+    text(&dashText[DASH_T_NAME], 8, 2, 0.6f, d.sneaking ? amber : green);
+    text(&dashText[DASH_T_TIME], 392, 5, 0.45f, d.turn == 1 ? amber : (d.turn == 2 ? red : dim), true);
 
     // HP bar
     text(&dashText[DASH_T_HP_LABEL], 8, 25, 0.5f, green);
@@ -836,20 +968,32 @@ void ctr_dashboard_draw()
     }
     text(&dashText[DASH_T_AP], 36 + pips * 15 + 6, 47, 0.45f, d.inCombat ? green : dim);
 
-    // Weapon / attack / ammo
+    // Weapon / attack / ammo / other hand
     text(&dashText[DASH_T_WEAPON], 8, 67, 0.52f, green);
     text(&dashText[DASH_T_AMMO], 392, 69, 0.45f, (d.hasAmmo && d.ammo == 0) ? red : green, true);
     text(&dashText[DASH_T_ATTACK], 8, 85, 0.47f, dim);
+    text(&dashText[DASH_T_OTHER], 392, 86, 0.42f, dim, true);
 
-    // Target (combat) or level/status
+    // Target (combat) or level/status, caps and load
     text(&dashText[DASH_T_INFO], 8, 103, 0.47f, d.hasTarget ? amber : dim);
+    text(&dashText[DASH_T_INFO_RIGHT], 392, 104, 0.42f, (d.weightMax > 0 && d.weight > d.weightMax) ? red : dim, true);
 
     // Message log
     rect(0, 123, 400, 1, dim);
-    float y = 127;
-    for (int i = 0; i < dashLineCount; i++) {
-        text(&dashLines[i], 8, y, 0.45f, i == dashLineCount - 1 ? green : dim);
-        y += 15.5f;
+    float y = logTop;
+    for (int i = 0; i < dashLogCount; i++) {
+        float x = 8;
+        if (dashLogFirst[i]) {
+            C2D_DrawRectSolid(9 * kx, y + 6, 0.55f, 3 * kx, 3, dashLogNewest[i] ? green : dim);
+        }
+        x = 16;
+        text(&dashLog[i], x, y, kDashLogScale, dashLogNewest[i] ? green : dim);
+        y += logStep;
+    }
+
+    if (hint != nullptr) {
+        rect(0, 224, 400, 16, panel);
+        C2D_DrawText(&dashText[DASH_T_HINT], C2D_WithColor | C2D_AlignCenter, 200 * kx, 225, 0.6f, 0.42f * kx, 0.42f, amber);
     }
 
     C2D_Flush();

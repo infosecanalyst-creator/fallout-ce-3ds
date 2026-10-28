@@ -13,12 +13,14 @@
 #include "display_monitor.h"
 #include "interface.h"
 #include "item.h"
+#include "inventory.h"
 #include "map.h"
 #include "object.h"
 #include "proto_types.h"
 #include "scripts.h"
 #include "stat.h"
 #include "stat_defs.h"
+#include "tile.h"
 
 namespace fallout {
 
@@ -43,19 +45,97 @@ void ctrDashboardSetTarget(void* critter)
     gDashTarget = (Object*)critter;
 }
 
-// The target pointer is only trusted while the object is still on the map.
-static bool dashTargetStillExists()
+// Object pointers are only trusted while the object is still on this map.
+static bool dashObjectOnMap(Object* target)
 {
-    if (gDashTarget == nullptr) {
+    if (target == NULL) {
         return false;
     }
-    for (Object* obj = objectFindFirstAtElevation(gElevation); obj != nullptr; obj = objectFindNextAtElevation()) {
-        if (obj == gDashTarget) {
-            return true;
+    struct Find {
+        Object* target;
+        bool found;
+    } find = { target, false };
+    ctr_obj_for_each(gElevation, [](Object* obj, void* ctx) {
+        Find* f = (Find*)ctx;
+        if (obj == f->target) {
+            f->found = true;
+            return false;
         }
+        return true;
+    }, &find);
+    return find.found;
+}
+
+static bool dashIsLiveCritter(Object* obj)
+{
+    return obj != NULL && obj != gDude && PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER && !critterIsDead(obj);
+}
+
+// The enemy to show on the dashboard: the last one tapped while it lives,
+// otherwise whoever last attacked the player, otherwise the nearest critter
+// that is fighting the player. Searched a few times a second, not per frame.
+static Object* dashCurrentTarget()
+{
+    static int lastMap = -1;
+    static int lastElevation = -1;
+    static Object* autoTarget = NULL;
+    static int searchCountdown = 0;
+
+    int map = mapGetCurrentMap();
+    if (map != lastMap || gElevation != lastElevation) {
+        gDashTarget = NULL;
+        autoTarget = NULL;
+        lastMap = map;
+        lastElevation = gElevation;
     }
-    gDashTarget = nullptr;
-    return false;
+
+    // Walking every tile list costs time, so the pointers are re-verified a few
+    // times a second; objects are only freed on map changes (handled above)
+    // or by scripts.
+    static int verifyCountdown = 0;
+    bool verify = --verifyCountdown <= 0;
+    if (verify) {
+        verifyCountdown = 15;
+    }
+    if (gDashTarget != NULL && ((verify && !dashObjectOnMap(gDashTarget)) || critterIsDead(gDashTarget))) {
+        gDashTarget = NULL;
+    }
+    if (gDashTarget != NULL) {
+        return gDashTarget;
+    }
+
+    if (autoTarget != NULL && ((verify && !dashObjectOnMap(autoTarget)) || critterIsDead(autoTarget))) {
+        autoTarget = NULL;
+        searchCountdown = 0;
+    }
+    if (--searchCountdown > 0 && autoTarget != NULL) {
+        return autoTarget;
+    }
+    searchCountdown = 20;
+
+    Object* attacker = gDude->data.critter.combat.whoHitMe;
+    if (dashObjectOnMap(attacker) && dashIsLiveCritter(attacker)) {
+        autoTarget = attacker;
+        return autoTarget;
+    }
+
+    struct Nearest {
+        Object* best;
+        int bestDist;
+    } nearest = { NULL, 0 };
+    ctr_obj_for_each(gElevation, [](Object* obj, void* ctx) {
+        Nearest* n = (Nearest*)ctx;
+        if (dashIsLiveCritter(obj) && obj->data.critter.combat.whoHitMe == gDude) {
+            int dist = tileDistanceBetween(gDude->tile, obj->tile);
+            if (n->best == NULL || dist < n->bestDist) {
+                n->best = obj;
+                n->bestDist = dist;
+            }
+        }
+        return true;
+    }, &nearest);
+    autoTarget = nearest.best;
+    return autoTarget;
 }
 
 static const char* attackLabel(Object* weapon, int hitMode)
@@ -127,7 +207,13 @@ void ctrDashboardGather(CtrDashboard* d)
     int hitMode = HIT_MODE_PUNCH;
     bool aiming = false;
     if (interfaceGetActiveItem(&item) != 0 || item == (Object*)-1) {
-        item = nullptr; // interface not ready (e.g. while a map loads)
+        item = NULL; // interface not ready (e.g. while a map loads)
+    }
+    // The interface caches the hand pointer; while the inventory is open the
+    // item can be used up or merged into a stack and freed. Only trust it if
+    // it is still in one of the player's hands.
+    if (item != NULL && item != critterGetItem2(gDude) && item != critterGetItem1(gDude)) {
+        item = NULL;
     }
     if (interfaceGetCurrentHitMode(&hitMode, &aiming) != 0) {
         hitMode = HIT_MODE_PUNCH;
@@ -146,34 +232,91 @@ void ctrDashboardGather(CtrDashboard* d)
     int apCost = weaponGetActionPointCost(gDude, hitMode, aiming);
     snprintf(d->attack, sizeof(d->attack), "%s%s  %d AP", attackLabel(item, hitMode), aiming ? " (aimed)" : "", apCost);
 
-    // Combat target: last enemy tapped
-    if (d->inCombat && dashTargetStillExists()) {
-        int thp = critterGetHitPoints(gDashTarget);
-        int thpMax = critterGetStat(gDashTarget, STAT_MAXIMUM_HIT_POINTS);
-        d->hasTarget = true;
-        snprintf(d->target, sizeof(d->target), "%s", objectGetName(gDashTarget));
-        snprintf(d->targetState, sizeof(d->targetState), "%s", healthWord(thp, thpMax));
-        d->targetHit = thp > 0 ? _determine_to_hit(gDude, gDashTarget, HIT_LOCATION_UNCALLED, hitMode) : 0;
+    // Combat: whose turn, and the target
+    if (d->inCombat) {
+        d->turn = _combat_whose_turn() == gDude ? 1 : 2;
+        Object* target = dashCurrentTarget();
+        if (target != NULL) {
+            int thp = critterGetHitPoints(target);
+            int thpMax = critterGetStat(target, STAT_MAXIMUM_HIT_POINTS);
+            d->hasTarget = true;
+            snprintf(d->target, sizeof(d->target), "%s", objectGetName(target));
+            snprintf(d->targetState, sizeof(d->targetState), "%s", healthWord(thp, thpMax));
+            // The to-hit roll traces the line of fire: only recompute when
+            // something it depends on changes, or a few times a second.
+            static Object* hitTarget = NULL;
+            static int hitModeLast = -1;
+            static int hitTileLast = -1;
+            static int hitTargetTileLast = -1;
+            static int hitValue = 0;
+            static int hitCountdown = 0;
+            if (target != hitTarget || hitMode != hitModeLast || gDude->tile != hitTileLast
+                || target->tile != hitTargetTileLast || --hitCountdown <= 0) {
+                hitValue = thp > 0 ? _determine_to_hit(gDude, target, HIT_LOCATION_UNCALLED, hitMode) : 0;
+                hitTarget = target;
+                hitModeLast = hitMode;
+                hitTileLast = gDude->tile;
+                hitTargetTileLast = target->tile;
+                hitCountdown = 15;
+            }
+            d->targetHit = thp > 0 ? hitValue : 0;
+        }
     }
 
-    // Message log
-    const char* lines[CTR_DASH_LINES];
-    d->lineCount = displayMonitorGetRecentLines(lines, CTR_DASH_LINES, &d->logVersion);
-    for (int i = 0; i < d->lineCount; i++) {
-        // The interface font uses 0x95 as its bullet; show a plain one.
-        const char* src = lines[i];
-        char* dst = d->lines[i];
-        int n = 0;
-        if ((unsigned char)*src == 0x95) {
-            dst[n++] = '>';
-            dst[n++] = ' ';
+    // The other hand, money, load, sneaking
+    Object* other = (interfaceGetCurrentHand() == HAND_RIGHT) ? critterGetItem1(gDude) : critterGetItem2(gDude);
+    snprintf(d->otherHand, sizeof(d->otherHand), "%s", other != NULL ? objectGetName(other) : "Unarmed");
+    static int capsCache = 0;
+    static int weightCache = 0;
+    static int inventoryCountdown = 0;
+    if (--inventoryCountdown <= 0) {
+        capsCache = itemGetTotalCaps(gDude);
+        weightCache = objectGetInventoryWeight(gDude);
+        inventoryCountdown = 15;
+    }
+    d->caps = capsCache;
+    d->weight = weightCache;
+    d->weightMax = critterGetStat(gDude, STAT_CARRY_WEIGHT);
+    d->sneaking = dudeHasState(DUDE_STATE_SNEAKING);
+
+    // Message log: the monitor stores lines wrapped for the narrow PC
+    // interface; join them back into whole messages (each starts with the
+    // 0x95 bullet) so the top screen can wrap them at its own width.
+    const char* lines[24];
+    int lineCount = displayMonitorGetRecentLines(lines, 24, &d->logVersion);
+    char joined[CTR_DASH_MSGS * 2][CTR_DASH_MSG_TEXT];
+    int count = 0;
+    for (int i = 0; i < lineCount; i++) {
+        const unsigned char* src = (const unsigned char*)lines[i];
+        bool start = *src == 0x95 || count == 0;
+        if (*src == 0x95) {
             src++;
         }
-        while (*src != '\0' && n < CTR_DASH_TEXT - 1) {
-            unsigned char c = (unsigned char)*src++;
+        if (start) {
+            if (count == CTR_DASH_MSGS * 2) {
+                memmove(joined[0], joined[1], sizeof(joined[0]) * (CTR_DASH_MSGS * 2 - 1));
+                count--;
+            }
+            joined[count++][0] = '\0';
+        }
+        char* dst = joined[count - 1];
+        size_t n = strlen(dst);
+        if (!start && n > 0 && n < CTR_DASH_MSG_TEXT - 1) {
+            dst[n++] = ' ';
+        }
+        while (*src == ' ') {
+            src++;
+        }
+        while (*src != '\0' && n < CTR_DASH_MSG_TEXT - 1) {
+            unsigned char c = *src++;
             dst[n++] = (c < 0x80) ? (char)c : '?';
         }
         dst[n] = '\0';
+    }
+    int first = count > CTR_DASH_MSGS ? count - CTR_DASH_MSGS : 0;
+    d->msgCount = count - first;
+    for (int i = 0; i < d->msgCount; i++) {
+        memcpy(d->msgs[i], joined[first + i], CTR_DASH_MSG_TEXT);
     }
 }
 

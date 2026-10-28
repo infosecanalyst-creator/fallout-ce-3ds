@@ -95,6 +95,10 @@ int obj_save_dude(DB_FILE* stream);
 int obj_load_dude(DB_FILE* stream);
 void obj_fix_violence_settings(int* fid);
 
+#ifdef __3DS__
+void ctr_obj_for_each(int elevation, bool (*visit)(Object* obj, void* ctx), void* ctx);
+#endif
+
 } // namespace fallout
 
 #endif /* FALLOUT_GAME_OBJECT_H_ */

@@ -102,6 +102,10 @@ void _obj_fix_violence_settings(int* fid);
 Object* objectTypedFindById(int id, int type);
 bool isExitGridAt(int tile, int elevation);
 
+#ifdef __3DS__
+void ctr_obj_for_each(int elevation, bool (*visit)(Object* obj, void* ctx), void* ctx);
+#endif
+
 } // namespace fallout
 
 #endif /* OBJECT_H */

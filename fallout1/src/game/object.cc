@@ -4926,4 +4926,21 @@ static int obj_preload_sort(const void* a1, const void* a2)
     return cmp;
 }
 
+
+#ifdef __3DS__
+// Walks the object lists without touching the shared find-first/next state:
+// the 3DS dashboard runs from inside the renderer, which can be reached in the
+// middle of an engine loop that is using that iterator.
+void ctr_obj_for_each(int elevation, bool (*visit)(Object* obj, void* ctx), void* ctx)
+{
+    for (int tile = 0; tile < HEX_GRID_SIZE; tile++) {
+        for (ObjectListNode* node = objectTable[tile]; node != NULL; node = node->next) {
+            if (node->obj->elevation == elevation && !visit(node->obj, ctx)) {
+                return;
+            }
+        }
+    }
+}
+#endif
+
 } // namespace fallout

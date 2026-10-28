@@ -62,6 +62,10 @@ int refresh_box_bar_win();
 bool enable_box_bar_win();
 bool disable_box_bar_win();
 
+#ifdef __3DS__
+void intface_quick_reload();
+#endif
+
 } // namespace fallout
 
 #endif /* FALLOUT_GAME_INTFACE_H_ */

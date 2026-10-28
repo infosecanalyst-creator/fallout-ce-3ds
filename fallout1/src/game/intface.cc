@@ -2618,4 +2618,55 @@ bool disable_box_bar_win()
     return oldIsVisible;
 }
 
+
+#ifdef __3DS__
+// Select+B: reload the weapon in the active hand straight away, without
+// cycling to its reload mode first. Costs the usual reload AP in combat.
+void intface_quick_reload()
+{
+    if (interfaceWindow == -1) {
+        return;
+    }
+    static char msg[80];
+    InterfaceItemState* ptr = &(itemButtonItems[itemCurrentItem]);
+    Object* weapon = ptr->item;
+    if (weapon == NULL || ptr->isWeapon == 0 || item_w_max_ammo(weapon) <= 0) {
+        strcpy(msg, "Nothing to reload.");
+        display_print(msg);
+        return;
+    }
+    if (item_w_curr_ammo(weapon) >= item_w_max_ammo(weapon)) {
+        strcpy(msg, "The weapon is already loaded.");
+        display_print(msg);
+        return;
+    }
+    int hitMode = itemCurrentItem == HAND_LEFT ? HIT_MODE_LEFT_WEAPON_RELOAD : HIT_MODE_RIGHT_WEAPON_RELOAD;
+    int actionPoints = item_mp_cost(obj_dude, hitMode, false);
+    if (isInCombat() && actionPoints > obj_dude->data.critter.combat.ap) {
+        strcpy(msg, "Not enough action points to reload.");
+        display_print(msg);
+        return;
+    }
+    bool reloaded = false;
+    while (item_w_try_reload(obj_dude, weapon) != -1) {
+        reloaded = true;
+    }
+    if (!reloaded) {
+        strcpy(msg, "You have no ammo for this weapon.");
+        display_print(msg);
+        return;
+    }
+    if (isInCombat()) {
+        obj_dude->data.critter.combat.ap -= actionPoints;
+        if (obj_dude->data.critter.combat.ap < 0) {
+            obj_dude->data.critter.combat.ap = 0;
+        }
+        intface_update_move_points(obj_dude->data.critter.combat.ap, combat_free_move);
+    }
+    intface_update_items(false);
+    const char* sfx = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_READY, weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY, NULL);
+    gsound_play_sfx_file(sfx);
+}
+#endif
+
 } // namespace fallout

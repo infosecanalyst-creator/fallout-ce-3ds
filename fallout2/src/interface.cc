@@ -2661,4 +2661,55 @@ bool interface_get_current_attack_mode(int* hit_mode)
     return true;
 }
 
+
+#ifdef __3DS__
+// Select+B: reload the weapon in the active hand straight away, without
+// cycling to its reload mode first. Costs the usual reload AP in combat.
+void interfaceQuickReload()
+{
+    if (gInterfaceBarWindow == -1) {
+        return;
+    }
+    static char msg[80];
+    InterfaceItemState* ptr = &(gInterfaceItemStates[gInterfaceCurrentHand]);
+    Object* weapon = ptr->item;
+    if (weapon == NULL || ptr->isWeapon == 0 || ammoGetCapacity(weapon) <= 0) {
+        strcpy(msg, "Nothing to reload.");
+        displayMonitorAddMessage(msg);
+        return;
+    }
+    if (ammoGetQuantity(weapon) >= ammoGetCapacity(weapon)) {
+        strcpy(msg, "The weapon is already loaded.");
+        displayMonitorAddMessage(msg);
+        return;
+    }
+    int hitMode = gInterfaceCurrentHand == HAND_LEFT ? HIT_MODE_LEFT_WEAPON_RELOAD : HIT_MODE_RIGHT_WEAPON_RELOAD;
+    int actionPoints = itemGetActionPointCost(gDude, hitMode, false);
+    if (isInCombat() && actionPoints > gDude->data.critter.combat.ap) {
+        strcpy(msg, "Not enough action points to reload.");
+        displayMonitorAddMessage(msg);
+        return;
+    }
+    bool reloaded = false;
+    while (weaponAttemptReload(gDude, weapon) != -1) {
+        reloaded = true;
+    }
+    if (!reloaded) {
+        strcpy(msg, "You have no ammo for this weapon.");
+        displayMonitorAddMessage(msg);
+        return;
+    }
+    if (isInCombat()) {
+        gDude->data.critter.combat.ap -= actionPoints;
+        if (gDude->data.critter.combat.ap < 0) {
+            gDude->data.critter.combat.ap = 0;
+        }
+        interfaceRenderActionPoints(gDude->data.critter.combat.ap, _combat_free_move);
+    }
+    interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+    const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_READY, weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY, NULL);
+    soundPlayFile(sfx);
+}
+#endif
+
 } // namespace fallout

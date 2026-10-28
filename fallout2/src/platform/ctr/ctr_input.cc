@@ -45,6 +45,7 @@ namespace fallout {
 #define FLAG_SELECT_X 0x400
 #define FLAG_SELECT_Y 0x800
 #define FLAG_SELECT_A 0x1000
+#define FLAG_SELECT_B 0x2000
 
 #define KEY_PRESS(x) ((ctr_input.frame.kHeld & (x)) && (!(oldpad & (x))))
 #define KEY_HELD(x) (ctr_input.frame.kHeld & (x))
@@ -79,7 +80,8 @@ static bool ctr_is_n3ds(void)
 
 static bool ctr_in_gameplay(void)
 {
-    return (ctr_rectMap.active == DISPLAY_FIELD) || (ctr_rectMap.active == DISPLAY_GUI);
+    // The logical screen: Select+L's whole-screen view still shows the map.
+    return (ctr_rectMap.main == DISPLAY_FIELD) || (ctr_rectMap.main == DISPLAY_GUI);
 }
 
 // Keep the player inside the visible part of the map. The 3DS screen only
@@ -295,6 +297,12 @@ void ctr_input_process(void)
         } else {
             gameStickMove(0, 0);
         }
+        // A tap takes over from the stick.
+        if (KEY_PRESS(KEY_TOUCH)) {
+            gameStickReset();
+        }
+    } else {
+        gameStickReset();
     }
 
     if ((ctr_rectMap.active == DISPLAY_FIELD) || (ctr_rectMap.active == DISPLAY_GUI)) {
@@ -497,6 +505,12 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
         key_combi_flags |= FLAG_SELECT_Y;
     }
 
+    // Select+B = reload the active weapon
+    if (KEY_HELD(KEY_SELECT) && KEY_PRESS(KEY_B) && ctr_in_gameplay() && interfaceBarEnabled()) {
+        interfaceQuickReload();
+        key_combi_flags |= FLAG_SELECT_B;
+    }
+
     // Select+A = quick heal (Stimpak, then Super Stimpak)
     if (KEY_HELD(KEY_SELECT) && KEY_PRESS(KEY_A) && ctr_in_gameplay()) {
         inventoryQuickHeal();
@@ -533,20 +547,34 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
         // weapon, reload, or use the item on a target); right click elsewhere.
         // B outside the map = Back (3DS convention) while a game is running,
         // except in conversations; elsewhere it stays a right click.
-        bool bIsBack = !ctr_in_gameplay() && ctrDashboardAvailable() &&
-                ctr_rectMap.active != DISPLAY_DIALOG && ctr_rectMap.active != DISPLAY_MOVIE;
+        bool bIsBack = !ctr_in_gameplay() &&
+                ctr_rectMap.active != DISPLAY_DIALOG && ctr_rectMap.active != DISPLAY_MOVIE &&
+                (ctrDashboardAvailable() ||
+                 (ctr_rectMap.active != DISPLAY_MAIN && ctr_rectMap.active != DISPLAY_FULL));
+        // X on a body or container = Take All (the game's own shortcut)
+        if (KEY_PRESS(KEY_X) && ctr_rectMap.active == DISPLAY_INVENTORY_LOOT
+                && !KEY_HELD(KEY_SELECT) && !KEY_HELD(KEY_START)) {
+            enqueueInputEvent(KEY_UPPERCASE_A);
+        }
         if (KEY_PRESS(KEY_B) && bIsBack && !KEY_HELD(KEY_SELECT) && !KEY_HELD(KEY_START)) {
             enqueueInputEvent(KEY_ESCAPE);
         }
         if (KEY_PRESS(KEY_L) || (KEY_PRESS(KEY_B) && !ctr_in_gameplay() && !bIsBack)) {
             *buttons |= MOUSE_STATE_RIGHT_BUTTON_DOWN;
         }
-        if (KEY_PRESS(KEY_B) && ctr_in_gameplay()) {
-            _intface_use_item();
+        // On the map: B cancels attack/use targeting, otherwise uses the
+        // active item. Only on the player's turn with the interface enabled.
+        if (KEY_PRESS(KEY_B) && ctr_in_gameplay() && !KEY_HELD(KEY_SELECT) && !KEY_HELD(KEY_START)
+                && interfaceBarEnabled() && (gCombatState & 0x02) != 0) {
+            if (gameMouseGetMode() != GAME_MOUSE_MODE_MOVE) {
+                gameMouseSetMode(GAME_MOUSE_MODE_MOVE);
+            } else {
+                _intface_use_item();
+            }
         }
 
         // A = left click on every screen (hold to drag, e.g. inventory items)
-        if (KEY_HELD(KEY_A)) {
+        if (KEY_HELD(KEY_A) && !KEY_HELD(KEY_SELECT)) {
             *buttons |= MOUSE_STATE_LEFT_BUTTON_DOWN;
         }
 
@@ -606,6 +634,7 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
             offsetX_field = rectMaps[DISPLAY_FIELD][0]->src_x;
             offsetY_field = rectMaps[DISPLAY_FIELD][0]->src_y;
 
+            int edgeDx = 0, edgeDy = 0;
             if (scrollUp) {
                 if (offsetY_field > 0) {
                     int deltaY = (offsetY_field >= 8) ? 8 : offsetY_field;
@@ -620,7 +649,7 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
                         }
                     }
                 } else {
-                    ctr_map_scroll(0, -1);
+                    edgeDy = -1;
                 }
             }
             if (scrollDown) {
@@ -638,7 +667,7 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
                         }
                     }
                 } else {
-                    ctr_map_scroll(0, 1);
+                    edgeDy = 1;
                 }
             }
             if (scrollLeft) {
@@ -655,7 +684,7 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
                         }
                     }
                 } else {
-                    ctr_map_scroll(-1, 0);
+                    edgeDx = -1;
                 }
             }
             if (scrollRight) {
@@ -673,8 +702,11 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
                         }
                     }
                 } else {
-                    ctr_map_scroll(1, 0);
+                    edgeDx = 1;
                 }
+            }
+            if (edgeDx != 0 || edgeDy != 0) {
+                ctr_map_scroll(edgeDx, edgeDy); // one throttled call, so diagonals work
             }
             rectMaps[DISPLAY_FIELD][0]->src_x = offsetX_field;
             rectMaps[DISPLAY_FIELD][0]->src_y = offsetY_field;
@@ -730,6 +762,20 @@ void to_lowercase(char* str) {
     }
 }
 
+// Adds a dialogue topic to the keyboard's suggestions (bounded, and without
+// lower-casing the game's own message strings in place).
+static void swkbd_add_word(const char* str)
+{
+    if (num_words >= MAX_DICT_WORDS || str == NULL || compat_stricmp(str, "Error") == 0) {
+        return;
+    }
+    char lower[64];
+    snprintf(lower, sizeof(lower), "%s", str);
+    to_lowercase(lower);
+    swkbdSetDictWord(&words[num_words], lower, lower);
+    num_words++;
+}
+
 void swkbd_about_lookup_word(void)
 {
     Script* scr;
@@ -746,28 +792,14 @@ void swkbd_about_lookup_word(void)
             for (message_id = 1000; message_id < 1100; message_id++) {
                 str = _scr_get_msg_str(message_list_id, message_id);
 
-                if (str != NULL && compat_stricmp(str, "Error") != 0) {
-                    to_lowercase(str);
-#ifdef _DEBUG
-                    debugPrint("about_lookup_word: %s\n", str);
-#endif
-                    swkbdSetDictWord(&words[num_words], str, str);
-                    num_words++;
-                }
+                swkbd_add_word(str);
             }
         }
         message_list_id = 1;
         for (message_id = 600 * gMapHeader.index + 1000; message_id < 600 * gMapHeader.index + 1100; message_id++) {
             str = _scr_get_msg_str(message_list_id, message_id);
 
-            if (str != NULL && compat_stricmp(str, "Error") != 0) {
-                to_lowercase(str);
-#ifdef _DEBUG
-                debugPrint("about_lookup_word: %s\n", str);
-#endif
-                swkbdSetDictWord(&words[num_words], str, str);
-                num_words++;
-            }
+            swkbd_add_word(str);
         }
         break;
     }
@@ -802,7 +834,9 @@ int ctr_input_swkbd(const char *hintText, const char *inText, char *outText, siz
     swkbdSetButton(&swkbd, SWKBD_BUTTON_RIGHT, "OK", true);
     swkbdSetFeatures(&swkbd,
             SWKBD_PREDICTIVE_INPUT | SWKBD_ALLOW_HOME | SWKBD_ALLOW_RESET | SWKBD_ALLOW_POWER);
-    swkbdSetDictionary(&swkbd, words, sizeof(words)/sizeof(SwkbdDictWord));
+    if (num_words > 0 && strcmp(hintText, "Ask about what?") == 0) {
+        swkbdSetDictionary(&swkbd, words, num_words);
+    }
 
     static bool reload = false;
     swkbdSetStatusData(&swkbd, &swkbdStatus, reload, true);
@@ -810,6 +844,14 @@ int ctr_input_swkbd(const char *hintText, const char *inText, char *outText, siz
     reload = true;
 
     SwkbdButton button = swkbdInputText(&swkbd, mybuf, sizeof(mybuf));
+
+    // Buttons still held as the keyboard closes must not reach the game.
+    do {
+        hidScanInput();
+        gspWaitForVBlank();
+    } while (hidKeysHeld() != 0 && aptMainLoop());
+    ctr_input.frame.kHeld = 0;
+    oldpad = 0;
 
     if (button == SWKBD_BUTTON_RIGHT) {
         snprintf(outText, outSize, "%s", mybuf);

@@ -64,8 +64,8 @@ static void quickHealMessage(const char* text)
 // opening the inventory. In combat it costs the same 4 AP as opening it.
 void inventoryQuickHeal()
 {
-    if (!interfaceBarEnabled()) {
-        return;
+    if (!interfaceBarEnabled() || (gCombatState & 0x02) == 0) {
+        return; // only on the player's turn
     }
 
     if (critterGetHitPoints(gDude) >= critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS)) {
@@ -91,10 +91,14 @@ void inventoryQuickHeal()
         interfaceRenderActionPoints(gDude->data.critter.combat.ap, _combat_free_move);
     }
 
+    bool inHand = item == critterGetItem2(gDude) || item == critterGetItem1(gDude);
     if (_item_d_take_drug(gDude, item)) {
         itemRemove(gDude, item, 1);
         _obj_connect(item, gDude->tile, gDude->elevation, nullptr);
         _obj_destroy(item);
+    }
+    if (inHand) {
+        interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT); // the hand's item may have just been freed
     }
     interfaceRenderHitPoints(true);
 }

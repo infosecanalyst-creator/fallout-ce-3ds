@@ -63,8 +63,8 @@ static void quick_heal_message(const char* text)
 // inventory. In combat it costs the same 4 AP as opening the inventory.
 void inven_quick_heal()
 {
-    if (!intface_is_enabled()) {
-        return;
+    if (!intface_is_enabled() || (combat_state & 0x02) == 0) {
+        return; // only on the player's turn
     }
 
     if (critter_get_hits(obj_dude) >= stat_level(obj_dude, STAT_MAXIMUM_HIT_POINTS)) {
@@ -90,10 +90,14 @@ void inven_quick_heal()
         intface_update_move_points(obj_dude->data.critter.combat.ap, combat_free_move);
     }
 
+    bool inHand = item == inven_right_hand(obj_dude) || item == inven_left_hand(obj_dude);
     if (item_d_take_drug(obj_dude, item)) {
         item_remove_mult(obj_dude, item, 1);
         obj_connect(item, obj_dude->tile, obj_dude->elevation, NULL);
         obj_destroy(item);
+    }
+    if (inHand) {
+        intface_update_items(false); // the hand's item may have just been freed
     }
     intface_update_hit_points(true);
 }

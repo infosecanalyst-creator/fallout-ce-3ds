@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -19,6 +20,7 @@
 #include "game/map.h"
 #include "game/map_defs.h"
 #include "game/object.h"
+#include "game/party.h"
 #include "game/protinst.h"
 #include "game/proto.h"
 #include "game/skilldex.h"
@@ -851,11 +853,48 @@ void gmouse_bk_process()
 // (pick up / talk / loot / use / open, or attack a hostile in combat).
 static Object* gmouse_smart_target = NULL;
 
+// A team is hostile once it has fought the player's side: one of its members
+// attacked the player or a companion, or was attacked by them. Bystanders (shop
+// keepers, brahmin, guards not yet involved) are not attacked by a tap; use B
+// (crosshair) to attack them on purpose.
+static bool gameSmartIsHostileTeam(int team)
+{
+    Object* attacker = obj_dude->data.critter.combat.whoHitMe;
+    if (attacker != NULL && attacker->data.critter.combat.team == team) {
+        return true;
+    }
+    // ctr_obj_for_each: callers may be inside a find-first/next loop.
+    struct Query {
+        int team;
+        int playerTeam;
+        bool hostile;
+    } q = { team, obj_dude->data.critter.combat.team, false };
+    ctr_obj_for_each(map_elevation, [](Object* obj, void* ctx) {
+        Query* q = (Query*)ctx;
+        if (FID_TYPE(obj->fid) != OBJ_TYPE_CRITTER) {
+            return true;
+        }
+        Object* hitBy = obj->data.critter.combat.whoHitMe;
+        if (hitBy == NULL) {
+            return true;
+        }
+        // One of the team was attacked by the player's side, or attacked it.
+        if ((obj->data.critter.combat.team == q->team && hitBy->data.critter.combat.team == q->playerTeam)
+            || (obj->data.critter.combat.team == q->playerTeam && hitBy->data.critter.combat.team == q->team)) {
+            q->hostile = true;
+            return false;
+        }
+        return true;
+    }, &q);
+    return q.hostile;
+}
+
 static bool gmouse_is_smart_enemy(Object* obj)
 {
     return obj != NULL && obj != obj_dude && FID_TYPE(obj->fid) == OBJ_TYPE_CRITTER
         && isInCombat() && !critter_is_dead(obj)
-        && obj->data.critter.combat.team != obj_dude->data.critter.combat.team;
+        && obj->data.critter.combat.team != obj_dude->data.critter.combat.team
+        && gameSmartIsHostileTeam(obj->data.critter.combat.team);
 }
 
 static int gmouse_smart_mode(int mode)
@@ -968,11 +1007,20 @@ static bool stickRunning()
     return running;
 }
 
+static int stickLastSector = -1;
+static int stickLastTarget = -1;
+static unsigned int stickLastFail = 0;
+static unsigned int stickLastRequest = 0;
+
+// Forget the stick's walk (another input or a menu took over).
+void gameStickReset()
+{
+    stickLastSector = -1;
+    stickLastTarget = -1;
+}
+
 void gameStickMove(int dx, int dy)
 {
-    static int lastSector = -1;
-    static int lastTarget = -1;
-    static unsigned int lastFailTime = 0;
 
     if (!gmouse_initialized || obj_dude == NULL) {
         return;
@@ -980,9 +1028,9 @@ void gameStickMove(int dx, int dy)
 
     if (dx == 0 && dy == 0) {
         // Stick released: stop at the next tile instead of finishing the stretch.
-        if (lastTarget != -1 && !isInCombat() && anim_busy(obj_dude) && lastTarget != obj_dude->tile) {
+        if (stickLastTarget != -1 && elapsed_time(stickLastRequest) < 3000 && !isInCombat() && anim_busy(obj_dude) && stickLastTarget != obj_dude->tile) {
             unsigned char rotations[800];
-            int steps = make_path(obj_dude, obj_dude->tile, lastTarget, rotations, 0);
+            int steps = make_path(obj_dude, obj_dude->tile, stickLastTarget, rotations, 0);
             if (steps > 1) {
                 int stopTile = tile_num_in_direction(obj_dude->tile, rotations[0], 1);
                 register_clear(obj_dude);
@@ -995,8 +1043,8 @@ void gameStickMove(int dx, int dy)
                 register_end();
             }
         }
-        lastSector = -1;
-        lastTarget = -1;
+        stickLastSector = -1;
+        stickLastTarget = -1;
         return;
     }
 
@@ -1017,13 +1065,17 @@ void gameStickMove(int dx, int dy)
         if (combat) {
             return; // one hex per step in combat: wait for the step to finish
         }
-        if (sector == lastSector && lastTarget != -1 && tile_dist(obj_dude->tile, lastTarget) > 2) {
+        int turn = abs(sector - stickLastSector);
+        if (turn > 8) {
+            turn = 16 - turn;
+        }
+        if (stickLastSector != -1 && turn <= 1 && stickLastTarget != -1 && tile_dist(obj_dude->tile, stickLastTarget) > 2) {
             return; // keep walking the current stretch
         }
     }
 
     // Don't hammer the pathfinder when the way is blocked.
-    if (sector == lastSector && lastTarget == -1 && elapsed_time(lastFailTime) < 150) {
+    if (sector == stickLastSector && stickLastTarget == -1 && elapsed_time(stickLastFail) < 150) {
         return;
     }
 
@@ -1089,13 +1141,13 @@ void gameStickMove(int dx, int dy)
         }
     }
 
-    lastSector = sector;
+    stickLastSector = sector;
     if (tile == -1) {
-        lastTarget = -1;
-        lastFailTime = get_time();
+        stickLastTarget = -1;
+        stickLastFail = get_time();
         return;
     }
-    if (busy && tile == lastTarget) {
+    if (busy && tile == stickLastTarget) {
         return;
     }
 
@@ -1110,10 +1162,11 @@ void gameStickMove(int dx, int dy)
         register_object_move_to_tile(obj_dude, tile, obj_dude->elevation, actionPoints, 0);
     }
     if (register_end() == 0) {
-        lastTarget = tile;
+        stickLastTarget = tile;
+        stickLastRequest = get_time();
     } else {
-        lastTarget = -1;
-        lastFailTime = get_time();
+        stickLastTarget = -1;
+        stickLastFail = get_time();
     }
 }
 #endif
