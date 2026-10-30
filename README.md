@@ -1,7 +1,10 @@
 # Fallout CE for New 3DS
 
 Fallout 1 and Fallout 2 Community Edition engines running natively on the New Nintendo 3DS.
-You must own the games (GOG or Steam); no game data is included.
+
+**Bring your own game files.** No game data is included: you must own the games (GOG or Steam) and copy their data files to your SD card yourself.
+
+*Not affiliated with or endorsed by Bethesda Softworks, Interplay or Nintendo. Fallout is a trademark of its owner, used only to say which game files the engine reads.*
 
 - `fallout1/`: Fallout Community Edition, based on [MrHuu/fallout1-ce-3ds](https://github.com/MrHuu/fallout1-ce-3ds)
 - `fallout2/`: Fallout 2 Community Edition, based on [Deenyoro/fallout2-ce-3ds](https://github.com/Deenyoro/fallout2-ce-3ds), which itself builds on MrHuu's 3DS platform layer
@@ -100,4 +103,8 @@ Tested in the Azahar emulator (New 3DS mode), both games: main menu, new game, s
 
 ## License
 
-The engine source is under the upstream [Sustainable Use License](fallout2/LICENSE.md): free use, modification and non-commercial redistribution. It is source-available, not OSI open source. Fallout is © Bethesda Softworks / Interplay; game data is not included.
+This is source-available software, **not** open source in the OSI sense. The engine code comes from fallout1-ce / fallout2-ce and is under the upstream [Sustainable Use License](LICENSE) (also in [fallout1/LICENSE.md](fallout1/LICENSE.md) and [fallout2/LICENSE.md](fallout2/LICENSE.md)): you may use and modify it for personal or non-commercial purposes and redistribute it only free of charge for non-commercial purposes. See [NOTICE](NOTICE) for what this fork changed. Bundled third-party code (SDL2, zlib, fpattern) keeps its own licence in `third_party/`.
+
+The icons, banners and touchscreen frame in `fallout*/os/` are original artwork made for this port; they contain no artwork from the games.
+
+Fallout is a trademark of its owner. Not affiliated with or endorsed by Bethesda Softworks, Interplay or Nintendo. No game data is included.

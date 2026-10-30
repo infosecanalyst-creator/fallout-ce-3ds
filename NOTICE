@@ -1,0 +1,26 @@
+fallout-ce-3ds
+==============
+
+This repository contains modified versions of:
+
+  - fallout1-ce  (https://github.com/alexbatalov/fallout1-ce), by Alexander Batalov,
+    via the Nintendo 3DS port by MrHuu (https://github.com/MrHuu/fallout1-ce-3ds)
+  - fallout2-ce  (https://github.com/alexbatalov/fallout2-ce), by Alexander Batalov,
+    via the Nintendo 3DS port by Deenyoro (https://github.com/Deenyoro/fallout2-ce-3ds)
+
+Modified in 2026-10 for the New Nintendo 3DS. Changes made in this fork include:
+a dual-screen layout (game on the touchscreen, information dashboard on the top
+screen), Circle Pad walking, tap-to-act and tap-to-move-items controls, hardware
+shortcuts for HUD buttons, a built-in manual, save/load and movie-playback fixes,
+faster SD-card file access, a Docker build script, and new original icons,
+banners and touchscreen frame artwork replacing the upstream images. The full
+list is in README.md and the git history.
+
+Licence: this software is source-available under the Sustainable Use License
+(see LICENSE). It may be used and modified for personal or non-commercial
+purposes and redistributed only free of charge for non-commercial purposes. It
+is NOT open source in the OSI sense. All upstream copyright and licence notices
+are retained.
+
+No game data is included. Fallout is a trademark of its owner. This project is
+not affiliated with or endorsed by Bethesda Softworks, Interplay or Nintendo.

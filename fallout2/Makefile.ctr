@@ -68,7 +68,8 @@ BANNER_AUDIO_FILE   := $(TOPDIR)/os/ctr/audio_silent.wav
 #---------------------------------------------------------------------------------
 # IP address of 3DS used for 3dslink or gdb remote session (Optional)
 #---------------------------------------------------------------------------------
-REMOTE_IP   := 3DS-IP
+# Pass it on the command line or via the environment, e.g. `make -f Makefile.ctr 3dslink REMOTE_IP=<3ds-ip>`
+REMOTE_IP   ?=
 
 #---------------------------------------------------------------------------------
 # options for code generation
