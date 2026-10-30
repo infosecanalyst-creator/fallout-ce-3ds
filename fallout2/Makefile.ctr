@@ -49,8 +49,8 @@ GFXBUILD    := $(ROMFS)/gfx
 # Exclude mapper sources
 EXCLUDE_SOURCES := src/mapper
 
-APP_TITLE           := Fallout 2
-APP_DESCRIPTION     := Fallout2-ce port for 3DS
+APP_TITLE           := F2-CE 3DS
+APP_DESCRIPTION     := fallout2-ce engine; bring your own game files
 APP_AUTHOR          := Deenyoro
 
 APP_PRODUCT_CODE    := CTR-P-FLLOT2

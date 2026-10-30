@@ -42,8 +42,8 @@ GRAPHICS    := os/ctr/gfx
 ROMFS       := romfs
 GFXBUILD    := $(ROMFS)/gfx
 
-APP_TITLE           := Fallout
-APP_DESCRIPTION     := Fallout-ce port for 3DS
+APP_TITLE           := F1-CE 3DS
+APP_DESCRIPTION     := fallout1-ce engine; bring your own game files
 APP_AUTHOR          := MrHuu
 
 APP_PRODUCT_CODE    := CTR-P-FALLOUT
