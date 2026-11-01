@@ -129,12 +129,13 @@ DB_DATABASE* master_db_handle;
 DB_DATABASE* critter_db_handle;
 
 #ifdef CTR_DEBUG_LOG
+#include <malloc.h>
 // Debug builds (-DCTR_DEBUG_LOG): engine debug output to the SD card.
 static int ctr_debug_file(char* str)
 {
     static FILE* f = NULL;
     if (f == NULL) f = fopen("sdmc:/3ds/fallout/debug.log", "w");
-    if (f != NULL) { fputs(str, f); fflush(f); }
+    if (f != NULL) { if (str[0] == '>') { struct mallinfo mi = mallinfo(); fprintf(f, "[%d]", mi.uordblks); } fputs(str, f); fflush(f); }
     return 0;
 }
 #endif

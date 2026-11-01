@@ -80,7 +80,7 @@ static void audioEngineMixin(void* userData, Uint8* stream, int length)
 #else
         std::lock_guard<std::recursive_mutex> lock(soundBuffer->mutex);
 #endif
-        if (soundBuffer->active && soundBuffer->playing) {
+        if (soundBuffer->active && soundBuffer->playing && soundBuffer->data != NULL && soundBuffer->stream != NULL) {
             int srcFrameSize = soundBuffer->bitsPerSample / 8 * soundBuffer->channels;
 
             unsigned char buffer[1024];
@@ -200,6 +200,18 @@ int audioEngineCreateSoundBuffer(unsigned int size, int bitsPerSample, int chann
             soundBuffer->pos = 0;
             soundBuffer->data = malloc(size);
             soundBuffer->stream = SDL_NewAudioStream(bitsPerSample == 16 ? AUDIO_S16 : AUDIO_S8, channels, rate, gAudioEngineSpec.format, gAudioEngineSpec.channels, gAudioEngineSpec.freq);
+            // Out of memory (the 3DS heap is small): no sound rather than a
+            // crash in the mixer reading from a NULL buffer.
+            if (soundBuffer->data == NULL || soundBuffer->stream == NULL) {
+                free(soundBuffer->data);
+                soundBuffer->data = NULL;
+                if (soundBuffer->stream != NULL) {
+                    SDL_FreeAudioStream(soundBuffer->stream);
+                    soundBuffer->stream = NULL;
+                }
+                soundBuffer->active = false;
+                return -1;
+            }
             return index;
         }
     }

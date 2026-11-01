@@ -13,6 +13,7 @@
 
 #include "plib/gnw/gnw.h"
 #include "plib/gnw/memory.h"
+#include "plib/gnw/debug.h"
 #include "plib/gnw/mouse.h"
 
 namespace fallout {
@@ -219,6 +220,16 @@ inline void drawRect(const float subTexX, const float subTexY, const float subTe
 
 void drawRects()
 {
+#if defined(CTR_EMUTEST) && defined(CTR_DEBUG_LOG)
+    {
+        // Emulator test builds: heap use, to spot leaks over a long session.
+        static int frames = 0;
+        if (++frames % 300 == 0) {
+            struct mallinfo mi = mallinfo();
+            debug_printf("MEM frame=%d inuse=%d arena=%d\n", frames, mi.uordblks, mi.arena);
+        }
+    }
+#endif
     bool dashOnTop = false;
     bool helpOnTop = false;
     int cardOnTop = 0; // 1 = item card, 2 = barter

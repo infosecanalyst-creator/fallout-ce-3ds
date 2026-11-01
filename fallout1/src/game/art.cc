@@ -97,7 +97,13 @@ int art_init()
 #ifdef _DEBUG
     debug_printf("Setting cacheSize: %9.2f \n",((heapAvailableAtStart / (1024.0f * 1024.0f)) - 16));
 #endif
-    cacheSize = ((heapAvailableAtStart / (1024.0f * 1024.0f)) - 16);
+    // The art cache preallocates its whole size. Leave plenty of the heap for
+    // everything else (sound buffers, movies, the top-screen text): running
+    // it nearly dry made sound buffer allocations fail and crash the mixer.
+    // 56 MB still holds far more art than the PC game's default 8 MB.
+    cacheSize = (int)(heapAvailableAtStart / (1024 * 1024)) - 32;
+    if (cacheSize > 56) cacheSize = 56;
+    if (cacheSize < 16) cacheSize = 16;
 #endif
     if (!cache_init(&art_cache, art_data_size, art_data_load, art_data_free, cacheSize << 20)) {
         debug_printf("cache_init failed in art_init\n");
