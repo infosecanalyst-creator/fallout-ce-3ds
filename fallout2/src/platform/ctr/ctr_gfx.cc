@@ -215,6 +215,18 @@ inline void drawRect(const float subTexX, const float subTexY, const float subTe
 
 void drawRects()
 {
+#if defined(CTR_EMUTEST) && defined(CTR_DEBUG_LOG)
+    {
+        // Emulator test builds: heap use, to spot leaks over a long session.
+        static int frames = 0;
+        if (++frames % 300 == 0) {
+            struct mallinfo mi = mallinfo();
+            char mb[96];
+            snprintf(mb, sizeof(mb), "MEM frame=%d inuse=%d arena=%d", frames, mi.uordblks, mi.arena);
+            ctr_debug_log(mb);
+        }
+    }
+#endif
     bool dashOnTop = false;
     bool helpOnTop = false;
     int cardOnTop = 0; // 1 = item card, 2 = barter

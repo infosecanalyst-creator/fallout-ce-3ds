@@ -1,5 +1,6 @@
 #include "audio_engine.h"
 
+#include <stdio.h>
 #include <string.h>
 
 #ifndef __3DS__
@@ -134,6 +135,38 @@ static void audioEngineMixin(void* userData, Uint8* stream, int length)
     }
 }
 
+#if defined(__3DS__) && defined(CTR_AUDIO_STRESS)
+// Test-only: hammer create/play/release from a second thread while the mixer runs.
+static volatile unsigned int gStressIters = 0;
+static void audioStressThread(void*)
+{
+    unsigned int seed = 12345;
+    for (;;) {
+        seed = seed * 1103515245 + 12345;
+        unsigned int size = 2048 + (seed >> 8) % 40000;
+        size &= ~3u;
+        int idx = audioEngineCreateSoundBuffer(size, 16, 2, 22050);
+        if (idx != -1) {
+            void* p1; unsigned int b1; void* p2; unsigned int b2;
+            if (audioEngineSoundBufferLock(idx, 0, size, &p1, &b1, &p2, &b2, 0)) {
+                memset(p1, 0, b1);
+                audioEngineSoundBufferUnlock(idx, p1, b1, p2, b2);
+            }
+            audioEngineSoundBufferPlay(idx, (seed & 1) ? 1 : 0);
+            svcSleepThread((long long)((seed >> 4) % 300) * 1000LL);
+            audioEngineSoundBufferRelease(idx);
+        } else {
+            svcSleepThread(1000000LL);
+        }
+        gStressIters++;
+        if ((gStressIters % 1000) == 0) {
+            FILE* fp = fopen("sdmc:/3ds/audio_stress.txt", "w");
+            if (fp) { fprintf(fp, "%u\n", gStressIters); fclose(fp); }
+        }
+    }
+}
+#endif
+
 bool audioEngineInit()
 {
 #ifdef __3DS__
@@ -164,6 +197,14 @@ bool audioEngineInit()
     }
 
     SDL_PauseAudioDevice(gAudioEngineDeviceId, 0);
+
+#if defined(__3DS__) && defined(CTR_AUDIO_STRESS)
+    {
+        Thread th = threadCreate(audioStressThread, NULL, 16 * 1024, 0x2F, -2, true);
+        FILE* fp = fopen("sdmc:/3ds/audio_stress.txt", "w");
+        if (fp) { fprintf(fp, "start %p\n", (void*)th); fclose(fp); }
+    }
+#endif
 
     return true;
 }
