@@ -24,6 +24,15 @@ struct LightLockGuard {
 
 namespace fallout {
 
+// Holds SDL's audio device lock, which the mixer callback runs under, so a
+// sound buffer can't be freed while the callback is reading it. The
+// per-buffer guards on 3DS don't actually exclude anything (see above).
+struct AudioDeviceLockGuard {
+    SDL_AudioDeviceID id;
+    explicit AudioDeviceLockGuard(SDL_AudioDeviceID _id) : id(_id) { SDL_LockAudioDevice(id); }
+    ~AudioDeviceLockGuard() { SDL_UnlockAudioDevice(id); }
+};
+
 #define AUDIO_ENGINE_SOUND_BUFFERS 8
 
 struct AudioEngineSoundBuffer {
@@ -92,6 +101,14 @@ static void audioEngineMixin(void* userData, Uint8* stream, int length)
                 }
 
                 // TODO: Make something better than frame-by-frame convertion.
+                if (srcFrameSize <= 0 || soundBuffer->pos + srcFrameSize > soundBuffer->size) {
+                    if (soundBuffer->looping && soundBuffer->size >= (unsigned int)srcFrameSize && srcFrameSize > 0) {
+                        soundBuffer->pos = 0;
+                    } else {
+                        soundBuffer->playing = false;
+                        break;
+                    }
+                }
                 SDL_AudioStreamPut(soundBuffer->stream, (unsigned char*)soundBuffer->data + soundBuffer->pos, srcFrameSize);
                 soundBuffer->pos += srcFrameSize;
 
@@ -234,6 +251,7 @@ bool audioEngineSoundBufferRelease(int soundBufferIndex)
         return false;
     }
 
+    AudioDeviceLockGuard deviceLock(gAudioEngineDeviceId);
     AudioEngineSoundBuffer* soundBuffer = &(gAudioEngineSoundBuffers[soundBufferIndex]);
 #ifdef __3DS__
     LightLockGuard lockGuard(&soundBuffer->mutex);
