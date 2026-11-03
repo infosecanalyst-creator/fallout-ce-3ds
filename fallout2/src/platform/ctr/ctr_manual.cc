@@ -151,6 +151,13 @@ void layout(ManualSection& s)
             std::string key = bar == std::string::npos ? rest : rest.substr(0, bar);
             std::string val = bar == std::string::npos ? "" : rest.substr(bar + 3);
             std::vector<std::string> parts = wrap(val, kRight - kKeyColumn);
+            if (measure(key) > kKeyColumn - kLeft - 6) {
+                // A key too wide for its column gets a line of its own, so it
+                // never runs into the text beside it.
+                s.lines.push_back({ STYLE_ROW_FIRST, key, "", y });
+                y += kLineHeight;
+                key = "";
+            }
             for (size_t k = 0; k < parts.size(); k++) {
                 s.lines.push_back({ k == 0 ? STYLE_ROW_FIRST : STYLE_ROW_MORE, k == 0 ? key : "", parts[k], y });
                 y += kLineHeight;

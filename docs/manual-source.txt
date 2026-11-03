@@ -50,7 +50,7 @@ The dashboard stays on top for the Skilldex, the automap and the options menu. O
 | ZL | On the map: swap screens, so the map goes on top and the original Fallout interface bar on the touch screen
 | ZL | On any other screen: switch the top screen between its information and a sharp, full-size view of the part of the screen around where you last touched. Remembered for each screen
 | Select+L | Whole-screen view: the entire game picture on the touch screen, with a magnified lens on top. Press again to go back
-| Select+Up / Down | Zoom the map in or out. The 3D slider zooms too
+| Select+Up/Dn | Zoom the map in or out. The 3D slider zooms too
 | Select+R | Sharper top screen (800 pixels wide) on or off. The choice is remembered. Not on the original 2DS
 
 # Moving and the camera
@@ -185,7 +185,7 @@ Save often. Fallout is an unforgiving game.
 | Select+X | Automap
 | Select+Y | Pip-Boy clock
 | Select+L | Whole-screen view
-| Select+Up/Down | Zoom
+| Select+Up/Dn | Zoom
 | Select+R | Sharper top screen on/off
 | Select+Start | This manual
 | Start | Options menu
