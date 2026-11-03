@@ -81,6 +81,7 @@ int setRectMapScaled(bool scaled_rect_top, float rawScaleFactor);
 
 void setActiveRectMap(rectMap_e rectmap);
 void toggleGameplayRectMap();
+extern bool ctrAutomapOpen;
 void setPreviousRectMap(int index);
 rectMap_e getPreviousRectMap(int index);
 

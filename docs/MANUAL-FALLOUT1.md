@@ -57,17 +57,19 @@ The touch screen shows the map and every menu. Use the stylus as the mouse.
 | Trading | What your offer is worth, what they want, whether they will accept, their caps, and the touched item's details |
 | Save and load | The slot's picture, character, date, place and description |
 | World map | Where you are, the terrain, where you are heading, the known places, and the car's fuel |
-| Pip-Boy | A magnified reading pane: the part of the Pip-Boy screen around where you last touched |
+| Pip-Boy | A sharp, full-size view of the part of the Pip-Boy screen around where you last touched |
+| Preferences | A sharp, full-size view of the part of the page around where you last touched |
 | Conversations | The person you are talking to and what they say |
 | Character sheet | The description of the stat or skill you touched |
 
-The dashboard stays on top for the Skilldex, the automap and the options menu.
+The dashboard stays on top for the Skilldex, the automap and the options menu. On any of these screens, ZL switches the top screen to a sharp, full-size view instead.
 
 ### Changing the layout
 
 | Input | What it does |
 |---|---|
-| ZL | Swap screens: the map goes on top and the original Fallout interface bar on the touch screen |
+| ZL | On the map: swap screens, so the map goes on top and the original Fallout interface bar on the touch screen |
+| ZL | On any other screen: switch the top screen between its information and a sharp, full-size view of the part of the screen around where you last touched. Remembered for each screen |
 | Select+L | Whole-screen view: the entire game picture on the touch screen, with a magnified lens on top. Press again to go back |
 | Select+Up / Down | Zoom the map in or out. The 3D slider zooms too |
 | Select+R | Sharper top screen (800 pixels wide) on or off. The choice is remembered. Not on the original 2DS |
@@ -152,7 +154,7 @@ The dashboard's Target line shows the last enemy you tapped: how hurt it is and 
 | Input | What it does |
 |---|---|
 | X | Inventory |
-| B or Start | Close |
+| X, B or Start | Close |
 
 In the inventory, touch an item to see its details on the top screen. Drag items between your pack, the hands and the armor slot. Drop an item on your character's picture to use it. Touch and hold an item for Look, Use, Unload and Drop.
 
@@ -170,9 +172,11 @@ When trading, tap an item to put it on the table in the middle (tap it there to 
 | Select+X | Automap |
 | Select+Y | Pip-Boy clock, to rest or wait |
 
+The button that opens a screen also closes it: Y closes the Pip-Boy, X the automap, D-pad Left the Skilldex and D-pad Right the character sheet. B or Start closes them too.
+
 ### Character sheet
 
-The sheet is taller than the screen. Push the Circle Pad or C-Stick down to scroll from your stats to your skills, traits and perks. Tap a stat or skill to read its description on the top screen. When you level up, tap a skill and use the plus and minus buttons to spend skill points. B or Start closes the sheet without keeping new changes, so tap Done to keep them.
+The sheet is taller than the screen. Push the Circle Pad or C-Stick down to scroll from your stats to your skills, traits and perks. Tap a stat or skill to read its description on the top screen. When you level up, tap a skill and use the plus and minus buttons to spend skill points. D-pad Right closes the sheet and keeps your changes, like tapping Done. B or Start closes it without keeping new changes.
 
 ### Skilldex
 
@@ -238,7 +242,7 @@ sdmc:/3ds/fallout/DATA/SAVEGAME/SLOT01 to SLOT10.
 | D-pad Right | Character sheet |
 | ZR | Start combat / end turn |
 | Start+ZR | End combat |
-| ZL | Swap screens |
+| ZL | Swap screens (map) / sharp top view (other screens) |
 | Select | Center on your character |
 | Select+A | Quick heal |
 | Select+X | Automap |

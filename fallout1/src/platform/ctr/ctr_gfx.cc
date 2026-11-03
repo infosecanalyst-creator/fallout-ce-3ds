@@ -218,6 +218,61 @@ inline void drawRect(const float subTexX, const float subTexY, const float subTe
     _drawRect(texW, texH, subTexX, subTexY, subTexW, subTexH, newPosX, posY, newWidth, height);
 }
 
+// ---------------------------------------------------------------------------
+// Top-screen lens: on any screen except the map, ZL switches the top screen
+// between its info card and a sharp, full-size (1:1) view of the part of the
+// screen around the stylus. Remembered per screen. Pip-Boy and Preferences
+// start with the lens on because their text is unreadable at half size.
+// ---------------------------------------------------------------------------
+static bool ctrLens[DISPLAY_LAST];
+static bool ctrLensInit = false;
+
+static bool ctrLensSupported(int r)
+{
+    return r != DISPLAY_FIELD && r != DISPLAY_GUI && r != DISPLAY_MOVIE && r != DISPLAY_SPLASH
+        && r != DISPLAY_LAST;
+}
+
+static void ctrLensDefaults()
+{
+    if (!ctrLensInit) {
+        ctrLensInit = true;
+        ctrLens[DISPLAY_PIPBOY] = true;
+        ctrLens[DISPLAY_OPTIONS] = true;
+    }
+}
+
+bool ctr_top_lens_active()
+{
+    ctrLensDefaults();
+    int r = ctr_rectMap.active;
+    return ctr_input.mode == DISPLAY_MODE_ADAPT && ctrLensSupported(r) && ctrLens[r];
+}
+
+void ctr_toggle_top_lens()
+{
+    ctrLensDefaults();
+    int r = ctr_rectMap.active;
+    if (ctrLensSupported(r)) ctrLens[r] = !ctrLens[r];
+}
+
+static void ctrDrawTopLens()
+{
+    int mx, my;
+    mouse_get_position(&mx, &my);
+    int minX = 0, maxX = 640, minY = 0, maxY = 480;
+    if (ctr_rectMap.active == DISPLAY_PIPBOY) {
+        // Just the Pip-Boy's own screen.
+        minX = 240; minY = 46; maxY = 456;
+    }
+    int srcX = mx - 200, srcY = my - 120;
+    if (srcX > maxX - 400) srcX = maxX - 400;
+    if (srcX < minX) srcX = minX;
+    if (srcY > maxY - 240) srcY = maxY - 240;
+    if (srcY < minY) srcY = minY;
+    drawRect(srcX, srcY, 400, 240, 0, 0, 400, 240);
+}
+
 void drawRects()
 {
 #if defined(CTR_EMUTEST) && defined(CTR_DEBUG_LOG)
@@ -257,6 +312,9 @@ void drawRects()
     beginRender(false);
     drawTopRenderTarget(0x000000);
 
+    if (ctr_top_lens_active()) {
+        ctrDrawTopLens();
+    } else
     switch (ctr_rectMap.active)
     {
         case DISPLAY_SPLASH:
@@ -350,20 +408,22 @@ void drawRects()
 
         case DISPLAY_PIPBOY:
             if (ctr_input.mode == DISPLAY_MODE_ADAPT) {
-                // Reading pane: the Pip-Boy screen magnified around where the
-                // stylus last touched (the bottom screen shows it at half size).
-                int mx, my;
-                mouse_get_position(&mx, &my);
-                int srcY = my - 112;
-                if (srcY < 46) srcY = 46;
-                if (srcY > 46 + 410 - 224) srcY = 46 + 410 - 224;
-                drawRect(254, srcY, 374, 224, 0, 0, 400, 240);
+                dashOnTop = ctrDashboardAvailable();
+                helpOnTop = !dashOnTop;
                 break;
             }
             drawRect(offsetX, (240 - offsetY), 400, 240, 0,   0, 400, 240);
             break;
 
         case DISPLAY_OPTIONS:
+            if (ctr_input.mode == DISPLAY_MODE_ADAPT) {
+                dashOnTop = ctrDashboardAvailable();
+                helpOnTop = !dashOnTop;
+                break;
+            }
+            drawRect(offsetX, (240 - offsetY), 400, 240, 0,   0, 400, 240);
+            break;
+
         case DISPLAY_FULL:
             if (ctr_input.mode != DISPLAY_MODE_ADAPT) {
                 // Whole-screen mode (Select+L): top screen is a zoom lens.

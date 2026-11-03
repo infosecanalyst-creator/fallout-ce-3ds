@@ -1,6 +1,9 @@
 #include "input.h"
 
 #include <SDL.h>
+#ifdef __3DS__
+#include "platform/ctr/ctr_sys.h"
+#endif
 
 #include "audio_engine.h"
 #include "color.h"
@@ -970,7 +973,11 @@ void _GNW95_process_message()
             }
             break;
         case SDL_QUIT:
+#ifdef __3DS__
+            ctr_app_quit();
+#else
             exit(EXIT_SUCCESS);
+#endif
             break;
         }
     }

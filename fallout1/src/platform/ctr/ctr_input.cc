@@ -277,7 +277,11 @@ void ctr_input_process(void)
             break;
 
         case SDL_QUIT:
+#ifdef __3DS__
+            ctr_app_quit();
+#else
             exit(EXIT_SUCCESS);
+#endif
             break;
         }
     }
@@ -516,6 +520,16 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
     }
 #endif
 
+#ifdef CTR_EMUTEST
+    // Emulator testing only: Select+ZR quits the way the HOME menu does.
+    if (KEY_HELD(KEY_SELECT) && KEY_PRESS(KEY_ZR)) {
+        SDL_Event q;
+        q.type = SDL_QUIT;
+        SDL_PushEvent(&q);
+        key_combi_flags |= FLAG_SELECT_R;
+    }
+#endif
+
     // Select+R = sharper 800-pixel top screen on/off
     if (KEY_HELD(KEY_SELECT) && KEY_PRESS(KEY_R)) {
         ctr_gfx_toggle_wide();
@@ -605,9 +619,28 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
 
         bool inGameplay = (ctr_rectMap.active == DISPLAY_FIELD) || (ctr_rectMap.active == DISPLAY_GUI);
 
-        // ZL = swap which screen shows the map (choice is remembered)
+        // ZL = swap which screen shows the map (choice is remembered).
+        // On every other screen ZL switches the top screen between its info
+        // card and a sharp full-size view of that screen.
         if (KEY_PRESS(KEY_ZL) && inGameplay && !KEY_HELD(KEY_SELECT)) {
             toggleGameplayRectMap();
+        } else if (KEY_PRESS(KEY_ZL) && !inGameplay && !KEY_HELD(KEY_SELECT)
+                && ctr_rectMap.active != DISPLAY_MOVIE) {
+            ctr_toggle_top_lens();
+        }
+
+        // The button that opened a screen also closes it: X inventory,
+        // Y Pip-Boy, X automap, D-pad left Skilldex, D-pad right character
+        // sheet (Done, so spent points are kept).
+        if (!inGameplay && ctrDashboardAvailable() && !KEY_HELD(KEY_START) && !KEY_HELD(KEY_SELECT)) {
+            int a = ctr_rectMap.active;
+            if ((KEY_PRESS(KEY_X) && (a == DISPLAY_INVENTORY || (a == DISPLAY_DYNAMIC && ctrAutomapOpen)))
+                    || (KEY_PRESS(KEY_Y) && a == DISPLAY_PIPBOY)
+                    || (KEY_PRESS(KEY_DLEFT) && a == DISPLAY_SKILLDEX)) {
+                GNW_add_input_buffer(KEY_ESCAPE);
+            } else if (KEY_PRESS(KEY_DRIGHT) && a == DISPLAY_CHAR) {
+                GNW_add_input_buffer(KEY_RETURN);
+            }
         }
 
         // ZR = start combat when exploring, end turn in combat

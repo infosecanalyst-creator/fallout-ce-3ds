@@ -279,6 +279,7 @@ void automap(bool isInGame, bool isUsingScanner)
     setRectMapPos(DISPLAY_DYNAMIC, automapWindowX, automapWindowY,
             AUTOMAP_WINDOW_WIDTH, AUTOMAP_WINDOW_HEIGHT, false);
     setActiveRectMap(DISPLAY_DYNAMIC);
+    ctrAutomapOpen = true;
 #endif
 
     bool done = false;
@@ -370,6 +371,7 @@ void automap(bool isInGame, bool isUsingScanner)
         sharedFpsLimiter.throttle();
     }
 #ifdef __3DS__
+    ctrAutomapOpen = false;
     setActiveRectMap(getPreviousRectMap(0));
 #endif
     if (isoWasEnabled) {

@@ -17,9 +17,14 @@ size_t ctr_sys_check_heap();
 
 #ifdef _DEBUG_OVERLAY
 float ctr_sys_get_fps();
+
 #endif
 
 void ctr_debug_log(const char* msg);
+
+// Clean exit when the HOME menu closes the game: stop audio (ndsp) and the
+// GPU first, or the system hangs on "Closing software...".
+[[noreturn]] void ctr_app_quit();
 
 #ifdef _DEBUG_LINK
 void ctr_sys_3dslink_stdio();

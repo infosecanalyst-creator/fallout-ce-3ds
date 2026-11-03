@@ -79,6 +79,8 @@ int getIndicatorSlotNum()
 // the engine returns to gameplay from other screens.
 static rectMap_e gameplayRectMap = DISPLAY_FIELD;
 
+bool ctrAutomapOpen = false;
+
 void toggleGameplayRectMap()
 {
     gameplayRectMap = (gameplayRectMap == DISPLAY_FIELD) ? DISPLAY_GUI : DISPLAY_FIELD;

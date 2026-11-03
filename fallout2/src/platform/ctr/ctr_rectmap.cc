@@ -79,6 +79,8 @@ int getIndicatorSlotNum()
 // we always honour the player's choice instead.
 static rectMap_e gameplayRectMap = DISPLAY_FIELD;
 
+bool ctrAutomapOpen = false;
+
 void toggleGameplayRectMap()
 {
     gameplayRectMap = (gameplayRectMap == DISPLAY_FIELD) ? DISPLAY_GUI : DISPLAY_FIELD;

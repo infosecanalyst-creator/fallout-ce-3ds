@@ -4,6 +4,11 @@
 #include <unistd.h>
 
 #include <3ds.h>
+#include <SDL.h>
+
+#include "audio_engine.h"
+#include "platform/ctr/ctr_gfx.h"
+#include "platform/ctr/ctr_sys.h"
 
 #include "memory.h"
 
@@ -125,5 +130,14 @@ void ctr_sys_3dslink_stdio()
 	}
 }
 #endif
+
+void ctr_app_quit()
+{
+    // The game's own atexit handler (win_exit) tears down the windows and
+    // the GPU, but nothing stops audio: the SDL audio thread and ndsp keep
+    // running and the system can't close the app. Stop them first.
+    audioEngineExit();
+    exit(EXIT_SUCCESS);
+}
 
 } // namespace fallout

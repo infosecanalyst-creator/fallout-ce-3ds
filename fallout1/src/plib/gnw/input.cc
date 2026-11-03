@@ -4,6 +4,9 @@
 #include <stdio.h>
 
 #include "audio_engine.h"
+#ifdef __3DS__
+#include "platform/ctr/ctr_sys.h"
+#endif
 #include "platform_compat.h"
 #include "plib/color/color.h"
 #include "plib/gnw/button.h"
@@ -1142,7 +1145,11 @@ void GNW95_process_message()
             }
             break;
         case SDL_QUIT:
+#ifdef __3DS__
+            ctr_app_quit();
+#else
             exit(EXIT_SUCCESS);
+#endif
             break;
         }
     }

@@ -36,6 +36,10 @@ void ctr_gfx_exit(void);
 // One frame of a full-screen citro2d overlay (the manual) on both screens.
 void ctr_gfx_manual_frame(void (*drawTop)(), void (*drawBottom)());
 
+// ZL outside the map: top screen shows a sharp full-size view of this screen
+void ctr_toggle_top_lens();
+bool ctr_top_lens_active();
+
 } // namespace fallout
 
 #endif /* FALLOUT_PLATFORM_CTR_GFX_H_ */
