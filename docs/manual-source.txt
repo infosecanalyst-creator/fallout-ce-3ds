@@ -6,7 +6,8 @@ The game is played on the touch screen with the stylus, the way the PC game is p
 
 ## Reading this manual
 - Tap a section on the touch screen to open it.
-- Circle Pad or D-pad up and down: scroll.
+- Circle Pad or C-Stick: scroll. Hold to keep scrolling.
+- D-pad: move between the section buttons.
 - L and R: previous and next section.
 - B or Start: close. The manual opens again where you left it.
 

@@ -287,7 +287,7 @@ void drawBottom()
         text(gSections[i].title, x + 6, y + 4, 0.42f, on ? C2D_Color32(0, 0, 0, 0xff) : kGreen);
     }
     C2D_DrawRectSolid(4, kCloseY, 0.45f, 312, 22, kPanel);
-    text("Close (B)      L / R: section      Circle Pad: scroll", 160, kCloseY + 4, 0.42f, kDim, C2D_AlignCenter);
+    text("Close (B)    D-Pad, L / R: section    Sticks: scroll", 160, kCloseY + 4, 0.42f, kDim, C2D_AlignCenter);
 }
 
 void frame()
@@ -363,10 +363,18 @@ void ctr_manual_run()
         hidCstickRead(&cs);
         int dy = abs(cp.dy) > 20 ? cp.dy : (abs(cs.dy) > 20 ? cs.dy : 0);
         scroll -= dy / 20.0f;
-        if (held & KEY_DUP) scroll -= 5;
-        if (held & KEY_DDOWN) scroll += 5;
-        if (down & KEY_DLEFT) select(gCurrent - 1);
-        if (down & KEY_DRIGHT) select(gCurrent + 1);
+        // D-pad moves between the section buttons (it does not scroll):
+        // up/down within a column, left/right to the other column.
+        {
+            int n = (int)gSections.size();
+            int rows = rowsPerColumn();
+            int next = gCurrent;
+            if (down & KEY_DUP) next = gCurrent - 1;
+            if (down & KEY_DDOWN) next = gCurrent + 1;
+            if (down & KEY_DLEFT) next = gCurrent - rows;
+            if (down & KEY_DRIGHT) next = gCurrent + rows;
+            if (next != gCurrent && next >= 0 && next < n) select(next);
+        }
         float ms = maxScroll(gSections[gCurrent]);
         if (gScroll[gCurrent] < 0) gScroll[gCurrent] = 0;
         if (gScroll[gCurrent] > ms) gScroll[gCurrent] = ms;
