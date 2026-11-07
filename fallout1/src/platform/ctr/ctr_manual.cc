@@ -392,4 +392,102 @@ void ctr_manual_run()
     }
 }
 
+namespace {
+
+const char* const kMenuItems[3] = { "Manual", "Options", "Close" };
+int gMenuSel = 0;
+int gMenuPressed = -1;
+
+void menuRect(int i, float* x, float* y, float* w, float* h)
+{
+    *x = 40;
+    *w = 240;
+    *h = 40;
+    *y = 50 + i * 52;
+}
+
+void menuDrawTop()
+{
+    C2D_DrawRectSolid(0, 0, 0.4f, 400, 240, kBg);
+    text("Menu", 200, 100, 0.8f, kAmber, C2D_AlignCenter);
+    text("A / tap: choose    B or Start: close", 200, 140, 0.45f, kDim, C2D_AlignCenter);
+}
+
+void menuDrawBottom()
+{
+    C2D_DrawRectSolid(0, 0, 0.4f, 320, 240, kBg);
+    for (int i = 0; i < 3; i++) {
+        float x, y, w, h;
+        menuRect(i, &x, &y, &w, &h);
+        bool on = i == gMenuSel;
+        bool pressed = i == gMenuPressed;
+        float inset = pressed ? 3.0f : 0.0f; // visible press animation
+        C2D_DrawRectSolid(x + inset, y + inset, 0.45f, w - 2 * inset, h - 2 * inset,
+            pressed ? kLine : (on ? kLine : kPanel));
+        text(kMenuItems[i], x + w / 2, y + 12, 0.55f,
+            (on || pressed) ? C2D_Color32(0, 0, 0, 0xff) : kGreen, C2D_AlignCenter);
+    }
+}
+
+} // namespace
+
+int ctr_startmenu_run()
+{
+    if (gBuf == nullptr) {
+        gBuf = C2D_TextBufNew(4096);
+        gMeasureBuf = C2D_TextBufNew(512);
+    }
+    gMenuSel = 0;
+    gMenuPressed = -1;
+    int result = 2;
+    bool waitRelease = true;
+    while (aptMainLoop()) {
+        hidScanInput();
+        u32 down = hidKeysDown();
+        u32 held = hidKeysHeld();
+        if (waitRelease) {
+            if ((held & (KEY_START | KEY_SELECT | KEY_TOUCH | KEY_A | KEY_B)) == 0) {
+                waitRelease = false;
+            }
+        } else {
+            if (down & (KEY_B | KEY_START)) {
+                result = 2;
+                break;
+            }
+            if (down & KEY_DUP) gMenuSel = (gMenuSel + 2) % 3;
+            if (down & KEY_DDOWN) gMenuSel = (gMenuSel + 1) % 3;
+            if (down & KEY_A) {
+                result = gMenuSel;
+                break;
+            }
+            if (held & KEY_TOUCH) {
+                touchPosition t;
+                hidTouchRead(&t);
+                gMenuPressed = -1;
+                for (int i = 0; i < 3; i++) {
+                    float x, y, w, h;
+                    menuRect(i, &x, &y, &w, &h);
+                    if (t.px >= x && t.px < x + w && t.py >= y && t.py < y + h) {
+                        gMenuPressed = i;
+                        gMenuSel = i;
+                    }
+                }
+            } else if (gMenuPressed >= 0) {
+                result = gMenuPressed;
+                break;
+            }
+        }
+        C2D_TextBufClear(gBuf);
+        ctr_gfx_manual_frame(menuDrawTop, menuDrawBottom);
+    }
+    // Don't let the closing press reach the game.
+    while (aptMainLoop()) {
+        hidScanInput();
+        if (hidKeysHeld() == 0) break;
+        C2D_TextBufClear(gBuf);
+        ctr_gfx_manual_frame(menuDrawTop, menuDrawBottom);
+    }
+    return result;
+}
+
 } // namespace fallout

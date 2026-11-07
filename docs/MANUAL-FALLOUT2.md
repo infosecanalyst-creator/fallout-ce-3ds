@@ -155,7 +155,7 @@ The dashboard's Target line shows the last enemy you tapped: how hurt it is and 
 | Input | What it does |
 |---|---|
 | X | Inventory |
-| X, B or Start | Close |
+| X or B | Close |
 
 In the inventory, touch an item to see its details on the top screen. Drag items between your pack, the hands and the armor slot. Drop an item on your character's picture to use it. Touch and hold an item for Look, Use, Unload and Drop.
 
@@ -173,11 +173,11 @@ When trading, tap an item to put it on the table in the middle (tap it there to 
 | Select+X | Automap |
 | Select+Y | Pip-Boy clock, to rest or wait |
 
-The button that opens a screen also closes it: Y closes the Pip-Boy, X the automap, D-pad Left the Skilldex and D-pad Right the character sheet. B or Start closes them too.
+The button that opens a screen also closes it: Y closes the Pip-Boy, X the automap, D-pad Left the Skilldex and D-pad Right the character sheet. B closes them too.
 
 ### Character sheet
 
-The sheet is taller than the screen. Push the Circle Pad or C-Stick down to scroll from your stats to your skills, traits and perks. Tap a stat or skill to read its description on the top screen. When you level up, tap a skill and use the plus and minus buttons to spend skill points. D-pad Right closes the sheet and keeps your changes, like tapping Done. B or Start closes it without keeping new changes.
+The sheet is taller than the screen. Push the Circle Pad or C-Stick down to scroll from your stats to your skills, traits and perks. Tap a stat or skill to read its description on the top screen. When you level up, tap a skill and use the plus and minus buttons to spend skill points. D-pad Right closes the sheet and keeps your changes, like tapping Done. B closes it without keeping new changes.
 
 ### Skilldex
 
@@ -210,7 +210,7 @@ Quick save rotates through slots 1, 2 and 3 without asking, so the last three qu
 
 ### The options menu
 
-Start opens the options menu: Save game, Load game, Preferences, Exit game and Done. Save and load show the slot list on the touch screen and the slot's picture and description on top.
+Start opens a small menu: Manual, Options and Close (A or tap to choose, B or Start to close it). Options is the game's options menu: Save game, Load game, Preferences, Exit game and Done. Save and load show the slot list on the touch screen and the slot's picture and description on top.
 
 To save, tap a slot and then Done. The 3DS keyboard opens with a description filled in: the name of the place for a new save, or the old description when you overwrite a slot. Tap OK to save, or type your own first. Cancel goes back to the slot list without saving.
 
@@ -252,7 +252,7 @@ sdmc:/3ds/fallout2/data/SAVEGAME/SLOT01 to SLOT10.
 | Select+Up/Dn | Zoom |
 | Select+R | Sharper top screen on/off |
 | Select+Start | This manual |
-| Start | Options menu |
+| Start | Menu: Manual, Options, Close |
 | Start+X | Quick save |
 | Start+Y | Quick load |
 
@@ -262,7 +262,6 @@ sdmc:/3ds/fallout2/data/SAVEGAME/SLOT01 to SLOT10.
 |---|---|
 | Tap | Click |
 | B | Back (in conversations: right click) |
-| Start | Back |
 | X | Take all, when looting |
 | L | Right click |
 | Select | This manual |
@@ -270,7 +269,7 @@ sdmc:/3ds/fallout2/data/SAVEGAME/SLOT01 to SLOT10.
 
 ## Preferences
 
-Start, then Preferences, changes the game settings. This port ships with:
+Start, Options, then Preferences, changes the game settings. This port ships with:
 
 - Running always on: the character runs instead of walking.
 - Combat speed fast, and your own moves sped up too.
@@ -327,7 +326,7 @@ Start it from the Homebrew Launcher. The intro movies play first: tap the screen
 | Lost the character | Press Select. If the map is zoomed in, Select+Down zooms out |
 | Picture looks odd | Select+L returns to the normal layout; ZL swaps the screens back |
 | Map loads slowly | Big maps take a few seconds to read from the SD card. A fast card helps |
-| Stuck in a menu | B or Start backs out of menus; in a conversation, tap a reply |
+| Stuck in a menu | B backs out of menus; in a conversation, tap a reply |
 
 ### Credits
 

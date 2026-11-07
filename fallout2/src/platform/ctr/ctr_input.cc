@@ -486,7 +486,19 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
             if ((ctr_rectMap.active != DISPLAY_MOVIE) &&
                     (ctrDashboardAvailable() ||
                      ((ctr_rectMap.active != DISPLAY_MAIN) && (ctr_rectMap.active != DISPLAY_FULL)))) {
-                enqueueInputEvent(KEY_ESCAPE);
+                // Start opens the small menu: Manual, Options (the old
+                // Start action), Close. B still backs out of dialogs.
+                int choice = ctr_startmenu_run();
+                if (choice == 0) {
+                    ctr_manual_run();
+                } else if (choice == 1) {
+                    enqueueInputEvent(KEY_ESCAPE);
+                }
+                key_combi_flags = FLAG_NONE;
+                hidScanInput();
+                ctr_input.frame.kHeld = hidKeysHeld();
+                oldpad = ctr_input.frame.kHeld;
+                return;
             }
         }
     }
