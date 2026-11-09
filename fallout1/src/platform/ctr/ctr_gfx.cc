@@ -2,6 +2,7 @@
 #include <string.h>
 #include <malloc.h>
 
+#include "ctr_manual.h"
 #include "ctr_input.h"
 #include "ctr_gfx.h"
 #include "ctr_dashboard.h"
@@ -1192,7 +1193,18 @@ void ctr_help_draw()
         },
     };
 
+    // Left-handed mode swaps the D-Pad and A/B/X/Y: the key column names what the player presses.
+    static const char* const leftyKeys[2][9] = {
+        { nullptr, nullptr, nullptr, nullptr, "Right / L", "Down", nullptr, "Left / Up", "A/B/X/Y" },
+        { nullptr, nullptr, nullptr, nullptr, "Select+Right", "Select+Left/Up", nullptr, "Select+Y/B", "Start+Left/Up" },
+    };
+    static int helpLefty = -1;
+    if (helpTextBuf != nullptr && helpLefty != (int)ctr_lefty()) {
+        C2D_TextBufDelete(helpTextBuf);
+        helpTextBuf = nullptr;
+    }
     if (helpTextBuf == nullptr) {
+        helpLefty = ctr_lefty();
         helpTextBuf = C2D_TextBufNew(2048);
         C2D_TextParse(&helpTitle, helpTextBuf, "FALLOUT");
         C2D_TextOptimize(&helpTitle);
@@ -1200,7 +1212,8 @@ void ctr_help_draw()
         C2D_TextOptimize(&helpSub);
         for (int c = 0; c < 2; c++) {
             for (int r = 0; r < 9; r++) {
-                C2D_TextParse(&helpKeys[c][r], helpTextBuf, rows[c][r][0]);
+                const char* key = helpLefty && leftyKeys[c][r] ? leftyKeys[c][r] : rows[c][r][0];
+                C2D_TextParse(&helpKeys[c][r], helpTextBuf, key);
                 C2D_TextOptimize(&helpKeys[c][r]);
                 C2D_TextParse(&helpActs[c][r], helpTextBuf, rows[c][r][1]);
                 C2D_TextOptimize(&helpActs[c][r]);
@@ -1226,7 +1239,12 @@ void ctr_help_draw()
         float x = c == 0 ? 6.f : 206.f;
         for (int r = 0; r < 9; r++) {
             float y = 42 + r * 21.5f;
-            C2D_DrawText(&helpKeys[c][r], C2D_WithColor, x * kx, y, 0.6f, 0.42f * kx, 0.42f, green);
+            // shrink a long key name to its column so it never runs into the action text
+            const float colW = (c == 0 ? 68.f : 80.f) - 4.f;
+            float kw = 0, kh = 0;
+            C2D_TextGetDimensions(&helpKeys[c][r], 0.42f, 0.42f, &kw, &kh);
+            const float ks = kw > colW ? 0.42f * colW / kw : 0.42f;
+            C2D_DrawText(&helpKeys[c][r], C2D_WithColor, x * kx, y, 0.6f, ks * kx, ks, green);
             C2D_DrawText(&helpActs[c][r], C2D_WithColor, (x + (c == 0 ? 68 : 80)) * kx, y, 0.6f, 0.42f * kx, 0.42f, dim);
         }
     }

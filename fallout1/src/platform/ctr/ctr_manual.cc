@@ -287,7 +287,7 @@ void drawBottom()
         text(gSections[i].title, x + 6, y + 4, 0.42f, on ? C2D_Color32(0, 0, 0, 0xff) : kGreen);
     }
     C2D_DrawRectSolid(4, kCloseY, 0.45f, 312, 22, kPanel);
-    text("Close (B)    D-Pad, L / R: section    Sticks: scroll", 160, kCloseY + 4, 0.42f, kDim, C2D_AlignCenter);
+    text(ctr_lefty() ? "Close (D-Down)   ABXY, L/R: section   Sticks: scroll" : "Close (B)    D-Pad, L / R: section    Sticks: scroll", 160, kCloseY + 4, 0.42f, kDim, C2D_AlignCenter);
 }
 
 void frame()
@@ -411,6 +411,12 @@ static void leftySet(bool on)
     } else {
         remove(kLeftyPath);
     }
+}
+
+bool ctr_lefty()
+{
+    if (!gLeftyLoaded) leftyLoad();
+    return gLefty;
 }
 
 u32 ctr_remap(u32 m)
