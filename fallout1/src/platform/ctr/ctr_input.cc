@@ -287,7 +287,7 @@ void ctr_input_process(void)
     }
     touch_process_gesture();
 
-    ctr_input.frame.kHeld = hidKeysHeld();
+    ctr_input.frame.kHeld = ctr_remap(hidKeysHeld());
 
     // Runs every frame, including while a touch gesture is being handled.
     ctr_follow_dude();
@@ -419,7 +419,7 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
         ctr_manual_run();
         key_combi_flags = FLAG_NONE;
         hidScanInput();
-        ctr_input.frame.kHeld = hidKeysHeld();
+        ctr_input.frame.kHeld = ctr_remap(hidKeysHeld());
         oldpad = ctr_input.frame.kHeld;
         return;
     }
@@ -495,7 +495,7 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
                 }
                 key_combi_flags = FLAG_NONE;
                 hidScanInput();
-                ctr_input.frame.kHeld = hidKeysHeld();
+                ctr_input.frame.kHeld = ctr_remap(hidKeysHeld());
                 oldpad = ctr_input.frame.kHeld;
                 return;
             }

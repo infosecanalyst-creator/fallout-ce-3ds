@@ -328,8 +328,8 @@ void ctr_manual_run()
 
     while (aptMainLoop()) {
         hidScanInput();
-        u32 down = hidKeysDown();
-        u32 held = hidKeysHeld();
+        u32 down = ctr_remap(hidKeysDown());
+        u32 held = ctr_remap(hidKeysHeld());
 
         if (down & (KEY_B | KEY_START | KEY_SELECT)) {
             break;
@@ -392,9 +392,44 @@ void ctr_manual_run()
     }
 }
 
+static bool gLefty = false, gLeftyLoaded = false;
+static const char* const kLeftyPath = "sdmc:/3ds/fallout/.lefty";
+
+static void leftyLoad()
+{
+    FILE* f = fopen(kLeftyPath, "r");
+    gLefty = f != nullptr;
+    if (f) fclose(f);
+    gLeftyLoaded = true;
+}
+
+static void leftySet(bool on)
+{
+    gLefty = on;
+    if (on) {
+        if (FILE* f = fopen(kLeftyPath, "w")) fclose(f);
+    } else {
+        remove(kLeftyPath);
+    }
+}
+
+u32 ctr_remap(u32 m)
+{
+    static const u32 pr[4][2] = { { KEY_Y, KEY_DUP }, { KEY_A, KEY_DRIGHT }, { KEY_B, KEY_DDOWN }, { KEY_X, KEY_DLEFT } };
+    if (!gLeftyLoaded) leftyLoad();
+    if (!gLefty) return m;
+    u32 r = m;
+    for (int i = 0; i < 4; i++) r &= ~(pr[i][0] | pr[i][1]);
+    for (int i = 0; i < 4; i++) {
+        if (m & pr[i][0]) r |= pr[i][1];
+        if (m & pr[i][1]) r |= pr[i][0];
+    }
+    return r;
+}
+
 namespace {
 
-const char* const kMenuItems[3] = { "Manual", "Options", "Close" };
+const char* const kMenuItems[4] = { "Manual", "Options", "Left hand: off", "Close" };
 int gMenuSel = 0;
 int gMenuPressed = -1;
 
@@ -403,7 +438,7 @@ void menuRect(int i, float* x, float* y, float* w, float* h)
     *x = 40;
     *w = 240;
     *h = 40;
-    *y = 50 + i * 52;
+    *y = 14 + i * 56;
 }
 
 void menuDrawTop()
@@ -416,7 +451,7 @@ void menuDrawTop()
 void menuDrawBottom()
 {
     C2D_DrawRectSolid(0, 0, 0.4f, 320, 240, kBg);
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 4; i++) {
         float x, y, w, h;
         menuRect(i, &x, &y, &w, &h);
         bool on = i == gMenuSel;
@@ -424,7 +459,7 @@ void menuDrawBottom()
         float inset = pressed ? 3.0f : 0.0f; // visible press animation
         C2D_DrawRectSolid(x + inset, y + inset, 0.45f, w - 2 * inset, h - 2 * inset,
             pressed ? kLine : (on ? kLine : kPanel));
-        text(kMenuItems[i], x + w / 2, y + 12, 0.55f,
+        text(i == 2 ? (gLefty ? "Left hand: on" : "Left hand: off") : kMenuItems[i], x + w / 2, y + 12, 0.55f,
             (on || pressed) ? C2D_Color32(0, 0, 0, 0xff) : kGreen, C2D_AlignCenter);
     }
 }
@@ -443,8 +478,8 @@ int ctr_startmenu_run()
     bool waitRelease = true;
     while (aptMainLoop()) {
         hidScanInput();
-        u32 down = hidKeysDown();
-        u32 held = hidKeysHeld();
+        u32 down = ctr_remap(hidKeysDown());
+        u32 held = ctr_remap(hidKeysHeld());
         if (waitRelease) {
             if ((held & (KEY_START | KEY_SELECT | KEY_TOUCH | KEY_A | KEY_B)) == 0) {
                 waitRelease = false;
@@ -454,17 +489,21 @@ int ctr_startmenu_run()
                 result = 2;
                 break;
             }
-            if (down & KEY_DUP) gMenuSel = (gMenuSel + 2) % 3;
-            if (down & KEY_DDOWN) gMenuSel = (gMenuSel + 1) % 3;
+            if (down & KEY_DUP) gMenuSel = (gMenuSel + 3) % 4;
+            if (down & KEY_DDOWN) gMenuSel = (gMenuSel + 1) % 4;
             if (down & KEY_A) {
-                result = gMenuSel;
-                break;
+                if (gMenuSel == 2) {
+                    leftySet(!gLefty);
+                } else {
+                    result = gMenuSel == 3 ? 2 : gMenuSel;
+                    break;
+                }
             }
             if (held & KEY_TOUCH) {
                 touchPosition t;
                 hidTouchRead(&t);
                 gMenuPressed = -1;
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 4; i++) {
                     float x, y, w, h;
                     menuRect(i, &x, &y, &w, &h);
                     if (t.px >= x && t.px < x + w && t.py >= y && t.py < y + h) {
@@ -473,8 +512,13 @@ int ctr_startmenu_run()
                     }
                 }
             } else if (gMenuPressed >= 0) {
-                result = gMenuPressed;
-                break;
+                if (gMenuPressed == 2) {
+                    leftySet(!gLefty);
+                    gMenuPressed = -1;
+                } else {
+                    result = gMenuPressed == 3 ? 2 : gMenuPressed;
+                    break;
+                }
             }
         }
         C2D_TextBufClear(gBuf);

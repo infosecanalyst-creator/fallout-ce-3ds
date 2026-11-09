@@ -155,7 +155,7 @@ static const char* const kManualLines[] = {
     "Quick save rotates through slots 1, 2 and 3 without asking, overwriting the oldest, so the last three quick saves are always kept. Quick load loads the newest of the three.",
     "",
     "## The options menu",
-    "Start opens a small menu: Manual, Options and Close (A or tap to choose, B or Start to close it). Options is the game's options menu: Save game, Load game, Preferences, Exit game and Done. Save and load show the slot list on the touch screen and the slot's picture and description on top.",
+    "Start opens a small menu: Manual, Options, Left hand and Close (A or tap to choose, B or Start to close it). Left hand on/off swaps the D-pad with Y, A, B and X (Y is up, A is right, B is down, X is left, and the reverse) so the stylus can be held in the left hand; it is remembered, and every button combination in this manual follows the swap. Options is the game's options menu: Save game, Load game, Preferences, Exit game and Done. Save and load show the slot list on the touch screen and the slot's picture and description on top.",
     "",
     "To save, tap a slot and then Done. The 3DS keyboard opens with a description filled in: the name of the place for a new save, or the old description when you overwrite a slot. Tap OK to save, or type your own first. Cancel goes back to the slot list without saving.",
     "",
