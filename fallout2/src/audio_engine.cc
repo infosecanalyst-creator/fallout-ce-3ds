@@ -12,14 +12,22 @@
 #ifdef __3DS__
 #include <3ds.h>
 
-// Lock-free guard with memory barriers only. Real locking (Init+Lock/Unlock)
-// causes contention that deadlocks or starves the audio callback on 3DS.
-// Instead, use __dmb() (ARM Data Memory Barrier) to ensure memory visibility
-// between the main thread and the SDL audio callback. Without barriers,
-// the callback reads stale buffer data on ARM11's weakly-ordered memory.
+namespace fallout {
+SDL_AudioDeviceID ctrAudioDevice();
+}
+
+// Per-buffer guard on 3DS: holds SDL's audio device lock, the same lock the
+// mixer callback runs under. It is recursive, so nested guards on the same
+// thread are fine. (A plain LightLock deadlocked here because guarded code
+// nests; barriers alone gave no exclusion at all.)
 struct LightLockGuard {
-    LightLockGuard(LightLock*) { __dmb(); }
-    ~LightLockGuard() { __dmb(); }
+    SDL_AudioDeviceID id;
+    LightLockGuard(LightLock*) : id(fallout::ctrAudioDevice()) {
+        if (id != (SDL_AudioDeviceID)-1) SDL_LockAudioDevice(id);
+    }
+    ~LightLockGuard() {
+        if (id != (SDL_AudioDeviceID)-1) SDL_UnlockAudioDevice(id);
+    }
 };
 #endif
 
@@ -62,6 +70,13 @@ static void audioEngineMixin(void* userData, Uint8* stream, int length);
 
 static SDL_AudioSpec gAudioEngineSpec;
 static SDL_AudioDeviceID gAudioEngineDeviceId = -1;
+
+#ifdef __3DS__
+SDL_AudioDeviceID ctrAudioDevice()
+{
+    return gAudioEngineDeviceId;
+}
+#endif
 static AudioEngineSoundBuffer gAudioEngineSoundBuffers[AUDIO_ENGINE_SOUND_BUFFERS];
 
 static bool audioEngineIsInitialized()

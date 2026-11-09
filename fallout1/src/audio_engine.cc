@@ -10,16 +10,21 @@
 #ifdef __3DS__
 #include "3ds.h"
 
+namespace fallout {
+SDL_AudioDeviceID ctrAudioDevice();
+}
+
+// Per-buffer guard on 3DS: holds SDL's audio device lock, the same lock the
+// mixer callback runs under. It is recursive, so nested guards on the same
+// thread are fine. (The old guard re-initialized a LightLock on every use,
+// which excluded nothing and could leave the lock stuck - a freeze.)
 struct LightLockGuard {
-    LightLock* lock;
-
-    LightLockGuard(LightLock* _lock) : lock(_lock) {
-        LightLock_Init(lock);
-        LightLock_Lock(lock);
+    SDL_AudioDeviceID id;
+    LightLockGuard(LightLock*) : id(fallout::ctrAudioDevice()) {
+        if (id != (SDL_AudioDeviceID)-1) SDL_LockAudioDevice(id);
     }
-
     ~LightLockGuard() {
-        LightLock_Unlock(lock);
+        if (id != (SDL_AudioDeviceID)-1) SDL_UnlockAudioDevice(id);
     }
 };
 #endif
@@ -63,6 +68,13 @@ static void audioEngineMixin(void* userData, Uint8* stream, int length);
 
 static SDL_AudioSpec gAudioEngineSpec;
 static SDL_AudioDeviceID gAudioEngineDeviceId = -1;
+
+#ifdef __3DS__
+SDL_AudioDeviceID ctrAudioDevice()
+{
+    return gAudioEngineDeviceId;
+}
+#endif
 static AudioEngineSoundBuffer gAudioEngineSoundBuffers[AUDIO_ENGINE_SOUND_BUFFERS];
 
 static bool audioEngineIsInitialized()
