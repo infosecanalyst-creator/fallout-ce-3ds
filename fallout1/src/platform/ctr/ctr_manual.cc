@@ -257,37 +257,42 @@ void drawTop()
 }
 
 const int kColumns = 2;
-const float kCellW = 156.0f;
-const float kCellH = 22.0f;
-const float kGridX = 4.0f;
-const float kGridY = 26.0f;
-const float kCloseY = 214.0f;
+// Rule 11: buttons 24 px tall, 4 px apart, 6 px from the screen edges. The
+// last cell of the grid is Close (15 sections + Close = 8 rows, y 6..226).
+const float kCellW = 152.0f;
+const float kCellH = 24.0f;
+const float kGridX = 6.0f;
+const float kGridY = 6.0f;
+const float kGap = 4.0f;
 
 int rowsPerColumn()
 {
-    return ((int)gSections.size() + kColumns - 1) / kColumns;
+    return ((int)gSections.size() + 1 + kColumns - 1) / kColumns;   // + the Close cell
 }
 
 void cellRect(int index, float* x, float* y)
 {
     int rows = rowsPerColumn();
-    *x = kGridX + (index / rows) * (kCellW + 4);
-    *y = kGridY + (index % rows) * (kCellH + 1);
+    *x = kGridX + (index / rows) * (kCellW + kGap);
+    *y = kGridY + (index % rows) * (kCellH + kGap);
 }
 
 void drawBottom()
 {
     C2D_DrawRectSolid(0, 0, 0.4f, 320, 240, kBg);
-    text(kManualTitle, 160, 4, 0.5f, kAmber, C2D_AlignCenter);
     for (int i = 0; i < (int)gSections.size(); i++) {
         float x, y;
         cellRect(i, &x, &y);
         bool on = i == gCurrent;
         C2D_DrawRectSolid(x, y, 0.45f, kCellW, kCellH, on ? kLine : kPanel);
-        text(gSections[i].title, x + 6, y + 4, 0.42f, on ? C2D_Color32(0, 0, 0, 0xff) : kGreen);
+        float sc = 0.42f, w = measure(gSections[i].title) * sc / kTextScale;
+        if (w > kCellW - 10) sc *= (kCellW - 10) / w;   // long titles shrink to fit, never cut off
+        text(gSections[i].title, x + 5, y + 5, sc, on ? C2D_Color32(0, 0, 0, 0xff) : kGreen);
     }
-    C2D_DrawRectSolid(4, kCloseY, 0.45f, 312, 22, kPanel);
-    text(ctr_lefty() ? "Close (D-Down)   ABXY, L/R: section   Sticks: scroll" : "Close (B)    D-Pad, L / R: section    Sticks: scroll", 160, kCloseY + 4, 0.42f, kDim, C2D_AlignCenter);
+    float cx, cy;
+    cellRect((int)gSections.size(), &cx, &cy);
+    C2D_DrawRectSolid(cx, cy, 0.45f, kCellW, kCellH, C2D_Color32(0x5a, 0x1e, 0x1e, 0xff));
+    text(ctr_lefty() ? "Close (D-Down)" : "Close (B)", cx + kCellW / 2, cy + 5, 0.42f, C2D_Color32(0xff, 0xd8, 0xc8, 0xff), C2D_AlignCenter);
 }
 
 void frame()
@@ -344,15 +349,19 @@ void ctr_manual_run()
         if (down & KEY_TOUCH) {
             touchPosition touch;
             hidTouchRead(&touch);
-            if (touch.py >= kCloseY) {
-                break;
-            }
-            for (int i = 0; i < (int)gSections.size(); i++) {
+            bool close = false;
+            for (int i = 0; i <= (int)gSections.size(); i++) {
                 float x, y;
                 cellRect(i, &x, &y);
-                if (touch.px >= x && touch.px < x + kCellW && touch.py >= y && touch.py < y + kCellH) {
-                    select(i);
+                // the 4-px gaps and 6-px margins count toward the nearest cell
+                if (touch.px >= x - 2 && touch.px < x + kCellW + 2 && touch.py >= y - 2 && touch.py < y + kCellH + 2) {
+                    if (i == (int)gSections.size()) close = true;
+                    else select(i);
+                    break;
                 }
+            }
+            if (close) {
+                break;
             }
         }
 
