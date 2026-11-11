@@ -55,7 +55,7 @@ static const char* const kManualLines[] = {
     "## Changing the layout",
     "| ZL | On the map: swap screens, so the map goes on top and the original Fallout interface bar on the touch screen",
     "| ZL | On any other screen: switch the top screen between its information and a sharp, full-size view of the part of the screen around where you last touched. Remembered for each screen",
-    "| Select+L | Whole-screen view: the entire game picture on the touch screen, with a magnified lens on top (ZL: the whole width filling the top screen instead). Press again to go back",
+    "| Select+L | Whole-screen view: the entire game picture on the touch screen and its full width on top (ZL: a magnified lens that follows the stylus). Press again to go back",
     "| Select+Up/Dn | Zoom the map in or out. The 3D slider zooms too",
     "| Select+R | Sharper top screen (800 pixels wide) on or off. The choice is remembered. Not on the original 2DS",
     "",

@@ -217,8 +217,8 @@ inline void drawRect(const float subTexX, const float subTexY, const float subTe
 // ---------------------------------------------------------------------------
 // Top-screen lens: on any screen except the map, ZL switches the top screen
 // between its info card and a sharp, full-size (1:1) view of the part of the
-// screen around the stylus. Remembered per screen. Pip-Boy and Preferences
-// start with the lens on because their text is unreadable at half size.
+// screen around the stylus. Remembered per screen. Every screen starts with
+// the lens off (both screens filled; zoom only on a button press).
 // ---------------------------------------------------------------------------
 static bool ctrLens[DISPLAY_LAST];
 static bool ctrLensInit = false;
@@ -233,8 +233,7 @@ static void ctrLensDefaults()
 {
     if (!ctrLensInit) {
         ctrLensInit = true;
-        ctrLens[DISPLAY_PIPBOY] = true;
-        ctrLens[DISPLAY_OPTIONS] = true;
+        // No screen starts zoomed: ZL turns the lens on where wanted.
     }
 }
 
@@ -424,11 +423,12 @@ void drawRects()
 
         case DISPLAY_FULL:
             if (ctr_input.mode != DISPLAY_MODE_ADAPT) {
-                // Whole-screen mode (Select+L): top screen is a zoom lens that
-                // follows the stylus. ZL switches it to a fill view: the whole
-                // width of the picture filling the top screen (0.625x), panned
-                // up and down with the stylus.
-                if (ctrLens[DISPLAY_FULL]) {
+                // Whole-screen mode (Select+L): the top screen is filled with
+                // the whole width of the picture (0.625x), panned up and down
+                // with the stylus. ZL switches to a 1:1 zoom lens that follows
+                // the stylus (Ryan: both screens always filled; zoom only on a
+                // button press, never by default).
+                if (!ctrLens[DISPLAY_FULL]) {
                     int srcY = (240 - offsetY) * 96 / 240;
                     if (srcY < 0) srcY = 0;
                     if (srcY > 96) srcY = 96;
