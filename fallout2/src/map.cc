@@ -821,9 +821,32 @@ int mapLoadById(int map)
 }
 
 // 0x482B74
+
+#ifdef __3DS__
+// Phase timer for map loads: CTR_MARK(name) logs ms since the previous mark.
+static u64 gCtrMarkTick = 0;
+static void ctrMark(const char* name)
+{
+    u64 now = svcGetSystemTick();
+    if (gCtrMarkTick != 0) {
+        char msg[96];
+        snprintf(msg, sizeof(msg), "  %-20s %llu ms", name, (now - gCtrMarkTick) / (SYSCLOCK_ARM11 / 1000));
+        ctr_debug_log(msg);
+    }
+    gCtrMarkTick = now;
+}
+#define CTR_MARK(name) ctrMark(name)
+#else
+#define CTR_MARK(name) ((void)0)
+#endif
+
 static int mapLoad(File* stream)
 {
+#ifdef __3DS__
+    gCtrMarkTick = svcGetSystemTick();
+#endif
     _map_save_in_game(true);
+    CTR_MARK("save old map");
     backgroundSoundLoad("wind2", 12, 13, 16);
     isoDisable();
     _partyMemberPrepLoad();
@@ -843,6 +866,7 @@ static int mapLoad(File* stream)
         windowGetHeight(gIsoWindow),
         _colorTable[0]);
     windowRefresh(gIsoWindow);
+    CTR_MARK("clear window");
     animationStop();
     scriptsDisable();
 
@@ -907,13 +931,16 @@ static int mapLoad(File* stream)
     if (_square_load(stream, gMapHeader.flags) != 0) {
         goto err;
     }
+    CTR_MARK("header+vars+tiles");
 
     error = "Error reading scripts";
+    CTR_MARK("tiles");
     if (scriptLoadAll(stream) != 0) {
         goto err;
     }
 
     error = "Error reading objects";
+    CTR_MARK("scripts");
     if (objectLoadAll(stream) != 0) {
         goto err;
     }
@@ -923,6 +950,7 @@ static int mapLoad(File* stream)
     }
 
     error = "Error setting map elevation";
+    CTR_MARK("objects");
     if (mapSetElevation(gEnteringElevation) != 0) {
         goto err;
     }
@@ -979,7 +1007,9 @@ static int mapLoad(File* stream)
         script->ownerId = object->id;
         script->owner = object;
         _scr_spatials_disable();
+        CTR_MARK("elevation+gam");
         scriptExecProc(gMapSid, SCRIPT_PROC_MAP_ENTER);
+        CTR_MARK("map script enter");
         _scr_spatials_enable();
 
         error = "Error Setting up random encounter";
@@ -999,7 +1029,9 @@ err:
         mapNewMap();
         rc = -1;
     } else {
+        CTR_MARK("encounter");
         _obj_preload_art_cache(gMapHeader.flags);
+        CTR_MARK("preload art");
     }
 
     _partyMemberRecoverLoad();
@@ -1015,8 +1047,11 @@ err:
         debugPrint("\n   Error: scr_load_all_scripts failed!");
     }
 
+    CTR_MARK("party+start procs");
     scriptsExecMapEnterProc();
+    CTR_MARK("map enter procs");
     scriptsExecMapUpdateProc();
+    CTR_MARK("map update procs");
     tileEnable();
 
     if (gMapTransition.map > 0) {
@@ -1036,9 +1071,11 @@ err:
     wmMapMarkVisited(gMapHeader.index);
     wmMapMarkMapEntranceState(gMapHeader.index, gElevation, 1);
 
+    CTR_MARK("refresh+sfx");
     if (wmCheckGameAreaEvents() != 0) {
         rc = -1;
     }
+    CTR_MARK("area events");
 
     fileSetReadProgressHandler(nullptr, 0);
 
