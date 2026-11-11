@@ -1,5 +1,11 @@
 #include "map.h"
 
+#ifdef __3DS__
+#include <SDL.h>
+#include "platform_compat.h"
+#include "platform/ctr/ctr_sys.h"
+#endif
+
 #include <stdio.h>
 #include <string.h>
 
@@ -1258,7 +1264,17 @@ int mapHandleTransition()
                 // SFALL: Remove text floaters after moving to another map.
                 textObjectsReset();
 
+#ifdef __3DS__
+                unsigned int loadStart = SDL_GetTicks();
+                unsigned int opens0 = gCtrSdOpens, skipped0 = gCtrSdSkipped;
+#endif
                 mapLoadById(gMapTransition.map);
+#ifdef __3DS__
+                char loadMsg[128];
+                snprintf(loadMsg, sizeof(loadMsg), "map change to %d: %u ms, %u SD opens, %u lookups skipped",
+                    gMapTransition.map, SDL_GetTicks() - loadStart, gCtrSdOpens - opens0, gCtrSdSkipped - skipped0);
+                ctr_debug_log(loadMsg);
+#endif
             }
 
             if (gMapTransition.tile != -1 && gMapTransition.tile != 0

@@ -2102,6 +2102,10 @@ static int db_init_patches(DB_DATABASE* database, const char* path)
         database->patches_path[path_len + 1] = '\0';
     }
 
+#ifdef __3DS__
+    compat_index_loose_dir(path);
+#endif
+
     return 0;
 }
 

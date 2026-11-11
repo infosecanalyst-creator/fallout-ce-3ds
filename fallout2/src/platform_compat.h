@@ -43,6 +43,12 @@ void compat_windows_path_to_native(char* path);
 void compat_resolve_path(char* path);
 int compat_access(const char* path, int mode);
 char* compat_strdup(const char* string);
+#ifdef __3DS__
+// Scan a loose-file folder (e.g. "data") once so lookups of missing files skip the SD card.
+void compat_index_loose_dir(const char* path);
+extern unsigned int gCtrSdOpens;
+extern unsigned int gCtrSdSkipped;
+#endif
 long getFileSize(FILE* stream);
 
 } // namespace fallout

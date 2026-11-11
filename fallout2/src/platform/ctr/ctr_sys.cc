@@ -80,17 +80,18 @@ size_t ctr_sys_check_heap() {
 
     return allocatedChunks * chunkSize;
 }
-static bool debugLogStarted = false;
+// Kept open: opening, appending, fsync-ing and closing the file for every line
+// cost 100-200 ms each on the real SD card (see 3ds-sd-card-io-learnings).
+static FILE* debugLogFile = nullptr;
 
 void ctr_debug_log(const char* msg) {
-    FILE* f = fopen("sdmc:/3ds/fallout2/debug.log", debugLogStarted ? "a" : "w");
-    debugLogStarted = true;
-    if (f) {
-        fprintf(f, "%s\n", msg);
-        fflush(f);
-        fsync(fileno(f));
-        fclose(f);
+    if (debugLogFile == nullptr) {
+        debugLogFile = fopen("sdmc:/3ds/fallout2/debug.log", "w");
+        if (debugLogFile == nullptr) return;
+        setvbuf(debugLogFile, nullptr, _IOFBF, 4096);
     }
+    fprintf(debugLogFile, "%s\n", msg);
+    fflush(debugLogFile);
 }
 
 #ifdef _DEBUG_OVERLAY

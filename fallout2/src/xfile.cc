@@ -538,6 +538,9 @@ bool xbaseOpen(const char* path)
 
     if (chdir(path) == 0) {
         chdir(workingDirectory);
+#ifdef __3DS__
+        compat_index_loose_dir(path);
+#endif
         xbase->next = gXbaseHead;
         gXbaseHead = xbase;
         return true;
@@ -549,6 +552,9 @@ bool xbaseOpen(const char* path)
     }
 
     chdir(workingDirectory);
+#ifdef __3DS__
+    compat_index_loose_dir(path);
+#endif
 
     xbase->next = gXbaseHead;
     gXbaseHead = xbase;

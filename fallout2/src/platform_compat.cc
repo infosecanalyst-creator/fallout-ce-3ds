@@ -27,6 +27,127 @@
 
 namespace fallout {
 
+#ifdef __3DS__
+// ---------------------------------------------------------------------------
+// Loose-file index (3DS). Every game file is looked up in the loose "data"
+// folder before MASTER.DAT/CRITTER.DAT. On the real SD card each failed lookup
+// costs ~70-100 ms (plus a directory scan for the case-insensitive retry), and
+// a map change opens hundreds of files, so area loads took many seconds. The
+// folder is scanned once into memory; lookups of files that aren't there are
+// answered from memory, and writes/removes/renames keep the index current.
+// FAT ignores case, so the case-resolving directory scan is never needed.
+// ---------------------------------------------------------------------------
+} // namespace fallout
+#include <string>
+#include <unordered_set>
+#include <vector>
+namespace fallout {
+
+static std::vector<std::string> gLooseRoots;
+unsigned int gCtrSdOpens = 0;     // fopen/gzopen calls that reached the SD card
+unsigned int gCtrSdSkipped = 0;   // lookups answered from the index
+
+static std::unordered_set<std::string> gLooseFiles;
+
+static void looseKey(const char* nativePath, std::string& out)
+{
+    out.clear();
+    const char* p = nativePath;
+    while (p[0] == '.' && p[1] == '/') p += 2;
+    for (; *p; ++p) {
+        char c = *p;
+        if (c == '\\') c = '/';
+        if (c == '/' && !out.empty() && out.back() == '/') continue;
+        if (c >= 'A' && c <= 'Z') c = c - 'A' + 'a';
+        out.push_back(c);
+    }
+}
+
+static bool looseCovered(const std::string& key)
+{
+    for (const std::string& root : gLooseRoots) {
+        if (key.size() > root.size() && key.compare(0, root.size(), root) == 0 && key[root.size()] == '/') {
+            return true;
+        }
+    }
+    return false;
+}
+
+static void looseScan(const std::string& dirPath, const std::string& keyPrefix, int depth)
+{
+    if (depth > 8) return;
+    DIR* dir = opendir(dirPath.c_str());
+    if (dir == nullptr) return;
+    std::vector<std::pair<std::string, std::string>> subdirs;
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != nullptr) {
+        if (entry->d_name[0] == '.' && (entry->d_name[1] == '\0' || (entry->d_name[1] == '.' && entry->d_name[2] == '\0'))) continue;
+        std::string key;
+        std::string full = keyPrefix + "/" + entry->d_name;
+        looseKey(full.c_str(), key);
+        bool isDir;
+        if (entry->d_type == DT_DIR) {
+            isDir = true;
+        } else if (entry->d_type == DT_UNKNOWN) {
+            struct stat st;
+            isDir = stat((dirPath + "/" + entry->d_name).c_str(), &st) == 0 && S_ISDIR(st.st_mode);
+        } else {
+            isDir = false;
+        }
+        if (isDir) {
+            subdirs.emplace_back(dirPath + "/" + entry->d_name, full);
+        } else {
+            gLooseFiles.insert(key);
+        }
+    }
+    closedir(dir);
+    for (auto& sd : subdirs) looseScan(sd.first, sd.second, depth + 1);
+}
+
+void compat_index_loose_dir(const char* path)
+{
+    char nativePath[COMPAT_MAX_PATH];
+    strcpy(nativePath, path);
+    compat_windows_path_to_native(nativePath);
+    std::string root;
+    looseKey(nativePath, root);
+    while (!root.empty() && root.back() == '/') root.pop_back();
+    if (root.empty()) return;
+    for (const std::string& r : gLooseRoots) if (r == root) return;
+    looseScan(nativePath, root, 0);
+    gLooseRoots.push_back(root);
+}
+
+// true: the path is inside an indexed folder and no such file exists.
+static bool looseKnownMissing(const char* nativePath)
+{
+    if (gLooseRoots.empty()) return false;
+    std::string key;
+    looseKey(nativePath, key);
+    if (looseCovered(key) && gLooseFiles.find(key) == gLooseFiles.end()) {
+        gCtrSdSkipped++;
+        return true;
+    }
+    return false;
+}
+
+static void looseNoteCreated(const char* nativePath)
+{
+    if (gLooseRoots.empty()) return;
+    std::string key;
+    looseKey(nativePath, key);
+    if (looseCovered(key)) gLooseFiles.insert(key);
+}
+
+static void looseNoteRemoved(const char* nativePath)
+{
+    if (gLooseRoots.empty()) return;
+    std::string key;
+    looseKey(nativePath, key);
+    gLooseFiles.erase(key);
+}
+#endif
+
 int compat_stricmp(const char* string1, const char* string2)
 {
     return SDL_strcasecmp(string1, string2);
@@ -231,17 +352,21 @@ FILE* compat_fopen(const char* path, const char* mode)
     strcpy(nativePath, path);
     compat_windows_path_to_native(nativePath);
 #ifdef __3DS__
-    // The SD card's FAT ignores case, so open directly; only fall back to the
-    // directory scan (one readdir per path component, slow on SD) on failure.
-    if (mode[0] == 'r') {
-        FILE* stream = fopen(nativePath, mode);
-        if (stream != NULL) {
-            return stream;
-        }
+    // The SD card's FAT ignores case, so no case-resolving scan; files known
+    // not to be in an indexed loose folder are refused without touching the SD.
+    if (mode[0] == 'r' && strchr(mode, '+') == nullptr && looseKnownMissing(nativePath)) {
+        return nullptr;
     }
-#endif
+    gCtrSdOpens++;
+    FILE* stream = fopen(nativePath, mode);
+    if (stream != nullptr && (mode[0] == 'w' || mode[0] == 'a')) {
+        looseNoteCreated(nativePath);
+    }
+    return stream;
+#else
     compat_resolve_path(nativePath);
     return fopen(nativePath, mode);
+#endif
 }
 
 gzFile compat_gzopen(const char* path, const char* mode)
@@ -249,8 +374,20 @@ gzFile compat_gzopen(const char* path, const char* mode)
     char nativePath[COMPAT_MAX_PATH];
     strcpy(nativePath, path);
     compat_windows_path_to_native(nativePath);
+#ifdef __3DS__
+    if (mode[0] == 'r' && looseKnownMissing(nativePath)) {
+        return nullptr;
+    }
+    gCtrSdOpens++;
+    gzFile gz = gzopen(nativePath, mode);
+    if (gz != nullptr && (mode[0] == 'w' || mode[0] == 'a')) {
+        looseNoteCreated(nativePath);
+    }
+    return gz;
+#else
     compat_resolve_path(nativePath);
     return gzopen(nativePath, mode);
+#endif
 }
 
 char* compat_fgets(char* buffer, int maxCount, FILE* stream)
@@ -288,8 +425,19 @@ int compat_remove(const char* path)
     char nativePath[COMPAT_MAX_PATH];
     strcpy(nativePath, path);
     compat_windows_path_to_native(nativePath);
+#ifdef __3DS__
+    if (looseKnownMissing(nativePath)) {
+        return -1;
+    }
+    int rc = remove(nativePath);
+    if (rc == 0) {
+        looseNoteRemoved(nativePath);
+    }
+    return rc;
+#else
     compat_resolve_path(nativePath);
     return remove(nativePath);
+#endif
 }
 
 int compat_rename(const char* oldFileName, const char* newFileName)
@@ -304,7 +452,16 @@ int compat_rename(const char* oldFileName, const char* newFileName)
     compat_windows_path_to_native(nativeNewFileName);
     compat_resolve_path(nativeNewFileName);
 
+#ifdef __3DS__
+    int rc = rename(nativeOldFileName, nativeNewFileName);
+    if (rc == 0) {
+        looseNoteRemoved(nativeOldFileName);
+        looseNoteCreated(nativeNewFileName);
+    }
+    return rc;
+#else
     return rename(nativeOldFileName, nativeNewFileName);
+#endif
 }
 
 void compat_windows_path_to_native(char* path)
@@ -322,7 +479,7 @@ void compat_windows_path_to_native(char* path)
 
 void compat_resolve_path(char* path)
 {
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__3DS__)
     char* pch = path;
 
     DIR* dir;
@@ -379,6 +536,11 @@ int compat_access(const char* path, int mode)
     char nativePath[COMPAT_MAX_PATH];
     strcpy(nativePath, path);
     compat_windows_path_to_native(nativePath);
+#ifdef __3DS__
+    if (looseKnownMissing(nativePath)) {
+        return -1;
+    }
+#endif
     compat_resolve_path(nativePath);
     return access(nativePath, mode);
 }
