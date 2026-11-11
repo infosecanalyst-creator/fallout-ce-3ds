@@ -68,7 +68,6 @@ float getSaveSlotOffset()
 // The weapon row and the monitor/skill row share the whole screen; status
 // indicators (radiated, poisoned, ...) get a 20-px row each only while there
 // are any, so the bar fills the screen instead of leaving an empty grey band.
-// The monitor + skill block (340 px wide in the game) is narrowed to 320.
 // Screen y runs bottom-up here: y 0 is the bottom edge.
 static void layoutGuiRects()
 {
@@ -80,8 +79,11 @@ static void layoutGuiRects()
     rectMap_t* skill = rectMaps[DISPLAY_GUI][1];
     rectMap_t* weapon = rectMaps[DISPLAY_GUI][2];
     weapon->dst_x = 0; weapon->dst_y = 0; weapon->dst_w = 320; weapon->dst_h = rowH;
-    monitor->dst_x = 0; monitor->dst_y = rowH; monitor->dst_w = 188; monitor->dst_h = rowH;
-    skill->dst_x = 188; skill->dst_y = rowH; skill->dst_w = 132; skill->dst_h = rowH;
+    // The skill block ends at the picture's right edge (x 640): 120 px wide,
+    // so monitor (200) + skill (120) is exactly 320 at 1:1 width.
+    skill->src_w = 120;
+    monitor->dst_x = 0; monitor->dst_y = rowH; monitor->dst_w = 200; monitor->dst_h = rowH;
+    skill->dst_x = 200; skill->dst_y = rowH; skill->dst_w = 120; skill->dst_h = rowH;
     if (rectMaps[DISPLAY_GUI_INDICATOR] != NULL) {
         for (int i = 0; i < numRectsInMap[DISPLAY_GUI_INDICATOR]; i++) {
             rectMap_t* r = rectMaps[DISPLAY_GUI_INDICATOR][i];
