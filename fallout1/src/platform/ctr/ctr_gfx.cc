@@ -463,6 +463,7 @@ void drawRects()
     switch (ctr_rectMap.active)
     {
 		case DISPLAY_DIALOG:
+        case DISPLAY_MOVIE:
         case DISPLAY_SKILLDEX:
         case DISPLAY_INVENTORY_TRADE:
         case DISPLAY_WORLDMAP:

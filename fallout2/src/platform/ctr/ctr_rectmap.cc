@@ -311,9 +311,9 @@ void ctr_rectmap_init()
 
     addRectMap(DISPLAY_FULL,              0,   0,   0, 640, 480,   0,   0, 320, 240);
     addRectMap(DISPLAY_FIELD,             0,   0,   0, 400, 240,   0,   0, 400, 240);
-    addRectMap(DISPLAY_MOVIE,             0,   0,  80, 640, 320,   0,  20, 400, 200);
+    addRectMap(DISPLAY_MOVIE,             0,  53,  80, 533, 320,   0,   0, 400, 240);
     addRectMap(DISPLAY_MOVIE_SUB,         0, 105, 401, 430,  80,   0,  60, 320, 120);
-    addRectMap(DISPLAY_MAIN,              0,  25,  15, 230, 260,  43,   0, 234, 240);
+    addRectMap(DISPLAY_MAIN,              0,   0,  10, 360, 270,   0,   0, 320, 240);
 
     addRectMap(DISPLAY_GUI,               0,   5, 380, 200, 100,   0, 100, 200, 100); // monitor
     addRectMap(DISPLAY_GUI,               1, 520, 380, 140, 100, 200, 100, 140, 100); // skill pip
@@ -325,9 +325,9 @@ void ctr_rectmap_init()
     addRectMap(DISPLAY_GUI_INDICATOR,     3, 390, 359, 127,  21, 193, 220, 127,  20); // stat indicator
     layoutGuiRects();
 
-    addRectMap(DISPLAY_PAUSE,             0, 240,  72, 160, 215,  71,   0, 178, 240);
+    addRectMap(DISPLAY_PAUSE,             0, 177,  72, 287, 215,   0,   0, 320, 240);
 
-    addRectMap(DISPLAY_DIALOG_TOP,        0,  80,   0, 480, 290,   0,   0, 397, 240);
+    addRectMap(DISPLAY_DIALOG_TOP,        0,  80,   0, 480, 290,   0,   0, 400, 240);
     addRectMap(DISPLAY_DIALOG_TOP,        1, 130, 230, 390,  60,  10,   0, 380,  60); // dialog
 
     addRectMap(DISPLAY_DIALOG,            0, 152, 320, 320, 160,   0,  80, 320, 160); // bottom dialog: reply choices at 1:1 (wrapped at 325 px so they fit)
@@ -344,7 +344,7 @@ void ctr_rectmap_init()
     addRectMap(DISPLAY_SKILLDEX,          3, 485, 339, 117,  24, 102,  10, 117,  24); // cancel
 
     addRectMap(DISPLAY_INVENTORY,         0,  95,  10, 470, 357,   0,   0, 320, 240);
-    addRectMap(DISPLAY_INVENTORY_USE,     0,  80,   0, 290, 375,  52,   0, 215, 240); // single small inventory
+    addRectMap(DISPLAY_INVENTORY_USE,     0,   0,   0, 500, 375,   0,   0, 320, 240); // single small inventory
     addRectMap(DISPLAY_INVENTORY_LOOT,    0,  95,  10, 505, 360,   0,   0, 320, 240);
 
     addRectMap(DISPLAY_INVENTORY_TRADE,   0,  88, 290, 460, 190,   0,  80, 320, 160); // during barter
@@ -375,7 +375,7 @@ void ctr_rectmap_init()
     addRectMap(DISPLAY_CHAR_PERK_TOP,     0, 304, 110, 290, 180,   0,   0, 400, 240);
     addRectMap(DISPLAY_CHAR_PERK,         0,  44, 105, 247, 199,   0,   0, 320, 240);
 
-    addRectMap(DISPLAY_LOADSAVE_TOP,      0, 330,  30, 295, 190,  15,   0, 370, 238); // image
+    addRectMap(DISPLAY_LOADSAVE_TOP,      0, 330,  30, 295, 190,   0,   0, 400, 240); // image
     addRectMap(DISPLAY_LOADSAVE_TOP,      1, 337, 226, 280,  95, 155,   0, 230,  78); // desc
 
     addRectMap(DISPLAY_LOADSAVE_SLOT,     0,  50,  80, 220, 170,  32,  32, 270, 175); // slots
