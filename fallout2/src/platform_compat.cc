@@ -47,6 +47,27 @@ static std::vector<std::string> gLooseRoots;
 unsigned int gCtrSdOpens = 0;     // fopen/gzopen calls that reached the SD card
 unsigned int gCtrSdSkipped = 0;   // lookups answered from the index
 
+// I/O trace: create sdmc:/3ds/fallout2/iotrace.on to log every open that
+// reaches the SD card (path, mode, ms since start) to iotrace.log.
+static int gIoTrace = -1;
+static FILE* gIoTraceFile = nullptr;
+static void ioTrace(const char* what, const char* path, const char* mode)
+{
+    if (gIoTrace == -1) {
+        FILE* f = fopen("sdmc:/3ds/fallout2/iotrace.on", "r");
+        gIoTrace = f != nullptr;
+        if (f) fclose(f);
+        if (gIoTrace) {
+            gIoTraceFile = fopen("sdmc:/3ds/fallout2/iotrace.log", "w");
+            if (gIoTraceFile) setvbuf(gIoTraceFile, nullptr, _IOFBF, 16384);
+        }
+    }
+    if (gIoTrace && gIoTraceFile) {
+        fprintf(gIoTraceFile, "%u %s %s %s\n", (unsigned)SDL_GetTicks(), what, mode, path);
+        fflush(gIoTraceFile);
+    }
+}
+
 static std::unordered_set<std::string> gLooseFiles;
 
 static void looseKey(const char* nativePath, std::string& out)
@@ -358,6 +379,7 @@ FILE* compat_fopen(const char* path, const char* mode)
         return nullptr;
     }
     gCtrSdOpens++;
+    ioTrace("fopen", nativePath, mode);
     FILE* stream = fopen(nativePath, mode);
     if (stream != nullptr && (mode[0] == 'w' || mode[0] == 'a')) {
         looseNoteCreated(nativePath);
@@ -379,6 +401,7 @@ gzFile compat_gzopen(const char* path, const char* mode)
         return nullptr;
     }
     gCtrSdOpens++;
+    ioTrace("gzopen", nativePath, mode);
     gzFile gz = gzopen(nativePath, mode);
     if (gz != nullptr && (mode[0] == 'w' || mode[0] == 'a')) {
         looseNoteCreated(nativePath);
