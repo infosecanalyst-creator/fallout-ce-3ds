@@ -29,6 +29,14 @@ typedef struct DBase {
 
     // The head of linked list of open file handles.
     DFile* dfileHead;
+
+#ifdef __3DS__
+    // Streams to the .DAT file kept open for reuse. Opening a file costs
+    // ~70-100 ms on the real SD card and every read from the archive opened
+    // one (hundreds per map change).
+    FILE* idleStreams[8];
+    int idleStreamsLength;
+#endif
 } DBase;
 
 typedef struct DBaseEntry {

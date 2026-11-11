@@ -19,6 +19,48 @@ namespace fallout {
 // instead of 1 KB, and give each DAT stream a 32 KB stdio buffer.
 #define DFILE_DECOMPRESSION_BUFFER_SIZE (0x8000)
 #define DFILE_STREAM_BUFFER_SIZE (0x8000)
+
+#ifdef __3DS__
+#include <3ds.h>
+static LightLock gDbaseStreamLock;
+static bool gDbaseStreamLockInit = false;
+
+static FILE* dbaseAcquireStream(DBase* dbase)
+{
+    if (!gDbaseStreamLockInit) {
+        LightLock_Init(&gDbaseStreamLock);
+        gDbaseStreamLockInit = true;
+    }
+    FILE* stream = nullptr;
+    LightLock_Lock(&gDbaseStreamLock);
+    if (dbase->idleStreamsLength > 0) {
+        stream = dbase->idleStreams[--dbase->idleStreamsLength];
+        clearerr(stream);
+    }
+    LightLock_Unlock(&gDbaseStreamLock);
+    if (stream == nullptr) {
+        stream = compat_fopen(dbase->path, "rb");
+        if (stream != nullptr) {
+            setvbuf(stream, nullptr, _IOFBF, DFILE_STREAM_BUFFER_SIZE);
+        }
+    }
+    return stream;
+}
+
+static void dbaseReleaseStream(DBase* dbase, FILE* stream)
+{
+    bool kept = false;
+    LightLock_Lock(&gDbaseStreamLock);
+    if (dbase->idleStreamsLength < (int)(sizeof(dbase->idleStreams) / sizeof(dbase->idleStreams[0]))) {
+        dbase->idleStreams[dbase->idleStreamsLength++] = stream;
+        kept = true;
+    }
+    LightLock_Unlock(&gDbaseStreamLock);
+    if (!kept) {
+        fclose(stream);
+    }
+}
+#endif
 #else
 #define DFILE_DECOMPRESSION_BUFFER_SIZE (0x400)
 #endif
@@ -183,6 +225,13 @@ bool dbaseClose(DBase* dbase)
         curr = next;
     }
 
+#ifdef __3DS__
+    for (int index = 0; index < dbase->idleStreamsLength; index++) {
+        fclose(dbase->idleStreams[index]);
+    }
+    dbase->idleStreamsLength = 0;
+#endif
+
     if (dbase->entries != nullptr) {
         for (int index = 0; index < dbase->entriesLength; index++) {
             DBaseEntry* entry = &(dbase->entries[index]);
@@ -274,7 +323,11 @@ int dfileClose(DFile* stream)
     }
 
     if (stream->stream != nullptr) {
+#ifdef __3DS__
+        dbaseReleaseStream(stream->dbase, stream->stream);
+#else
         fclose(stream->stream);
+#endif
     }
 
     // Loop thru open file handles and find previous to remove current handle
@@ -664,7 +717,11 @@ static DFile* dfileOpenInternal(DBase* dbase, const char* filePath, const char* 
         }
 
         if (dfile->stream != nullptr) {
+#ifdef __3DS__
+            dbaseReleaseStream(dbase, dfile->stream);
+#else
             fclose(dfile->stream);
+#endif
             dfile->stream = nullptr;
         }
 
@@ -676,13 +733,14 @@ static DFile* dfileOpenInternal(DBase* dbase, const char* filePath, const char* 
     dfile->entry = entry;
 
     // Open stream to .DAT file.
+#ifdef __3DS__
+    dfile->stream = dbaseAcquireStream(dbase);
+#else
     dfile->stream = compat_fopen(dbase->path, "rb");
+#endif
     if (dfile->stream == nullptr) {
         goto err;
     }
-#ifdef __3DS__
-    setvbuf(dfile->stream, nullptr, _IOFBF, DFILE_STREAM_BUFFER_SIZE);
-#endif
 
     // Relocate stream to the beginning of data for specified entry.
     if (fseek(dfile->stream, dbase->dataOffset + entry->dataOffset, SEEK_SET) != 0) {
