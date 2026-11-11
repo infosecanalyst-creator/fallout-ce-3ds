@@ -21,6 +21,7 @@
 #include "skill.h"
 #include "stat.h"
 #include "trait.h"
+#include "xfile.h"
 
 namespace fallout {
 
@@ -1931,6 +1932,36 @@ int _proto_save_pid(int pid)
     strcat(path, "\\");
 
     _proto_list_str(pid, path + strlen(path));
+
+#ifdef __3DS__
+    // Party member protos are saved on every map change (~25 files). Creating
+    // or truncating a file costs a lot on the real SD card, so serialize to
+    // memory first and skip the write when the saved copy is already identical.
+    {
+        unsigned char memory[1024];
+        unsigned char existing[1024];
+        FILE* mem = fmemopen(memory, sizeof(memory), "wb");
+        if (mem != nullptr) {
+            XFile memFile;
+            memFile.type = XFILE_TYPE_FILE;
+            memFile.file = mem;
+            int memRc = protoWrite(proto, &memFile);
+            fflush(mem);
+            long length = ftell(mem);
+            fclose(mem);
+            if (memRc == 0 && length > 0 && length < (long)sizeof(memory)) {
+                File* old = fileOpen(path, "rb");
+                if (old != nullptr) {
+                    long oldLength = fileRead(existing, 1, sizeof(existing), old);
+                    fileClose(old);
+                    if (oldLength == length && memcmp(existing, memory, length) == 0) {
+                        return 0;
+                    }
+                }
+            }
+        }
+    }
+#endif
 
     File* stream = fileOpen(path, "wb");
     if (stream == nullptr) {
