@@ -4019,7 +4019,12 @@ static int _obj_adjust_light(Object* obj, int a2, Rect* rect)
     AdjustLightIntensityProc* adjustLightIntensity = a2 ? lightDecreaseTileIntensity : lightIncreaseTileIntensity;
     adjustLightIntensity(obj->elevation, obj->tile, obj->lightIntensity);
 
-    Rect objectRect;
+    Rect objectRect = { 0, 0, 0, 0 };
+    // 3DS: the bounding rect is only used when the caller asks for it (rect);
+    // measuring loads the object's art, for every object on a full rebuild.
+#ifdef __3DS__
+    if (rect != nullptr)
+#endif
     objectGetRect(obj, &objectRect);
 
     if (obj->lightDistance > 8) {
@@ -4577,9 +4582,14 @@ static int _obj_adjust_light(Object* obj, int a2, Rect* rect)
                                 }
 
                                 if (objectListNode->obj->elevation == obj->elevation) {
-                                    Rect v29;
-                                    objectGetRect(objectListNode->obj, &v29);
-                                    rectUnion(&objectRect, &v29, &objectRect);
+#ifdef __3DS__
+                                    if (rect != nullptr)
+#endif
+                                    {
+                                        Rect v29;
+                                        objectGetRect(objectListNode->obj, &v29);
+                                        rectUnion(&objectRect, &v29, &objectRect);
+                                    }
 
                                     v14 = (objectListNode->obj->flags & OBJECT_LIGHT_THRU) == 0;
 
