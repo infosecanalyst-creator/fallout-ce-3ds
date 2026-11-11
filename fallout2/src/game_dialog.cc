@@ -2138,7 +2138,7 @@ void gameDialogOptionOnMouseEnter(int index)
     _optionRect.left = 0;
     _optionRect.top = dialogOptionEntry->top;
 #ifdef __3DS__
-    _optionRect.right = 340;
+    _optionRect.right = 325;
 #else
     _optionRect.right = 391;
 #endif
@@ -2147,7 +2147,7 @@ void gameDialogOptionOnMouseEnter(int index)
 
     _optionRect.left = 5;
 #ifdef __3DS__
-    _optionRect.right = 340;
+    _optionRect.right = 325;
 #else
     _optionRect.right = 388;
 #endif
@@ -2181,7 +2181,7 @@ void gameDialogOptionOnMouseEnter(int index)
 
     _optionRect.left = 0;
 #ifdef __3DS__
-    _optionRect.right = 340;
+    _optionRect.right = 325;
 #else
     _optionRect.right = 391;
 #endif
@@ -2197,7 +2197,7 @@ void gameDialogOptionOnMouseExit(int index)
     _optionRect.left = 0;
     _optionRect.top = dialogOptionEntry->top;
 #ifdef __3DS__
-    _optionRect.right = 340;
+    _optionRect.right = 325;
 #else
     _optionRect.right = 391;
 #endif
@@ -2225,7 +2225,7 @@ void gameDialogOptionOnMouseExit(int index)
 
     _optionRect.left = 5;
 #ifdef __3DS__
-    _optionRect.right = 340;
+    _optionRect.right = 325;
 #else
     _optionRect.right = 388;
 #endif
@@ -2240,7 +2240,7 @@ void gameDialogOptionOnMouseExit(int index)
         color);
 
 #ifdef __3DS__
-    _optionRect.right = 340;
+    _optionRect.right = 325;
 #else
     _optionRect.right = 391;
 #endif
@@ -2284,7 +2284,7 @@ void _gdProcessUpdate()
     _optionRect.left = 5;
     _optionRect.top = 5;
 #ifdef __3DS__
-    _optionRect.right = 340;
+    _optionRect.right = 325;
 #else
     _optionRect.right = 388;
 #endif

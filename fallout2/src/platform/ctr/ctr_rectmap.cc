@@ -330,7 +330,7 @@ void ctr_rectmap_init()
     addRectMap(DISPLAY_DIALOG_TOP,        0,  80,   0, 480, 290,   0,   0, 397, 240);
     addRectMap(DISPLAY_DIALOG_TOP,        1, 130, 230, 390,  60,  10,   0, 380,  60); // dialog
 
-    addRectMap(DISPLAY_DIALOG,            0, 145, 320, 345, 160,   0,  80, 320, 160); // bottom dialog
+    addRectMap(DISPLAY_DIALOG,            0, 152, 320, 320, 160,   0,  80, 320, 160); // bottom dialog: reply choices at 1:1 (wrapped at 325 px so they fit)
     addRectMap(DISPLAY_DIALOG,            1,   5, 440,  70,  37,  45,  10,  70,  37); // bottom review
     addRectMap(DISPLAY_DIALOG,            2, 575, 324,  50,  28, 135,  15,  50,  28); // bottom barter
     addRectMap(DISPLAY_DIALOG,            3, 575, 399,  50,  28, 210,  15,  50,  28); // bottom about

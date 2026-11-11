@@ -1636,7 +1636,7 @@ static void gDialogProcessHighlight(int index)
     optionRect.ulx = 0;
     optionRect.uly = dialogOptionEntry->field_14;
 #ifdef __3DS__
-    optionRect.lrx = 340;
+    optionRect.lrx = 325;
 #else
     optionRect.lrx = 391;
 #endif
@@ -1649,7 +1649,7 @@ static void gDialogProcessHighlight(int index)
 
     optionRect.ulx = 5;
 #ifdef __3DS__
-    optionRect.lrx = 340;
+    optionRect.lrx = 325;
 #else
     optionRect.lrx = 388;
 #endif
@@ -1682,7 +1682,7 @@ static void gDialogProcessHighlight(int index)
 
     optionRect.ulx = 0;
 #ifdef __3DS__
-    optionRect.lrx = 340;
+    optionRect.lrx = 325;
 #else
     optionRect.lrx = 391;
 #endif
@@ -1698,7 +1698,7 @@ static void gDialogProcessUnHighlight(int index)
     optionRect.ulx = 0;
     optionRect.uly = dialogOptionEntry->field_14;
 #ifdef __3DS__
-    optionRect.lrx = 340;
+    optionRect.lrx = 325;
 #else
     optionRect.lrx = 391;
 #endif
@@ -1730,7 +1730,7 @@ static void gDialogProcessUnHighlight(int index)
 
     optionRect.ulx = 5;
 #ifdef __3DS__
-    optionRect.lrx = 340;
+    optionRect.lrx = 325;
 #else
     optionRect.lrx = 388;
 #endif
@@ -1743,7 +1743,7 @@ static void gDialogProcessUnHighlight(int index)
         GAME_DIALOG_OPTIONS_WINDOW_WIDTH,
         color);
 #ifdef __3DS__
-    optionRect.lrx = 340;
+    optionRect.lrx = 325;
 #else
     optionRect.lrx = 391;
 #endif
@@ -1791,7 +1791,7 @@ static void gDialogProcessUpdate()
     optionRect.ulx = 5;
     optionRect.uly = 5;
 #ifdef __3DS__
-    optionRect.lrx = 340;
+    optionRect.lrx = 325;
 #else
     optionRect.lrx = 388;
 #endif
