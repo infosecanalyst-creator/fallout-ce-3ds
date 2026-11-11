@@ -93,6 +93,15 @@ typedef struct DFile {
     // streams). The range is 0..entry->uncompressedSize.
     long position;
 
+#ifdef __3DS__
+    // Read-ahead of decompressed data. The engine reads compressed files a
+    // few bytes at a time and calling inflate for each tiny read was most of
+    // a map change's load time on the 3DS.
+    unsigned char* outBuffer;
+    int outBufferPos;
+    int outBufferLength;
+#endif
+
     // Next [DFile] in linked list.
     //
     // [DFile]s are stored in [DBase] in reverse order, so it's actually a

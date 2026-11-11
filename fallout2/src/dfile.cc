@@ -23,6 +23,7 @@ namespace fallout {
 // instead of 1 KB, and give each DAT stream a 32 KB stdio buffer.
 #define DFILE_DECOMPRESSION_BUFFER_SIZE (0x8000)
 #define DFILE_STREAM_BUFFER_SIZE (0x8000)
+#define DFILE_OUT_BUFFER_SIZE ((size_t)0x4000)
 
 #ifdef __3DS__
 static LightLock gDbaseStreamLock;
@@ -326,6 +327,12 @@ int dfileClose(DFile* stream)
     if (stream->decompressionBuffer != nullptr) {
         free(stream->decompressionBuffer);
     }
+
+#ifdef __3DS__
+    if (stream->outBuffer != nullptr) {
+        free(stream->outBuffer);
+    }
+#endif
 
     if (stream->stream != nullptr) {
 #ifdef __3DS__
@@ -652,6 +659,10 @@ int dfileSeek(DFile* stream, long offset, int origin)
 
     stream->position = 0;
     stream->compressedBytesRead = 0;
+#ifdef __3DS__
+    stream->outBufferPos = 0;
+    stream->outBufferLength = 0;
+#endif
     stream->flags &= ~(DFILE_HAS_UNGETC | DFILE_EOF);
 
     return 0;
@@ -740,6 +751,10 @@ static DFile* dfileOpenInternal(DBase* dbase, const char* filePath, const char* 
         dfile->compressedBytesRead = 0;
         dfile->position = 0;
         dfile->flags = 0;
+#ifdef __3DS__
+        dfile->outBufferPos = 0;
+        dfile->outBufferLength = 0;
+#endif
     }
 
     dfile->entry = entry;
@@ -889,6 +904,79 @@ static bool dfileReadCompressed(DFile* stream, void* ptr, size_t size)
         }
     }
 
+#ifdef __3DS__
+    {
+        unsigned char* out = (unsigned char*)ptr;
+        size_t remaining = size;
+        while (remaining > 0) {
+            if (stream->outBufferPos < stream->outBufferLength) {
+                size_t n = std::min(remaining, (size_t)(stream->outBufferLength - stream->outBufferPos));
+                memcpy(out, stream->outBuffer + stream->outBufferPos, n);
+                stream->outBufferPos += (int)n;
+                out += n;
+                remaining -= n;
+                continue;
+            }
+
+            // Big reads go straight to the caller's buffer; small ones refill
+            // the read-ahead buffer.
+            unsigned char* target;
+            size_t targetSize;
+            if (remaining >= DFILE_OUT_BUFFER_SIZE) {
+                target = out;
+                targetSize = remaining;
+            } else {
+                if (stream->outBuffer == nullptr) {
+                    stream->outBuffer = (unsigned char*)malloc(DFILE_OUT_BUFFER_SIZE);
+                    if (stream->outBuffer == nullptr) {
+                        return false;
+                    }
+                }
+                target = stream->outBuffer;
+                targetSize = DFILE_OUT_BUFFER_SIZE;
+            }
+
+            stream->decompressionStream->next_out = (Bytef*)target;
+            stream->decompressionStream->avail_out = targetSize;
+            int zrc = Z_OK;
+            while (stream->decompressionStream->avail_out != 0) {
+                if (stream->decompressionStream->avail_in == 0) {
+                    size_t bytesToRead = std::min(DFILE_DECOMPRESSION_BUFFER_SIZE, stream->entry->dataSize - stream->compressedBytesRead);
+                    if (bytesToRead == 0) {
+                        break;
+                    }
+                    u64 t0 = svcGetSystemTick();
+                    if (fread(stream->decompressionBuffer, bytesToRead, 1, stream->stream) != 1) {
+                        break;
+                    }
+                    gCtrTicksFread += svcGetSystemTick() - t0;
+                    gCtrBytesFread += bytesToRead;
+                    stream->decompressionStream->avail_in = bytesToRead;
+                    stream->decompressionStream->next_in = stream->decompressionBuffer;
+                    stream->compressedBytesRead += bytesToRead;
+                }
+                u64 t0 = svcGetSystemTick();
+                zrc = inflate(stream->decompressionStream, Z_NO_FLUSH);
+                gCtrTicksInflate += svcGetSystemTick() - t0;
+                if (zrc != Z_OK) {
+                    break;
+                }
+            }
+
+            size_t produced = targetSize - stream->decompressionStream->avail_out;
+            if (target == out) {
+                out += produced;
+                remaining -= produced;
+            } else {
+                stream->outBufferPos = 0;
+                stream->outBufferLength = (int)produced;
+            }
+            if (produced == 0) {
+                return false;
+            }
+        }
+    }
+#else
     stream->decompressionStream->next_out = (Bytef*)ptr;
     stream->decompressionStream->avail_out = size;
 
@@ -931,6 +1019,8 @@ static bool dfileReadCompressed(DFile* stream, void* ptr, size_t size)
         // during decompression loop above.
         return false;
     }
+
+#endif
 
     stream->position += size;
 
