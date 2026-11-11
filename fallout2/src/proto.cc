@@ -203,6 +203,18 @@ void proto_make_path(char* path, int pid)
 // Append proto file name to proto_path from proto.lst.
 //
 // 0x49E758
+#ifdef __3DS__
+// The .lst files are read once and kept: looking up one proto used to reopen
+// the list and read it line by line from the top (hundreds of times per map
+// change, through a compressed stream).
+} // namespace fallout
+#include <string>
+#include <vector>
+namespace fallout {
+static std::vector<std::string> gProtoListCache[OBJ_TYPE_COUNT];
+static bool gProtoListCacheLoaded[OBJ_TYPE_COUNT];
+#endif
+
 int _proto_list_str(int pid, char* proto_path)
 {
     if (pid == -1) {
@@ -212,6 +224,40 @@ int _proto_list_str(int pid, char* proto_path)
     if (proto_path == nullptr) {
         return -1;
     }
+
+#ifdef __3DS__
+    int type = PID_TYPE(pid);
+    if (type >= 0 && type < OBJ_TYPE_COUNT) {
+        if (!gProtoListCacheLoaded[type]) {
+            char listPath[COMPAT_MAX_PATH];
+            proto_make_path(listPath, pid);
+            strcat(listPath, "\\");
+            strcat(listPath, artGetObjectTypeName(type));
+            strcat(listPath, ".lst");
+            File* listStream = fileOpen(listPath, "rt");
+            if (listStream != nullptr) {
+                char line[256];
+                while (fileReadString(line, sizeof(line), listStream)) {
+                    char* cut = strchr(line, ' ');
+                    if (cut != nullptr) *cut = '\0';
+                    cut = strpbrk(line, "\r\n");
+                    if (cut != nullptr) *cut = '\0';
+                    gProtoListCache[type].emplace_back(line);
+                }
+                fileClose(listStream);
+                gProtoListCacheLoaded[type] = true;
+            }
+        }
+        if (gProtoListCacheLoaded[type]) {
+            size_t index = (size_t)(pid & 0xFFFFFF);
+            if (index < 1 || index > gProtoListCache[type].size()) {
+                return -1;
+            }
+            strcpy(proto_path, gProtoListCache[type][index - 1].c_str());
+            return 0;
+        }
+    }
+#endif
 
     char path[COMPAT_MAX_PATH];
     proto_make_path(path, pid);
