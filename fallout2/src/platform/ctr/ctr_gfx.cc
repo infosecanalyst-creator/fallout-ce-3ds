@@ -424,8 +424,18 @@ void drawRects()
 
         case DISPLAY_FULL:
             if (ctr_input.mode != DISPLAY_MODE_ADAPT) {
-                // Whole-screen mode (Select+L): top screen is a zoom lens.
-                drawRect(offsetX, (240 - offsetY), 400, 240, 0,   0, 400, 240);
+                // Whole-screen mode (Select+L): top screen is a zoom lens that
+                // follows the stylus. ZL switches it to a fill view: the whole
+                // width of the picture filling the top screen (0.625x), panned
+                // up and down with the stylus.
+                if (ctrLens[DISPLAY_FULL]) {
+                    int srcY = (240 - offsetY) * 96 / 240;
+                    if (srcY < 0) srcY = 0;
+                    if (srcY > 96) srcY = 96;
+                    drawRect(0, srcY, 640, 384, 0, 0, 400, 240);
+                } else {
+                    drawRect(offsetX, (240 - offsetY), 400, 240, 0,   0, 400, 240);
+                }
             } else if (ctrDashboardAvailable()) {
                 dashOnTop = true;
             } else {

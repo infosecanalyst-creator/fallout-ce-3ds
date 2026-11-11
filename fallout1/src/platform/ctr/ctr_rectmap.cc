@@ -64,9 +64,39 @@ float getSaveSlotOffset()
     return saveSlotOffset;
 }
 
+// Map-on-top layout (DISPLAY_GUI): the touch screen shows the interface bar.
+// The weapon row and the monitor/skill row share the whole screen; status
+// indicators (radiated, poisoned, ...) get a 20-px row each only while there
+// are any, so the bar fills the screen instead of leaving an empty grey band.
+// The monitor + skill block (340 px wide in the game) is narrowed to 320.
+// Screen y runs bottom-up here: y 0 is the bottom edge.
+static void layoutGuiRects()
+{
+    if (rectMaps == NULL || rectMaps[DISPLAY_GUI] == NULL || numRectsInMap[DISPLAY_GUI] < 3) return;
+    int indicatorRows = (indicatorSlotNum + 1) / 2;
+    if (indicatorRows > 2) indicatorRows = 2;
+    float rowH = (240.f - 20.f * indicatorRows) / 2.f;
+    rectMap_t* monitor = rectMaps[DISPLAY_GUI][0];
+    rectMap_t* skill = rectMaps[DISPLAY_GUI][1];
+    rectMap_t* weapon = rectMaps[DISPLAY_GUI][2];
+    weapon->dst_x = 0; weapon->dst_y = 0; weapon->dst_w = 320; weapon->dst_h = rowH;
+    monitor->dst_x = 0; monitor->dst_y = rowH; monitor->dst_w = 188; monitor->dst_h = rowH;
+    skill->dst_x = 188; skill->dst_y = rowH; skill->dst_w = 132; skill->dst_h = rowH;
+    if (rectMaps[DISPLAY_GUI_INDICATOR] != NULL) {
+        for (int i = 0; i < numRectsInMap[DISPLAY_GUI_INDICATOR]; i++) {
+            rectMap_t* r = rectMaps[DISPLAY_GUI_INDICATOR][i];
+            r->dst_x = (i % 2) ? 160 : 0;
+            r->dst_w = 160;
+            r->dst_h = 20;
+            r->dst_y = 2.f * rowH + 20.f * (i / 2);
+        }
+    }
+}
+
 void setIndicatorSlotNum(int count)
 {
     indicatorSlotNum = count;
+    layoutGuiRects();
 }
 
 int getIndicatorSlotNum()
@@ -283,6 +313,7 @@ void ctr_rectmap_init()
     addRectMap(DISPLAY_GUI_INDICATOR,     1, 130, 359, 127,  21, 193, 200, 127,  20); // stat indicator
     addRectMap(DISPLAY_GUI_INDICATOR,     2, 260, 359, 127,  21,   0, 220, 127,  20); // stat indicator
     addRectMap(DISPLAY_GUI_INDICATOR,     3, 390, 359, 127,  21, 193, 220, 127,  20); // stat indicator
+    layoutGuiRects();
 
     addRectMap(DISPLAY_PAUSE,             0, 240,  72, 160, 215,  71,   0, 178, 240);
 
