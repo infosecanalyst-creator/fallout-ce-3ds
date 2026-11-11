@@ -1,5 +1,9 @@
 #include "proto.h"
 
+#ifdef __3DS__
+#include <3ds.h>
+#endif
+
 #include <stdio.h>
 #include <string.h>
 
@@ -1976,7 +1980,22 @@ int _proto_save_pid(int pid)
 }
 
 // 0x4A1C3C
+#ifdef __3DS__
+extern unsigned long long gCtrTicksProtoLoad;
+extern unsigned int gCtrProtoLoads;
+static int _proto_load_pid_real(int pid, Proto** protoPtr);
 static int _proto_load_pid(int pid, Proto** protoPtr)
+{
+    u64 t0 = svcGetSystemTick();
+    int rc = _proto_load_pid_real(pid, protoPtr);
+    gCtrTicksProtoLoad += svcGetSystemTick() - t0;
+    gCtrProtoLoads++;
+    return rc;
+}
+static int _proto_load_pid_real(int pid, Proto** protoPtr)
+#else
+static int _proto_load_pid(int pid, Proto** protoPtr)
+#endif
 {
     char path[COMPAT_MAX_PATH];
     proto_make_path(path, pid);

@@ -5,7 +5,7 @@
 #include <SDL.h>
 #include "platform_compat.h"
 #include "platform/ctr/ctr_sys.h"
-namespace fallout { extern unsigned long long gCtrTicksArt, gCtrTicksFread, gCtrTicksInflate; extern unsigned int gCtrArtLoads, gCtrBytesFread; }
+namespace fallout { extern unsigned long long gCtrTicksArt, gCtrTicksFread, gCtrTicksInflate, gCtrTicksObjRead, gCtrTicksObjInsert, gCtrTicksObjLight, gCtrTicksProtoLoad; extern unsigned int gCtrArtLoads, gCtrBytesFread, gCtrProtoLoads; }
 #endif
 
 #include <stdio.h>
@@ -951,6 +951,17 @@ static int mapLoad(File* stream)
 
     error = "Error setting map elevation";
     CTR_MARK("objects");
+#ifdef __3DS__
+    {
+        static unsigned long long r0, i0, l0, p0; static unsigned int n0;
+        char msg[160];
+        const unsigned long long ms = SYSCLOCK_ARM11 / 1000;
+        snprintf(msg, sizeof(msg), "    obj read %llu ms (protos %u, %llu ms), insert %llu ms, light %llu ms",
+            (gCtrTicksObjRead - r0) / ms, gCtrProtoLoads - n0, (gCtrTicksProtoLoad - p0) / ms, (gCtrTicksObjInsert - i0) / ms, (gCtrTicksObjLight - l0) / ms);
+        ctr_debug_log(msg);
+        r0 = gCtrTicksObjRead; i0 = gCtrTicksObjInsert; l0 = gCtrTicksObjLight; p0 = gCtrTicksProtoLoad; n0 = gCtrProtoLoads;
+    }
+#endif
     if (mapSetElevation(gEnteringElevation) != 0) {
         goto err;
     }

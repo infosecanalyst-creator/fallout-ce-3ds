@@ -1,5 +1,9 @@
 #include "object.h"
 
+#ifdef __3DS__
+#include <3ds.h>
+#endif
+
 #include <assert.h>
 #include <string.h>
 
@@ -461,6 +465,17 @@ int objectRead(Object* obj, File* stream)
 }
 
 // 0x488CE4
+
+#ifdef __3DS__
+unsigned long long gCtrTicksObjRead = 0, gCtrTicksObjInsert = 0, gCtrTicksObjLight = 0, gCtrTicksProtoLoad = 0;
+unsigned int gCtrProtoLoads = 0;
+#define CTR_T0() u64 _ctr_t0 = svcGetSystemTick()
+#define CTR_ACC(var) var += svcGetSystemTick() - _ctr_t0
+#else
+#define CTR_T0() ((void)0)
+#define CTR_ACC(var) ((void)0)
+#endif
+
 int objectLoadAll(File* stream)
 {
     int rc = objectLoadAllInternal(stream);
@@ -519,7 +534,13 @@ static int objectLoadAllInternal(File* stream)
                 return -1;
             }
 
-            if (objectRead(objectListNode->obj, stream) != 0) {
+            int readRc;
+            {
+                CTR_T0();
+                readRc = objectRead(objectListNode->obj, stream);
+                CTR_ACC(gCtrTicksObjRead);
+            }
+            if (readRc != 0) {
                 // NOTE: Uninline.
                 objectDeallocate(&(objectListNode->obj));
 
@@ -546,7 +567,11 @@ static int objectLoadAllInternal(File* stream)
             _obj_fix_violence_settings(&(objectListNode->obj->fid));
             objectListNode->obj->elevation = elevation;
 
-            _obj_insert(objectListNode);
+            {
+                CTR_T0();
+                _obj_insert(objectListNode);
+                CTR_ACC(gCtrTicksObjInsert);
+            }
 
             if ((objectListNode->obj->flags & OBJECT_NO_REMOVE) && PID_TYPE(objectListNode->obj->pid) == OBJ_TYPE_CRITTER && objectListNode->obj->pid != 18000) {
                 objectListNode->obj->flags &= ~OBJECT_NO_REMOVE;
@@ -590,7 +615,11 @@ static int objectLoadAllInternal(File* stream)
         }
     }
 
-    _obj_rebuild_all_light();
+    {
+        CTR_T0();
+        _obj_rebuild_all_light();
+        CTR_ACC(gCtrTicksObjLight);
+    }
 
     return 0;
 }
