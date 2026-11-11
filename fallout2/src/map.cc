@@ -1,9 +1,11 @@
 #include "map.h"
 
 #ifdef __3DS__
+#include <3ds.h>
 #include <SDL.h>
 #include "platform_compat.h"
 #include "platform/ctr/ctr_sys.h"
+namespace fallout { extern unsigned long long gCtrTicksArt, gCtrTicksFread, gCtrTicksInflate; extern unsigned int gCtrArtLoads, gCtrBytesFread; }
 #endif
 
 #include <stdio.h>
@@ -1267,12 +1269,19 @@ int mapHandleTransition()
 #ifdef __3DS__
                 unsigned int loadStart = SDL_GetTicks();
                 unsigned int opens0 = gCtrSdOpens, skipped0 = gCtrSdSkipped;
+                unsigned long long fread0 = gCtrTicksFread, inflate0 = gCtrTicksInflate, art0 = gCtrTicksArt;
+                unsigned int bytes0 = gCtrBytesFread, arts0 = gCtrArtLoads;
 #endif
                 mapLoadById(gMapTransition.map);
 #ifdef __3DS__
                 char loadMsg[128];
                 snprintf(loadMsg, sizeof(loadMsg), "map change to %d: %u ms, %u SD opens, %u lookups skipped",
                     gMapTransition.map, SDL_GetTicks() - loadStart, gCtrSdOpens - opens0, gCtrSdSkipped - skipped0);
+                ctr_debug_log(loadMsg);
+                snprintf(loadMsg, sizeof(loadMsg), "  read %u KB in %llu ms, inflate %llu ms, %u art loads %llu ms",
+                    (gCtrBytesFread - bytes0) / 1024, (gCtrTicksFread - fread0) / (SYSCLOCK_ARM11 / 1000),
+                    (gCtrTicksInflate - inflate0) / (SYSCLOCK_ARM11 / 1000), gCtrArtLoads - arts0,
+                    (gCtrTicksArt - art0) / (SYSCLOCK_ARM11 / 1000));
                 ctr_debug_log(loadMsg);
 #endif
             }

@@ -1,5 +1,9 @@
 #include "art.h"
 
+#ifdef __3DS__
+#include <3ds.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -977,7 +981,22 @@ static int artCacheGetFileSizeImpl(int fid, int* sizePtr)
 }
 
 // 0x419B78
+#ifdef __3DS__
+unsigned long long gCtrTicksArt = 0;
+unsigned int gCtrArtLoads = 0;
+static int artCacheReadDataImplReal(int fid, int* sizePtr, unsigned char* data);
 static int artCacheReadDataImpl(int fid, int* sizePtr, unsigned char* data)
+{
+    u64 t0 = svcGetSystemTick();
+    int rc = artCacheReadDataImplReal(fid, sizePtr, data);
+    gCtrTicksArt += svcGetSystemTick() - t0;
+    gCtrArtLoads++;
+    return rc;
+}
+static int artCacheReadDataImplReal(int fid, int* sizePtr, unsigned char* data)
+#else
+static int artCacheReadDataImpl(int fid, int* sizePtr, unsigned char* data)
+#endif
 {
     int result = -1;
 

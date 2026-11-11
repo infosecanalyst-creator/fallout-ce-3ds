@@ -1,5 +1,9 @@
 #include "dfile.h"
 
+#ifdef __3DS__
+#include <3ds.h>
+#endif
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,8 +25,9 @@ namespace fallout {
 #define DFILE_STREAM_BUFFER_SIZE (0x8000)
 
 #ifdef __3DS__
-#include <3ds.h>
 static LightLock gDbaseStreamLock;
+unsigned long long gCtrTicksFread = 0, gCtrTicksInflate = 0;
+unsigned int gCtrBytesFread = 0;
 static bool gDbaseStreamLockInit = false;
 
 static FILE* dbaseAcquireStream(DBase* dbase)
@@ -524,7 +529,14 @@ size_t dfileRead(void* ptr, size_t size, size_t count, DFile* stream)
 
         bytesRead = bytesToRead;
     } else {
+#ifdef __3DS__
+        u64 t0 = svcGetSystemTick();
+#endif
         bytesRead = fread(ptr, 1, bytesToRead, stream->stream) + extraBytesRead;
+#ifdef __3DS__
+        gCtrTicksFread += svcGetSystemTick() - t0;
+        gCtrBytesFread += bytesToRead;
+#endif
         stream->position += bytesRead;
     }
 
@@ -890,16 +902,29 @@ static bool dfileReadCompressed(DFile* stream, void* ptr, size_t size)
             // No more unprocessed data, request next chunk.
             size_t bytesToRead = std::min(DFILE_DECOMPRESSION_BUFFER_SIZE, stream->entry->dataSize - stream->compressedBytesRead);
 
+#ifdef __3DS__
+            u64 t0 = svcGetSystemTick();
+#endif
             if (fread(stream->decompressionBuffer, bytesToRead, 1, stream->stream) != 1) {
                 break;
             }
+#ifdef __3DS__
+            gCtrTicksFread += svcGetSystemTick() - t0;
+            gCtrBytesFread += bytesToRead;
+#endif
 
             stream->decompressionStream->avail_in = bytesToRead;
             stream->decompressionStream->next_in = stream->decompressionBuffer;
 
             stream->compressedBytesRead += bytesToRead;
         }
-    } while (inflate(stream->decompressionStream, Z_NO_FLUSH) == Z_OK);
+    } while (
+#ifdef __3DS__
+        [&]() { u64 t0 = svcGetSystemTick(); int r = inflate(stream->decompressionStream, Z_NO_FLUSH); gCtrTicksInflate += svcGetSystemTick() - t0; return r; }()
+#else
+        inflate(stream->decompressionStream, Z_NO_FLUSH)
+#endif
+        == Z_OK);
 
     if (stream->decompressionStream->avail_out != 0) {
         // There are some data still waiting, which means there was in error
