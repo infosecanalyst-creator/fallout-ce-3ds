@@ -66,6 +66,19 @@ static void dbaseReleaseStream(DBase* dbase, FILE* stream)
         fclose(stream);
     }
 }
+
+// Decompressed copies of small compressed entries (protos, scripts' messages,
+// ...). The engine frees all protos on every map change and reads them again;
+// each read opened, seeked and inflated a tiny entry in MASTER.DAT.
+} // namespace fallout
+#include <unordered_map>
+#include <vector>
+namespace fallout {
+#define DFILE_SMALL_ENTRY_MAX 4096
+#define DFILE_SMALL_CACHE_BUDGET (6 * 1024 * 1024)
+static std::unordered_map<const DBaseEntry*, std::vector<unsigned char>> gDfileSmallCache;
+static size_t gDfileSmallCacheBytes = 0;
+unsigned int gCtrSmallCacheHits = 0;
 #endif
 #else
 #define DFILE_DECOMPRESSION_BUFFER_SIZE (0x400)
@@ -232,6 +245,13 @@ bool dbaseClose(DBase* dbase)
     }
 
 #ifdef __3DS__
+    for (int index = 0; index < dbase->entriesLength; index++) {
+        auto it = gDfileSmallCache.find(&(dbase->entries[index]));
+        if (it != gDfileSmallCache.end()) {
+            gDfileSmallCacheBytes -= it->second.size();
+            gDfileSmallCache.erase(it);
+        }
+    }
     for (int index = 0; index < dbase->idleStreamsLength; index++) {
         fclose(dbase->idleStreams[index]);
     }
@@ -314,7 +334,7 @@ int dfileClose(DFile* stream)
 
     int rc = 0;
 
-    if (stream->entry->compressed == 1) {
+    if (stream->entry->compressed == 1 && stream->decompressionStream != nullptr) {
         if (inflateEnd(stream->decompressionStream) != Z_OK) {
             rc = -1;
         }
@@ -601,6 +621,15 @@ int dfileSeek(DFile* stream, long offset, int origin)
         return 1;
     }
 
+#ifdef __3DS__
+    if (stream->inMemory) {
+        stream->position = offsetFromBeginning;
+        stream->outBufferPos = (int)offsetFromBeginning;
+        stream->flags &= ~(DFILE_HAS_UNGETC | DFILE_HAS_COMPRESSED_UNGETC | DFILE_EOF);
+        return 0;
+    }
+#endif
+
     long pos = stream->position;
     if (offsetFromBeginning == pos) {
         stream->flags &= ~(DFILE_HAS_UNGETC | DFILE_EOF);
@@ -759,6 +788,42 @@ static DFile* dfileOpenInternal(DBase* dbase, const char* filePath, const char* 
 
     dfile->entry = entry;
 
+#ifdef __3DS__
+    dfile->inMemory = false;
+    if (entry->compressed == 1 && entry->uncompressedSize > 0 && entry->uncompressedSize <= DFILE_SMALL_ENTRY_MAX) {
+        auto it = gDfileSmallCache.find(entry);
+        if (it != gDfileSmallCache.end()) {
+            if (dfile->stream != nullptr) {
+                dbaseReleaseStream(dbase, dfile->stream);
+                dfile->stream = nullptr;
+            }
+            if (dfile->decompressionStream != nullptr) {
+                free(dfile->decompressionStream);
+                dfile->decompressionStream = nullptr;
+            }
+            if (dfile->decompressionBuffer != nullptr) {
+                free(dfile->decompressionBuffer);
+                dfile->decompressionBuffer = nullptr;
+            }
+            if (dfile->outBuffer == nullptr) {
+                dfile->outBuffer = (unsigned char*)malloc(DFILE_OUT_BUFFER_SIZE);
+                if (dfile->outBuffer == nullptr) {
+                    goto err;
+                }
+            }
+            memcpy(dfile->outBuffer, it->second.data(), it->second.size());
+            dfile->outBufferPos = 0;
+            dfile->outBufferLength = (int)it->second.size();
+            dfile->inMemory = true;
+            gCtrSmallCacheHits++;
+            if (mode[1] == 't') {
+                dfile->flags |= DFILE_TEXT;
+            }
+            return dfile;
+        }
+    }
+#endif
+
     // Open stream to .DAT file.
 #ifdef __3DS__
     dfile->stream = dbaseAcquireStream(dbase);
@@ -800,6 +865,64 @@ static DFile* dfileOpenInternal(DBase* dbase, const char* filePath, const char* 
         if (inflateInit(dfile->decompressionStream) != Z_OK) {
             goto err;
         }
+
+#ifdef __3DS__
+        if (entry->uncompressedSize > 0 && entry->uncompressedSize <= DFILE_SMALL_ENTRY_MAX) {
+            // Decompress the whole entry now, keep a copy for the next open.
+            if (dfile->outBuffer == nullptr) {
+                dfile->outBuffer = (unsigned char*)malloc(DFILE_OUT_BUFFER_SIZE);
+            }
+            if (dfile->outBuffer != nullptr) {
+                z_streamp zs = dfile->decompressionStream;
+                zs->next_out = dfile->outBuffer;
+                zs->avail_out = entry->uncompressedSize;
+                int zrc = Z_OK;
+                while (zs->avail_out != 0 && zrc == Z_OK) {
+                    if (zs->avail_in == 0) {
+                        size_t bytesToRead = std::min(DFILE_DECOMPRESSION_BUFFER_SIZE, entry->dataSize - dfile->compressedBytesRead);
+                        if (bytesToRead == 0 || fread(dfile->decompressionBuffer, bytesToRead, 1, dfile->stream) != 1) {
+                            break;
+                        }
+                        gCtrBytesFread += bytesToRead;
+                        zs->avail_in = bytesToRead;
+                        zs->next_in = dfile->decompressionBuffer;
+                        dfile->compressedBytesRead += bytesToRead;
+                    }
+                    zrc = inflate(zs, Z_NO_FLUSH);
+                }
+                if (zs->avail_out == 0) {
+                    dfile->outBufferPos = 0;
+                    dfile->outBufferLength = entry->uncompressedSize;
+                    dfile->inMemory = true;
+                    inflateEnd(zs);
+                    free(zs);
+                    dfile->decompressionStream = nullptr;
+                    free(dfile->decompressionBuffer);
+                    dfile->decompressionBuffer = nullptr;
+                    dbaseReleaseStream(dbase, dfile->stream);
+                    dfile->stream = nullptr;
+                    if (gDfileSmallCacheBytes + entry->uncompressedSize <= DFILE_SMALL_CACHE_BUDGET) {
+                        gDfileSmallCache.emplace(entry, std::vector<unsigned char>(dfile->outBuffer, dfile->outBuffer + entry->uncompressedSize));
+                        gDfileSmallCacheBytes += entry->uncompressedSize;
+                    }
+                } else {
+                    // Fall back to streaming from the start.
+                    inflateEnd(zs);
+                    zs->zalloc = Z_NULL;
+                    zs->zfree = Z_NULL;
+                    zs->opaque = Z_NULL;
+                    zs->next_in = dfile->decompressionBuffer;
+                    zs->avail_in = 0;
+                    dfile->compressedBytesRead = 0;
+                    dfile->outBufferPos = 0;
+                    dfile->outBufferLength = 0;
+                    if (inflateInit(zs) != Z_OK || fseek(dfile->stream, dbase->dataOffset + entry->dataOffset, SEEK_SET) != 0) {
+                        goto err;
+                    }
+                }
+            }
+        }
+#endif
     } else {
         // Entry is not compressed, there is no need to keep decompression
         // stream and decompression buffer (in case [dfile] was passed via
@@ -916,6 +1039,10 @@ static bool dfileReadCompressed(DFile* stream, void* ptr, size_t size)
                 out += n;
                 remaining -= n;
                 continue;
+            }
+
+            if (stream->inMemory || stream->decompressionStream == nullptr) {
+                return false; // whole entry already consumed
             }
 
             // Big reads go straight to the caller's buffer; small ones refill

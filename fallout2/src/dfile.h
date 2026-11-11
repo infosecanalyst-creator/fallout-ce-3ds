@@ -100,6 +100,9 @@ typedef struct DFile {
     unsigned char* outBuffer;
     int outBufferPos;
     int outBufferLength;
+    // The whole (small, compressed) entry is decompressed in outBuffer:
+    // reads and seeks are served from memory and no stream is needed.
+    bool inMemory;
 #endif
 
     // Next [DFile] in linked list.
