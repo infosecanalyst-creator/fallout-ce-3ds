@@ -3883,6 +3883,7 @@ static void _obj_insert(ObjectListNode* objectListNode)
                     break;
                 }
 
+#ifndef __3DS__
                 if ((obj->flags & OBJECT_FLAT) == (objectListNode->obj->flags & OBJECT_FLAT)) {
                     bool v11 = false;
                     CacheEntry* a2;
@@ -3902,6 +3903,10 @@ static void _obj_insert(ObjectListNode* objectListNode)
                         }
                     }
                 }
+#endif
+                // 3DS: the art locks above never change the order (v11 is
+                // always false) but loaded both objects' art for every
+                // comparison: ~0.6 s of each map change. Skipped.
             }
 
             objectListNodePtr = &((*objectListNodePtr)->next);

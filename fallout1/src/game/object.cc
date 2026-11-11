@@ -3606,6 +3606,7 @@ static void obj_insert(ObjectListNode* objectListNode)
                     break;
                 }
 
+#ifndef __3DS__   // 3DS: these locks never change the order (v11 is always false) but load art for every comparison
                 if ((obj->flags & OBJECT_FLAT) == (objectListNode->obj->flags & OBJECT_FLAT)) {
                     bool v11 = false;
                     CacheEntry* a2;
@@ -3625,6 +3626,7 @@ static void obj_insert(ObjectListNode* objectListNode)
                         }
                     }
                 }
+#endif
             }
 
             objectListNodePtr = &((*objectListNodePtr)->next);
