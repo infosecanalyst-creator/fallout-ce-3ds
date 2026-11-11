@@ -176,6 +176,14 @@ void setRectMapPos(rectMap_e rectmap, float x, float y, float w, float h, bool i
         newHeight = maxDstWidth / aspectRatio;
     }
 
+    // Touch screen: fill it edge to edge when that stretches the window by
+    // no more than 35% (the automap gets bars otherwise). Ryan's rule: both
+    // screens always filled.
+    if (!isTop) {
+        float sx = maxDstWidth / newWidth, sy = maxDstHeight / newHeight;
+        if (sx <= 1.35f && sy <= 1.35f) { newWidth = maxDstWidth; newHeight = maxDstHeight; }
+    }
+
     float newX = (maxDstWidth - newWidth) / 2.f;
     float newY = (maxDstHeight - newHeight) / 2.f;
 
