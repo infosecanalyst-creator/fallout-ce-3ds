@@ -601,6 +601,15 @@ void drawRects()
                 break;
 
         default:
+            // A small window (message box, quit question, elevator...) that
+            // doesn't fill the touch screen sits over the whole game picture,
+            // never over black bands.
+            if (ctr_rectMap.active == DISPLAY_DYNAMIC) {
+                const rectMap_t* r = rectMaps[DISPLAY_DYNAMIC][0];
+                if (r->dst_w < 319.f || r->dst_h < 239.f) {
+                    drawRect(0, 0, 640, 480, 0, 0, 320, 240);
+                }
+            }
             for (int i = 0; i < numRectsInMap[ctr_rectMap.active]; i++) {
                 drawRect(rectMaps[ctr_rectMap.active][i]->src_x, rectMaps[ctr_rectMap.active][i]->src_y,
                         rectMaps[ctr_rectMap.active][i]->src_w, rectMaps[ctr_rectMap.active][i]->src_h,
@@ -1044,6 +1053,13 @@ static void dashRebuild(const CtrDashboard* d, const char* hint, int logLines)
             newest[i] = m == d->msgCount - 1;
         }
         total += keep;
+    }
+    if (total == 0 && logLines > 0) {
+        // Nothing said yet: label the panel so it doesn't read as an empty band.
+        snprintf(wrapped[0], CTR_DASH_MSG_TEXT, "Message log: what you see and hear appears here.");
+        first[0] = true;
+        newest[0] = false;
+        total = 1;
     }
     dashLogCount = total;
     for (int i = 0; i < total; i++) {
