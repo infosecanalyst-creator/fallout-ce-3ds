@@ -1126,7 +1126,9 @@ void ctr_dashboard_draw()
     }
 
     // 800px wide mode doubles horizontal resolution: scale x to match.
-    const float kx = ctr_gfx.isWide ? 2.f : 1.f;
+    // citro2d already maps 400-pixel coordinates onto the 800-pixel screen (its top projection
+    // is the same in both modes), so nothing drawn with it is scaled here (was 2 = doubled, cut off).
+    const float kx = 1.f;
     const u32 bg = C2D_Color32(0x0b, 0x14, 0x0b, 0xff);
     const u32 panel = C2D_Color32(0x16, 0x26, 0x16, 0xff);
     const u32 green = C2D_Color32(0x5c, 0xff, 0x5c, 0xff);
@@ -1264,7 +1266,9 @@ void ctr_help_draw()
         }
     }
 
-    const float kx = ctr_gfx.isWide ? 2.f : 1.f;
+    // citro2d already maps 400-pixel coordinates onto the 800-pixel screen (its top projection
+    // is the same in both modes), so nothing drawn with it is scaled here (was 2 = doubled, cut off).
+    const float kx = 1.f;
     const u32 bg = C2D_Color32(0x0b, 0x14, 0x0b, 0xff);
     const u32 green = C2D_Color32(0x5c, 0xff, 0x5c, 0xff);
     const u32 dim = C2D_Color32(0x3c, 0xb0, 0x3c, 0xff);
@@ -1338,7 +1342,9 @@ void ctr_hint_draw(const char* hint)
         C2D_TextOptimize(&hintTextObj);
         hintLast = hint;
     }
-    const float kx = ctr_gfx.isWide ? 2.f : 1.f;
+    // citro2d already maps 400-pixel coordinates onto the 800-pixel screen (its top projection
+    // is the same in both modes), so nothing drawn with it is scaled here (was 2 = doubled, cut off).
+    const float kx = 1.f;
     C2D_Prepare();
     C2D_SceneBegin(topRenderTarget);
     C2D_DrawRectSolid(0, 224, 0.5f, 400 * kx, 16, C2D_Color32(0, 0, 0, 0xc0));
@@ -1355,7 +1361,7 @@ void ctr_gfx_manual_frame(void (*drawTop)(), void (*drawBottom)())
     C2D_SceneBegin(topRenderTarget);
     C2D_ViewReset();
     if (ctr_gfx.isWide) {
-        C2D_ViewScale(2.f, 1.f); // the manual is laid out for 400 pixels
+        // citro2d already maps the 400-pixel layout onto 800 pixels: no extra scale
     }
     drawTop();
     C2D_ViewReset();
@@ -1458,7 +1464,9 @@ static unsigned int cardHash(const void* data, size_t size, unsigned int seed)
 
 static void cardFlush(bool background, float bgTop = 0)
 {
-    const float kx = ctr_gfx.isWide ? 2.f : 1.f;
+    // citro2d already maps 400-pixel coordinates onto the 800-pixel screen (its top projection
+    // is the same in both modes), so nothing drawn with it is scaled here (was 2 = doubled, cut off).
+    const float kx = 1.f;
     C2D_Prepare();
     C2D_SceneBegin(topRenderTarget);
     if (background) {
@@ -1472,7 +1480,9 @@ static void cardFlush(bool background, float bgTop = 0)
 
 static void cardRect(float x, float y, float w, float h, u32 color)
 {
-    const float kx = ctr_gfx.isWide ? 2.f : 1.f;
+    // citro2d already maps 400-pixel coordinates onto the 800-pixel screen (its top projection
+    // is the same in both modes), so nothing drawn with it is scaled here (was 2 = doubled, cut off).
+    const float kx = 1.f;
     C2D_DrawRectSolid(x * kx, y, 0.5f, w * kx, h, color);
 }
 
@@ -1595,7 +1605,9 @@ void ctr_loadsave_draw()
     }
     // The preview picture is drawn by the normal top-screen pass at 1:1; only
     // the area around it is painted here.
-    const float kx = ctr_gfx.isWide ? 2.f : 1.f;
+    // citro2d already maps 400-pixel coordinates onto the 800-pixel screen (its top projection
+    // is the same in both modes), so nothing drawn with it is scaled here (was 2 = doubled, cut off).
+    const float kx = 1.f;
     C2D_Prepare();
     C2D_SceneBegin(topRenderTarget);
     C2D_DrawRectSolid(0, 0, 0.4f, 400 * kx, 24, kCardBg);
