@@ -323,6 +323,8 @@ void drawRects()
     switch (ctr_rectMap.active)
     {
         case DISPLAY_SPLASH:
+            // Loading splash on the touch screen: the controls card on top, not black.
+            helpOnTop = true;
             break;
 
         case DISPLAY_MOVIE:
