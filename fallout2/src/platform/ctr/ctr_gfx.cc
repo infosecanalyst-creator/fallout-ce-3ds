@@ -1231,15 +1231,6 @@ static const char* dashHint(const CtrDashboard* d)
     }
 }
 
-// citro2d's projection for the top screen must follow the 800-pixel mode:
-// after Select+R it stayed 400 wide, so everything drawn with kx = 2 came out
-// doubled and cut off (Ryan, Nov 12 2026). Set it explicitly every time.
-static inline void ctr_c2d_top_begin()
-{
-    C2D_SceneBegin(topRenderTarget);
-    C2D_SceneSize(GSP_SCREEN_WIDTH, ctr_gfx.isWide ? GSP_SCREEN_HEIGHT_TOP_2X : GSP_SCREEN_HEIGHT_TOP, true);
-}
-
 void ctr_dashboard_draw()
 {
     if (dashTextBuf == nullptr) {
@@ -1285,7 +1276,7 @@ void ctr_dashboard_draw()
     };
 
     C2D_Prepare();
-    ctr_c2d_top_begin(); // also makes the top screen the draw target
+    C2D_SceneBegin(topRenderTarget); // also makes the top screen the draw target
 
     rect(0, 0, 400, 240, bg);
 
@@ -1415,7 +1406,7 @@ void ctr_help_draw()
     const u32 amber = C2D_Color32(0xff, 0xc8, 0x40, 0xff);
 
     C2D_Prepare();
-    ctr_c2d_top_begin();
+    C2D_SceneBegin(topRenderTarget);
     C2D_DrawRectSolid(0, 0, 0.5f, 400 * kx, 240, bg);
 
     C2D_DrawText(&helpTitle, C2D_WithColor, 8 * kx, 4, 0.6f, 0.8f * kx, 0.8f, amber);
@@ -1486,7 +1477,7 @@ void ctr_hint_draw(const char* hint)
     }
     const float kx = ctr_gfx.isWide ? 2.f : 1.f;
     C2D_Prepare();
-    ctr_c2d_top_begin();
+    C2D_SceneBegin(topRenderTarget);
     C2D_DrawRectSolid(0, 224, 0.5f, 400 * kx, 16, C2D_Color32(0, 0, 0, 0xc0));
     C2D_DrawText(&hintTextObj, C2D_WithColor | C2D_AlignCenter, 200 * kx, 225, 0.6f, 0.42f * kx, 0.42f, C2D_Color32(0xff, 0xc8, 0x40, 0xff));
     C2D_Flush();
@@ -1499,7 +1490,7 @@ void ctr_gfx_manual_frame(void (*drawTop)(), void (*drawBottom)())
     C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
     C2D_Prepare();
     C2D_TargetClear(topRenderTarget, C2D_Color32(0, 0, 0, 0xff));
-    ctr_c2d_top_begin();
+    C2D_SceneBegin(topRenderTarget);
     C2D_ViewReset();
     if (ctr_gfx.isWide) {
         C2D_ViewScale(2.f, 1.f); // the manual is laid out for 400 pixels
@@ -1608,7 +1599,7 @@ static void cardFlush(bool background, float bgTop = 0)
 {
     const float kx = ctr_gfx.isWide ? 2.f : 1.f;
     C2D_Prepare();
-    ctr_c2d_top_begin();
+    C2D_SceneBegin(topRenderTarget);
     if (background) {
         C2D_DrawRectSolid(0, bgTop, 0.4f, 400 * kx, 240 - bgTop, kCardBg);
     }
@@ -1746,7 +1737,7 @@ void ctr_loadsave_draw()
     // the area around it is painted here.
     const float kx = ctr_gfx.isWide ? 2.f : 1.f;
     C2D_Prepare();
-    ctr_c2d_top_begin();
+    C2D_SceneBegin(topRenderTarget);
     C2D_DrawRectSolid(0, 0, 0.4f, 400 * kx, 24, kCardBg);
     C2D_DrawRectSolid(0, 24, 0.4f, 8 * kx, 136, kCardBg);
     C2D_DrawRectSolid(232 * kx, 24, 0.4f, 168 * kx, 136, kCardBg);
