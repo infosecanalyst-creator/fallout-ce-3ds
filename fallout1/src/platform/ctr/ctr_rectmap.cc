@@ -311,7 +311,7 @@ void ctr_rectmap_init()
 
     addRectMap(DISPLAY_FULL,              0,   0,   0, 640, 480,   0,   0, 320, 240);
     addRectMap(DISPLAY_FIELD,             0,   0,   0, 400, 240,   0,   0, 400, 240);
-    addRectMap(DISPLAY_MOVIE,             0,  53,  80, 533, 320,   0,   0, 400, 240);
+    addRectMap(DISPLAY_MOVIE,             0, 105,  80, 430, 320,   0,   0, 400, 240); // whole movie picture (cropping would cut credits), stretched to fill
     addRectMap(DISPLAY_MOVIE_SUB,         0, 105, 401, 430,  80,   0,  60, 320, 120);
     addRectMap(DISPLAY_MAIN,              0, 333,  25, 307, 230,   0,   0, 320, 240);
 
