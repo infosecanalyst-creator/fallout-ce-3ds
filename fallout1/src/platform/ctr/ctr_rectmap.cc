@@ -112,6 +112,8 @@ int getIndicatorSlotNum()
 static rectMap_e gameplayRectMap = DISPLAY_FIELD;
 
 bool ctrAutomapOpen = false;
+// The movie now playing shows subtitles on the touch screen.
+bool ctrMovieSubtitles = false;
 
 void toggleGameplayRectMap()
 {

@@ -166,6 +166,9 @@ int gmovie_play(int game_movie, int game_movie_flags)
     }
 
     movieSetFlags(movie_flags);
+#ifdef __3DS__
+    ctrMovieSubtitles = subtitlesEnabled;
+#endif
 
     int oldTextColor;
     int oldFont;

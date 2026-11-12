@@ -53,6 +53,7 @@ void finishRender();
 
 void drawRects();
 void drawFrameRect();
+static void ctr_movie_card_draw();
 
 static bool loadTextureFromMem(C3D_Tex* tex, C3D_TexCube* cube, const void* data, size_t size)
 {
@@ -623,6 +624,9 @@ void drawRects()
     }
     if (hintText != nullptr) {
         ctr_hint_draw(hintText);
+    }
+    if (ctr_rectMap.active == DISPLAY_MOVIE && !ctrMovieSubtitles) {
+        ctr_movie_card_draw();
     }
 
     finishRender();
@@ -1397,6 +1401,34 @@ void ctr_help_draw()
 
     C2D_Flush();
     gpuStateReady = false; // citro2d changed the GPU state
+}
+
+
+// Touch screen during a movie: a card in the frame's middle instead of an
+// empty black band (subtitles use that band when they are on).
+static void ctr_movie_card_draw()
+{
+    static C2D_TextBuf buf = nullptr;
+    static C2D_Text t1, t2, t3;
+    if (buf == nullptr) {
+        buf = C2D_TextBufNew(256);
+        C2D_TextParse(&t1, buf, "Movie");
+        C2D_TextParse(&t2, buf, "Tap the screen or press any");
+        C2D_TextParse(&t3, buf, "button to skip it");
+        C2D_TextOptimize(&t1);
+        C2D_TextOptimize(&t2);
+        C2D_TextOptimize(&t3);
+    }
+    C2D_Prepare();
+    C2D_SceneBegin(bottomRenderTarget);
+    C2D_DrawRectSolid(8, 58, 0.5f, 304, 124, C2D_Color32(0x16, 0x26, 0x16, 0xff));
+    C2D_DrawRectSolid(8, 58, 0.5f, 304, 2, C2D_Color32(0x3c, 0xb0, 0x3c, 0xff));
+    C2D_DrawRectSolid(8, 180, 0.5f, 304, 2, C2D_Color32(0x3c, 0xb0, 0x3c, 0xff));
+    C2D_DrawText(&t1, C2D_WithColor | C2D_AlignCenter, 160, 78, 0.6f, 0.7f, 0.7f, C2D_Color32(0xff, 0xc8, 0x40, 0xff));
+    C2D_DrawText(&t2, C2D_WithColor | C2D_AlignCenter, 160, 118, 0.6f, 0.5f, 0.5f, C2D_Color32(0x5c, 0xff, 0x5c, 0xff));
+    C2D_DrawText(&t3, C2D_WithColor | C2D_AlignCenter, 160, 140, 0.6f, 0.5f, 0.5f, C2D_Color32(0x5c, 0xff, 0x5c, 0xff));
+    C2D_Flush();
+    gpuStateReady = false;
 }
 
 
