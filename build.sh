@@ -29,5 +29,6 @@ for g in ${games[@]}; do
   echo "== $g"
   docker run --rm -v "$PWD:/src" -w "/src/$g" "$TC" make -f Makefile.ctr -j"$(nproc)"
   cp "$g"/*.3dsx out/
+  cp "$g"/*.elf out/ 2>/dev/null || true
 done
 ls -la out/
