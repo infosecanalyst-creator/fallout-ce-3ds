@@ -952,7 +952,7 @@ void ctr_gfx_init()
 
     // 800px top-screen mode (sharper text) is optional: Select+R toggles it
     // and the choice is remembered. The original 2DS can't do it.
-    ctrWideAllowed = (is2DS == 0); // was inverted: only allowed on the 2DS
+    ctrWideAllowed = is2DS == 1; // CFGU_GetModelNintendo2DS gives 0 on a 2DS, 1 on every 3DS
     if (ctrWideAllowed && ctr_gfx_wide_setting()) {
         gfxSetWide(true);
         ctr_gfx.isWide = gfxIsWide();
