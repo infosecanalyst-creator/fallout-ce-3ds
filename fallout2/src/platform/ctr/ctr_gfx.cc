@@ -424,16 +424,14 @@ void drawRects()
 
         case DISPLAY_FULL:
             if (ctr_input.mode != DISPLAY_MODE_ADAPT) {
-                // Whole-screen mode (Select+L): the top screen is filled with
-                // the whole width of the picture (0.625x), panned up and down
-                // with the stylus. ZL switches to a 1:1 zoom lens that follows
-                // the stylus (Ryan: both screens always filled; zoom only on a
-                // button press, never by default).
+                // Whole-screen mode (Select+L): the touch screen shows the
+                // whole picture, the top shows the dashboard. ZL switches the
+                // top to a 1:1 zoom lens that follows the stylus (Ryan: both
+                // screens filled, never duplicated; zoom only on a button press).
                 if (!ctrLens[DISPLAY_FULL]) {
-                    int srcY = (240 - offsetY) * 96 / 240;
-                    if (srcY < 0) srcY = 0;
-                    if (srcY > 96) srcY = 96;
-                    drawRect(0, srcY, 640, 384, 0, 0, 400, 240);
+                    // The touch screen already shows the whole picture:
+                    // the top shows the dashboard, never a duplicate.
+                    if (ctrDashboardAvailable()) dashOnTop = true; else helpOnTop = true;
                 } else {
                     drawRect(offsetX, (240 - offsetY), 400, 240, 0,   0, 400, 240);
                 }
