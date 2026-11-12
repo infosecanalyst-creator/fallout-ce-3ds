@@ -199,12 +199,12 @@ void text(const std::string& str, float x, float y, float scale, u32 color, u32 
     C2D_DrawText(&t, C2D_WithColor | flags, x, y, depth, scale, scale, color);
 }
 
-const u32 kBg = C2D_Color32(0x0b, 0x14, 0x0b, 0xff);
-const u32 kPanel = C2D_Color32(0x16, 0x26, 0x16, 0xff);
-const u32 kGreen = C2D_Color32(0x5c, 0xff, 0x5c, 0xff);
-const u32 kDim = C2D_Color32(0x8c, 0xd8, 0x8c, 0xff);
-const u32 kAmber = C2D_Color32(0xff, 0xc8, 0x40, 0xff);
-const u32 kLine = C2D_Color32(0x3c, 0xb0, 0x3c, 0xff);
+const u32 kBg = C2D_Color32(8, 12, 40, 0xff);
+const u32 kPanel = C2D_Color32(40, 56, 120, 0xff);
+const u32 kGreen = C2D_Color32(240, 240, 240, 0xff);
+const u32 kDim = C2D_Color32(150, 150, 165, 0xff);
+const u32 kAmber = C2D_Color32(255, 204, 64, 0xff);
+const u32 kLine = C2D_Color32(120, 150, 230, 0xff);
 
 void drawTop()
 {
@@ -444,38 +444,57 @@ u32 ctr_remap(u32 m)
 
 namespace {
 
-const char* const kMenuItems[4] = { "Manual", "Options", "Left hand: off", "Close" };
+// House style START menu (claude/3ds-look-and-feel.md): the same rows in every port.
+const int kMenuCount = 6;
+const char* const kMenuItems[kMenuCount] = { "RESUME", "MANUAL", "SAVE", "SETTINGS", "LEFT HAND: OFF", "EXIT GAME" };
+enum { M_RESUME, M_MANUAL, M_SAVE, M_SETTINGS, M_LEFTY, M_EXIT };
 int gMenuSel = 0;
 int gMenuPressed = -1;
 
 void menuRect(int i, float* x, float* y, float* w, float* h)
 {
-    *x = 40;
-    *w = 240;
-    *h = 40;
-    *y = 14 + i * 56;
+    // six rows filling the touch screen: 6 px edges, 4 px gaps
+    *x = 6;
+    *w = 308;
+    *h = (240 - 12 - 5 * 4) / 6.0f;
+    *y = 6 + i * (*h + 4);
 }
 
 void menuDrawTop()
 {
+    const u32 face = C2D_Color32(40, 56, 120, 0xff), gold = C2D_Color32(255, 204, 64, 0xff);
+    const u32 white = C2D_Color32(240, 240, 240, 0xff), grey = C2D_Color32(150, 150, 165, 0xff);
     C2D_DrawRectSolid(0, 0, 0.4f, 400, 240, kBg);
-    text("Menu", 200, 100, 0.8f, kAmber, C2D_AlignCenter);
-    text("A / tap: choose    B or Start: close", 200, 140, 0.45f, kDim, C2D_AlignCenter);
+    C2D_DrawRectSolid(0, 0, 0.41f, 400, 22, face);
+text("FALLOUT", 8, 4, 0.5f, gold);
+    text("PAUSED", 392, 4, 0.5f, grey, C2D_AlignRight);
+    static const char* const help[kMenuCount] = { "back to the game", "how to play on the 3DS", "save your game", "the game's options",
+        "swap the D-pad and A/B/X/Y", "asks first; unsaved progress is lost" };
+    for (int i = 0; i < kMenuCount; i++) {
+        text(i == M_LEFTY ? (gLefty ? "LEFT HAND: ON" : "LEFT HAND: OFF") : kMenuItems[i], 16, 36 + i * 28, 0.5f, i == gMenuSel ? gold : white);
+        text(help[i], 170, 37 + i * 28, 0.45f, grey);
+    }
+    C2D_DrawRectSolid(0, 224, 0.41f, 400, 16, C2D_Color32(20, 30, 70, 0xff));
+    text(gLefty ? "ABXY: choose    D-Rt: select    D-Dn or START: close" : "D-pad: choose    A: select    B or START: close",
+        200, 226, 0.42f, gold, C2D_AlignCenter);
 }
 
 void menuDrawBottom()
 {
+    const u32 face = C2D_Color32(40, 56, 120, 0xff), edge = C2D_Color32(120, 150, 230, 0xff), press = C2D_Color32(220, 180, 60, 0xff);
+    const u32 shade = C2D_Color32(20, 30, 70, 0xff), gold = C2D_Color32(255, 204, 64, 0xff), white = C2D_Color32(240, 240, 240, 0xff);
     C2D_DrawRectSolid(0, 0, 0.4f, 320, 240, kBg);
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < kMenuCount; i++) {
         float x, y, w, h;
         menuRect(i, &x, &y, &w, &h);
         bool on = i == gMenuSel;
         bool pressed = i == gMenuPressed;
-        float inset = pressed ? 3.0f : 0.0f; // visible press animation
-        C2D_DrawRectSolid(x + inset, y + inset, 0.45f, w - 2 * inset, h - 2 * inset,
-            pressed ? kLine : (on ? kLine : kPanel));
-        text(i == 2 ? (gLefty ? "Left hand: on" : "Left hand: off") : kMenuItems[i], x + w / 2, y + 12, 0.55f,
-            (on || pressed) ? C2D_Color32(0, 0, 0, 0xff) : kGreen, C2D_AlignCenter);
+        if (on) C2D_DrawRectSolid(x - 2, y - 2, 0.44f, w + 4, h + 4, gold);   // focus ring
+        C2D_DrawRectSolid(x, y, 0.45f, w, h, edge);
+        C2D_DrawRectSolid(x + 1, y + 1, 0.46f, w - 2, h - 2, pressed ? press : face);
+        if (!pressed) C2D_DrawRectSolid(x + 1, y + h - 2, 0.47f, w - 2, 1, shade);
+        text(i == M_LEFTY ? (gLefty ? "LEFT HAND: ON" : "LEFT HAND: OFF") : kMenuItems[i], x + w / 2, y + h / 2 - 7 + (pressed ? 1 : 0), 0.5f,
+            pressed ? C2D_Color32(0, 0, 0, 0xff) : (on ? gold : white), C2D_AlignCenter);
     }
 }
 
@@ -489,7 +508,7 @@ int ctr_startmenu_run()
     }
     gMenuSel = 0;
     gMenuPressed = -1;
-    int result = 2;
+    int result = M_RESUME;
     bool waitRelease = true;
     while (aptMainLoop()) {
         hidScanInput();
@@ -501,16 +520,16 @@ int ctr_startmenu_run()
             }
         } else {
             if (down & (KEY_B | KEY_START)) {
-                result = 2;
+                result = M_RESUME;
                 break;
             }
-            if (down & KEY_DUP) gMenuSel = (gMenuSel + 3) % 4;
-            if (down & KEY_DDOWN) gMenuSel = (gMenuSel + 1) % 4;
+            if (down & KEY_DUP) gMenuSel = (gMenuSel + kMenuCount - 1) % kMenuCount;
+            if (down & KEY_DDOWN) gMenuSel = (gMenuSel + 1) % kMenuCount;
             if (down & KEY_A) {
-                if (gMenuSel == 2) {
+                if (gMenuSel == M_LEFTY) {
                     leftySet(!gLefty);
                 } else {
-                    result = gMenuSel == 3 ? 2 : gMenuSel;
+                    result = gMenuSel;
                     break;
                 }
             }
@@ -518,7 +537,7 @@ int ctr_startmenu_run()
                 touchPosition t;
                 hidTouchRead(&t);
                 gMenuPressed = -1;
-                for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < kMenuCount; i++) {
                     float x, y, w, h;
                     menuRect(i, &x, &y, &w, &h);
                     if (t.px >= x && t.px < x + w && t.py >= y && t.py < y + h) {
@@ -527,11 +546,11 @@ int ctr_startmenu_run()
                     }
                 }
             } else if (gMenuPressed >= 0) {
-                if (gMenuPressed == 2) {
+                if (gMenuPressed == M_LEFTY) {
                     leftySet(!gLefty);
                     gMenuPressed = -1;
                 } else {
-                    result = gMenuPressed == 3 ? 2 : gMenuPressed;
+                    result = gMenuPressed;
                     break;
                 }
             }

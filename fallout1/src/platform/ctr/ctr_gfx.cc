@@ -1129,11 +1129,11 @@ void ctr_dashboard_draw()
     // citro2d already maps 400-pixel coordinates onto the 800-pixel screen (its top projection
     // is the same in both modes), so nothing drawn with it is scaled here (was 2 = doubled, cut off).
     const float kx = 1.f;
-    const u32 bg = C2D_Color32(0x0b, 0x14, 0x0b, 0xff);
-    const u32 panel = C2D_Color32(0x16, 0x26, 0x16, 0xff);
-    const u32 green = C2D_Color32(0x5c, 0xff, 0x5c, 0xff);
-    const u32 dim = C2D_Color32(0x3c, 0xb0, 0x3c, 0xff);
-    const u32 amber = C2D_Color32(0xff, 0xc8, 0x40, 0xff);
+    const u32 bg = C2D_Color32(8, 12, 40, 0xff);
+    const u32 panel = C2D_Color32(40, 56, 120, 0xff);
+    const u32 green = C2D_Color32(240, 240, 240, 0xff);
+    const u32 dim = C2D_Color32(120, 150, 230, 0xff);
+    const u32 amber = C2D_Color32(255, 204, 64, 0xff);
     const u32 red = C2D_Color32(0xff, 0x50, 0x40, 0xff);
 
     auto rect = [&](float x, float y, float w, float h, u32 c) {
@@ -1158,7 +1158,7 @@ void ctr_dashboard_draw()
     float hpRatio = d.hpMax > 0 ? (float)d.hp / (float)d.hpMax : 0.f;
     if (hpRatio < 0) hpRatio = 0;
     if (hpRatio > 1) hpRatio = 1;
-    u32 hpColor = hpRatio > 0.5f ? green : (hpRatio > 0.25f ? amber : red);
+    u32 hpColor = hpRatio > 0.5f ? C2D_Color32(80, 200, 100, 0xff) : (hpRatio > 0.25f ? amber : red);   // with the number on it (colour is never the only signal)
     rect(36, 27, 270 * hpRatio, 14, hpColor);
     text(&dashText[DASH_T_HP], 171, 26, 0.42f, C2D_Color32(0, 0, 0, 0xff));
     text(&dashText[DASH_T_AC], 392, 25, 0.5f, green, true);
@@ -1269,10 +1269,10 @@ void ctr_help_draw()
     // citro2d already maps 400-pixel coordinates onto the 800-pixel screen (its top projection
     // is the same in both modes), so nothing drawn with it is scaled here (was 2 = doubled, cut off).
     const float kx = 1.f;
-    const u32 bg = C2D_Color32(0x0b, 0x14, 0x0b, 0xff);
-    const u32 green = C2D_Color32(0x5c, 0xff, 0x5c, 0xff);
-    const u32 dim = C2D_Color32(0x3c, 0xb0, 0x3c, 0xff);
-    const u32 amber = C2D_Color32(0xff, 0xc8, 0x40, 0xff);
+    const u32 bg = C2D_Color32(8, 12, 40, 0xff);
+    const u32 green = C2D_Color32(240, 240, 240, 0xff);
+    const u32 dim = C2D_Color32(120, 150, 230, 0xff);
+    const u32 amber = C2D_Color32(255, 204, 64, 0xff);
 
     C2D_Prepare();
     C2D_SceneBegin(topRenderTarget);
@@ -1317,12 +1317,12 @@ static void ctr_movie_card_draw()
     }
     C2D_Prepare();
     C2D_SceneBegin(bottomRenderTarget);
-    C2D_DrawRectSolid(0, 58, 0.5f, 320, 124, C2D_Color32(0x16, 0x26, 0x16, 0xff));
-    C2D_DrawRectSolid(0, 58, 0.5f, 320, 2, C2D_Color32(0x3c, 0xb0, 0x3c, 0xff));
-    C2D_DrawRectSolid(0, 180, 0.5f, 320, 2, C2D_Color32(0x3c, 0xb0, 0x3c, 0xff));
-    C2D_DrawText(&t1, C2D_WithColor | C2D_AlignCenter, 160, 78, 0.6f, 0.7f, 0.7f, C2D_Color32(0xff, 0xc8, 0x40, 0xff));
-    C2D_DrawText(&t2, C2D_WithColor | C2D_AlignCenter, 160, 118, 0.6f, 0.5f, 0.5f, C2D_Color32(0x5c, 0xff, 0x5c, 0xff));
-    C2D_DrawText(&t3, C2D_WithColor | C2D_AlignCenter, 160, 140, 0.6f, 0.5f, 0.5f, C2D_Color32(0x5c, 0xff, 0x5c, 0xff));
+    C2D_DrawRectSolid(0, 58, 0.5f, 320, 124, C2D_Color32(40, 56, 120, 0xff));
+    C2D_DrawRectSolid(0, 58, 0.5f, 320, 2, C2D_Color32(120, 150, 230, 0xff));
+    C2D_DrawRectSolid(0, 180, 0.5f, 320, 2, C2D_Color32(120, 150, 230, 0xff));
+    C2D_DrawText(&t1, C2D_WithColor | C2D_AlignCenter, 160, 78, 0.6f, 0.7f, 0.7f, C2D_Color32(255, 204, 64, 0xff));
+    C2D_DrawText(&t2, C2D_WithColor | C2D_AlignCenter, 160, 118, 0.6f, 0.5f, 0.5f, C2D_Color32(240, 240, 240, 0xff));
+    C2D_DrawText(&t3, C2D_WithColor | C2D_AlignCenter, 160, 140, 0.6f, 0.5f, 0.5f, C2D_Color32(240, 240, 240, 0xff));
     C2D_Flush();
 }
 
@@ -1348,7 +1348,7 @@ void ctr_hint_draw(const char* hint)
     C2D_Prepare();
     C2D_SceneBegin(topRenderTarget);
     C2D_DrawRectSolid(0, 224, 0.5f, 400 * kx, 16, C2D_Color32(0, 0, 0, 0xc0));
-    C2D_DrawText(&hintTextObj, C2D_WithColor | C2D_AlignCenter, 200 * kx, 225, 0.6f, 0.42f * kx, 0.42f, C2D_Color32(0xff, 0xc8, 0x40, 0xff));
+    C2D_DrawText(&hintTextObj, C2D_WithColor | C2D_AlignCenter, 200 * kx, 225, 0.6f, 0.42f * kx, 0.42f, C2D_Color32(255, 204, 64, 0xff));
     C2D_Flush();
 }
 
@@ -1389,12 +1389,12 @@ static CardLine cardLines[CARD_MAX_LINES];
 static int cardLineCount = 0;
 static unsigned int cardKey = 0;
 
-static const u32 kCardBg = C2D_Color32(0x0b, 0x14, 0x0b, 0xff);
-static const u32 kCardPanel = C2D_Color32(0x16, 0x26, 0x16, 0xff);
-static const u32 kCardGreen = C2D_Color32(0x5c, 0xff, 0x5c, 0xff);
-static const u32 kCardDim = C2D_Color32(0x8c, 0xd8, 0x8c, 0xff);
-static const u32 kCardLine = C2D_Color32(0x3c, 0xb0, 0x3c, 0xff);
-static const u32 kCardAmber = C2D_Color32(0xff, 0xc8, 0x40, 0xff);
+static const u32 kCardBg = C2D_Color32(8, 12, 40, 0xff);
+static const u32 kCardPanel = C2D_Color32(40, 56, 120, 0xff);
+static const u32 kCardGreen = C2D_Color32(240, 240, 240, 0xff);
+static const u32 kCardDim = C2D_Color32(150, 150, 165, 0xff);
+static const u32 kCardLine = C2D_Color32(120, 150, 230, 0xff);
+static const u32 kCardAmber = C2D_Color32(255, 204, 64, 0xff);
 static const u32 kCardRed = C2D_Color32(0xff, 0x50, 0x40, 0xff);
 
 static void cardBegin()

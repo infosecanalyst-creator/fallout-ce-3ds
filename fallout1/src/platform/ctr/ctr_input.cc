@@ -487,11 +487,16 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
                      ((ctr_rectMap.active != DISPLAY_MAIN) && (ctr_rectMap.active != DISPLAY_FULL)))) {
                 // Start opens the small menu: Manual, Options (the old
                 // Start action), Close. B still backs out of dialogs.
+                // START menu rows: RESUME, MANUAL, SAVE, SETTINGS, LEFT HAND, EXIT GAME
                 int choice = ctr_startmenu_run();
-                if (choice == 0) {
+                if (choice == 1) {
                     ctr_manual_run();
-                } else if (choice == 1) {
-                    GNW_add_input_buffer(KEY_ESCAPE);
+                } else if (choice == 2) {
+                    GNW_add_input_buffer(KEY_CTRL_S);   // the game's save screen
+                } else if (choice == 3) {
+                    GNW_add_input_buffer(KEY_ESCAPE);   // the game's options
+                } else if (choice == 5) {
+                    GNW_add_input_buffer(KEY_CTRL_Q);   // the game asks before quitting
                 }
                 key_combi_flags = FLAG_NONE;
                 hidScanInput();
