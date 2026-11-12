@@ -1295,9 +1295,9 @@ static void ctr_movie_card_draw()
     }
     C2D_Prepare();
     C2D_SceneBegin(bottomRenderTarget);
-    C2D_DrawRectSolid(8, 58, 0.5f, 304, 124, C2D_Color32(0x16, 0x26, 0x16, 0xff));
-    C2D_DrawRectSolid(8, 58, 0.5f, 304, 2, C2D_Color32(0x3c, 0xb0, 0x3c, 0xff));
-    C2D_DrawRectSolid(8, 180, 0.5f, 304, 2, C2D_Color32(0x3c, 0xb0, 0x3c, 0xff));
+    C2D_DrawRectSolid(0, 58, 0.5f, 320, 124, C2D_Color32(0x16, 0x26, 0x16, 0xff));
+    C2D_DrawRectSolid(0, 58, 0.5f, 320, 2, C2D_Color32(0x3c, 0xb0, 0x3c, 0xff));
+    C2D_DrawRectSolid(0, 180, 0.5f, 320, 2, C2D_Color32(0x3c, 0xb0, 0x3c, 0xff));
     C2D_DrawText(&t1, C2D_WithColor | C2D_AlignCenter, 160, 78, 0.6f, 0.7f, 0.7f, C2D_Color32(0xff, 0xc8, 0x40, 0xff));
     C2D_DrawText(&t2, C2D_WithColor | C2D_AlignCenter, 160, 118, 0.6f, 0.5f, 0.5f, C2D_Color32(0x5c, 0xff, 0x5c, 0xff));
     C2D_DrawText(&t3, C2D_WithColor | C2D_AlignCenter, 160, 140, 0.6f, 0.5f, 0.5f, C2D_Color32(0x5c, 0xff, 0x5c, 0xff));
