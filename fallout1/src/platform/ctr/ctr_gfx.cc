@@ -1302,7 +1302,6 @@ static void ctr_movie_card_draw()
     C2D_DrawText(&t2, C2D_WithColor | C2D_AlignCenter, 160, 118, 0.6f, 0.5f, 0.5f, C2D_Color32(0x5c, 0xff, 0x5c, 0xff));
     C2D_DrawText(&t3, C2D_WithColor | C2D_AlignCenter, 160, 140, 0.6f, 0.5f, 0.5f, C2D_Color32(0x5c, 0xff, 0x5c, 0xff));
     C2D_Flush();
-    gpuStateReady = false;
 }
 
 
