@@ -54,6 +54,10 @@ void finishRender();
 void drawRects();
 void drawFrameRect();
 static void ctr_movie_card_draw();
+// Shown on the top screen for 2.5 s after Select+R, so the change is visible.
+static u64 ctrWideHintUntil = 0;
+static const char* ctrWideHint = nullptr;
+
 
 static bool loadTextureFromMem(C3D_Tex* tex, C3D_TexCube* cube, const void* data, size_t size)
 {
@@ -620,6 +624,9 @@ void drawRects()
     } else if (worldOnTop) {
         ctr_worldmap_draw();
     }
+    if (ctrWideHint != nullptr && osGetTime() < ctrWideHintUntil) {
+        hintText = ctrWideHint;
+    }
     if (hintText != nullptr) {
         ctr_hint_draw(hintText);
     }
@@ -878,6 +885,8 @@ static bool ctr_gfx_wide_setting()
 void ctr_gfx_toggle_wide()
 {
     if (!ctrWideAllowed) {
+        ctrWideHint = "Sharp 800-pixel top screen: not available on this system";
+        ctrWideHintUntil = osGetTime() + 2500;
         return;
     }
     ctr_gfx.isWide = !ctr_gfx.isWide;
@@ -888,6 +897,9 @@ void ctr_gfx_toggle_wide()
         fprintf(f, "wide=%d\n", ctr_gfx.isWide ? 1 : 0);
         fclose(f);
     }
+    ctrWideHint = ctr_gfx.isWide ? "Sharp 800-pixel top screen: ON  (Select+R turns it off)"
+                                 : "Sharp 800-pixel top screen: OFF  (Select+R turns it on)";
+    ctrWideHintUntil = osGetTime() + 2500;
 }
 
 void ctr_gfx_reinit()
@@ -931,7 +943,7 @@ void ctr_gfx_init()
 
     // 800px top-screen mode (sharper text) is optional: Select+R toggles it
     // and the choice is remembered. The original 2DS can't do it.
-    ctrWideAllowed = is2DS == 1;
+    ctrWideAllowed = (is2DS == 0); // was inverted: only allowed on the 2DS
     if (ctrWideAllowed && ctr_gfx_wide_setting()) {
         gfxSetWide(true);
         ctr_gfx.isWide = gfxIsWide();
