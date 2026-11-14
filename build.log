@@ -1,0 +1,2492 @@
+== building toolchain image (fallout-ce-3ds-toolchain) with SDL2 for 3DS
+Unable to find image 'devkitpro/devkitarm:20251231' locally
+20251231: Pulling from devkitpro/devkitarm
+59e22667830b: Pulling fs layer
+8706b56ff172: Pulling fs layer
+74701f26999d: Pulling fs layer
+ea5d3216df1f: Pulling fs layer
+a35cb21eccca: Download complete
+59e22667830b: Download complete
+ea5d3216df1f: Download complete
+74701f26999d: Download complete
+8706b56ff172: Download complete
+59e22667830b: Pull complete
+74701f26999d: Pull complete
+ea5d3216df1f: Pull complete
+8706b56ff172: Pull complete
+Digest: sha256:0e0a00e966f32121297ad8ebceabf5e9ca0a408f3c020fdf21384e03b499f3a0
+Status: Downloaded newer image for devkitpro/devkitarm:20251231
+-- The C compiler identification is GNU 15.2.0
+-- Detected multilib folder: armv6k/fpu
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/devkitpro/devkitARM/bin/arm-none-eabi-gcc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found PkgConfig: /opt/devkitpro/portlibs/3ds/bin/arm-none-eabi-pkg-config (found version "1.8.1")
+-- Looking for __GLIBC__
+-- Looking for __GLIBC__ - not found
+-- Performing Test CHECK_CPU_ARCHITECTURE_X86
+-- Performing Test CHECK_CPU_ARCHITECTURE_X86 - Failed
+-- Performing Test CHECK_CPU_ARCHITECTURE_X64
+-- Performing Test CHECK_CPU_ARCHITECTURE_X64 - Failed
+-- Performing Test CHECK_CPU_ARCHITECTURE_ARM32
+-- Performing Test CHECK_CPU_ARCHITECTURE_ARM32 - Success
+-- Performing Test CHECK_CPU_ARCHITECTURE_ARM64
+-- Performing Test CHECK_CPU_ARCHITECTURE_ARM64 - Failed
+-- Performing Test CHECK_CPU_ARCHITECTURE_ARM64EC
+-- Performing Test CHECK_CPU_ARCHITECTURE_ARM64EC - Failed
+-- Performing Test CHECK_CPU_ARCHITECTURE_LOONGARCH64
+-- Performing Test CHECK_CPU_ARCHITECTURE_LOONGARCH64 - Failed
+-- Performing Test HAVE_GCC_WALL
+-- Performing Test HAVE_GCC_WALL - Success
+-- Performing Test HAVE_GCC_WUNDEF
+-- Performing Test HAVE_GCC_WUNDEF - Success
+-- Performing Test HAVE_GCC_NO_STRICT_ALIASING
+-- Performing Test HAVE_GCC_NO_STRICT_ALIASING - Success
+-- Performing Test HAVE_GCC_WDOCUMENTATION
+-- Performing Test HAVE_GCC_WDOCUMENTATION - Failed
+-- Performing Test HAVE_GCC_WDOCUMENTATION_UNKNOWN_COMMAND
+-- Performing Test HAVE_GCC_WDOCUMENTATION_UNKNOWN_COMMAND - Failed
+-- Performing Test HAVE_GCC_COMMENT_BLOCK_COMMANDS
+-- Performing Test HAVE_GCC_COMMENT_BLOCK_COMMANDS - Failed
+-- Performing Test HAVE_CLANG_COMMENT_BLOCK_COMMANDS
+-- Performing Test HAVE_CLANG_COMMENT_BLOCK_COMMANDS - Failed
+-- Performing Test HAVE_GCC_WDECLARATION_AFTER_STATEMENT
+-- Performing Test HAVE_GCC_WDECLARATION_AFTER_STATEMENT - Success
+-- Performing Test HAVE_GCC_ATOMICS
+-- Performing Test HAVE_GCC_ATOMICS - Success
+-- Performing Test HAVE_GCC_FVISIBILITY
+-- Performing Test HAVE_GCC_FVISIBILITY - Success
+-- Performing Test HAVE_GCC_WSHADOW
+-- Performing Test HAVE_GCC_WSHADOW - Success
+-- Performing Test HAVE_GCC_WUNUSED_LOCAL_TYPEDEFS
+-- Performing Test HAVE_GCC_WUNUSED_LOCAL_TYPEDEFS - Success
+-- Performing Test HAVE_NO_UNDEFINED
+-- Performing Test HAVE_NO_UNDEFINED - Success
+-- Looking for immintrin.h
+-- Looking for immintrin.h - not found
+-- Performing Test HAVE_ALTIVEC_H_HDR
+-- Performing Test HAVE_ALTIVEC_H_HDR - Failed
+-- Performing Test CPU_SUPPORTS_ALTIVEC
+-- Performing Test CPU_SUPPORTS_ALTIVEC - Failed
+-- Looking for ctype.h
+-- Looking for ctype.h - found
+-- Looking for float.h
+-- Looking for float.h - found
+-- Looking for iconv.h
+-- Looking for iconv.h - found
+-- Looking for inttypes.h
+-- Looking for inttypes.h - found
+-- Looking for limits.h
+-- Looking for limits.h - found
+-- Looking for malloc.h
+-- Looking for malloc.h - found
+-- Looking for math.h
+-- Looking for math.h - found
+-- Looking for memory.h
+-- Looking for memory.h - found
+-- Looking for signal.h
+-- Looking for signal.h - found
+-- Looking for stdarg.h
+-- Looking for stdarg.h - found
+-- Looking for stddef.h
+-- Looking for stddef.h - found
+-- Looking for stdint.h
+-- Looking for stdint.h - found
+-- Looking for stdio.h
+-- Looking for stdio.h - found
+-- Looking for stdlib.h
+-- Looking for stdlib.h - found
+-- Looking for string.h
+-- Looking for string.h - found
+-- Looking for strings.h
+-- Looking for strings.h - found
+-- Looking for sys/types.h
+-- Looking for sys/types.h - found
+-- Looking for wchar.h
+-- Looking for wchar.h - found
+-- Looking for 7 include files stddef.h, ..., float.h
+-- Looking for 7 include files stddef.h, ..., float.h - found
+-- Looking for M_PI
+-- Looking for M_PI - found
+-- Performing Test HAVE_MPROTECT
+-- Performing Test HAVE_MPROTECT - Failed
+-- Looking for strtod
+-- Looking for strtod - found
+-- Looking for malloc
+-- Looking for malloc - found
+-- Looking for calloc
+-- Looking for calloc - found
+-- Looking for realloc
+-- Looking for realloc - found
+-- Looking for free
+-- Looking for free - found
+-- Looking for getenv
+-- Looking for getenv - found
+-- Looking for setenv
+-- Looking for setenv - found
+-- Looking for putenv
+-- Looking for putenv - found
+-- Looking for unsetenv
+-- Looking for unsetenv - found
+-- Looking for bsearch
+-- Looking for bsearch - found
+-- Looking for qsort
+-- Looking for qsort - found
+-- Looking for abs
+-- Looking for abs - found
+-- Looking for bcopy
+-- Looking for bcopy - found
+-- Looking for memset
+-- Looking for memset - found
+-- Looking for memcpy
+-- Looking for memcpy - found
+-- Looking for memmove
+-- Looking for memmove - found
+-- Looking for memcmp
+-- Looking for memcmp - found
+-- Looking for strlen
+-- Looking for strlen - found
+-- Looking for strlcpy
+-- Looking for strlcpy - found
+-- Looking for strlcat
+-- Looking for strlcat - found
+-- Looking for _strrev
+-- Looking for _strrev - not found
+-- Looking for _strupr
+-- Looking for _strupr - not found
+-- Looking for _strlwr
+-- Looking for _strlwr - not found
+-- Looking for index
+-- Looking for index - found
+-- Looking for rindex
+-- Looking for rindex - found
+-- Looking for strchr
+-- Looking for strchr - found
+-- Looking for strrchr
+-- Looking for strrchr - found
+-- Looking for strstr
+-- Looking for strstr - found
+-- Looking for strtok_r
+-- Looking for strtok_r - found
+-- Looking for itoa
+-- Looking for itoa - found
+-- Looking for _ltoa
+-- Looking for _ltoa - not found
+-- Looking for _uitoa
+-- Looking for _uitoa - not found
+-- Looking for _ultoa
+-- Looking for _ultoa - not found
+-- Looking for strtol
+-- Looking for strtol - found
+-- Looking for strtoul
+-- Looking for strtoul - found
+-- Looking for _i64toa
+-- Looking for _i64toa - not found
+-- Looking for _ui64toa
+-- Looking for _ui64toa - not found
+-- Looking for strtoll
+-- Looking for strtoll - found
+-- Looking for strtoull
+-- Looking for strtoull - found
+-- Looking for atoi
+-- Looking for atoi - found
+-- Looking for atof
+-- Looking for atof - found
+-- Looking for strcmp
+-- Looking for strcmp - found
+-- Looking for strncmp
+-- Looking for strncmp - found
+-- Looking for _stricmp
+-- Looking for _stricmp - not found
+-- Looking for strcasecmp
+-- Looking for strcasecmp - found
+-- Looking for _strnicmp
+-- Looking for _strnicmp - not found
+-- Looking for strncasecmp
+-- Looking for strncasecmp - found
+-- Looking for strcasestr
+-- Looking for strcasestr - found
+-- Looking for wcscmp
+-- Looking for wcscmp - found
+-- Looking for _wcsdup
+-- Looking for _wcsdup - not found
+-- Looking for wcsdup
+-- Looking for wcsdup - found
+-- Looking for wcslcat
+-- Looking for wcslcat - found
+-- Looking for wcslcpy
+-- Looking for wcslcpy - found
+-- Looking for wcslen
+-- Looking for wcslen - found
+-- Looking for wcsncmp
+-- Looking for wcsncmp - found
+-- Looking for wcsstr
+-- Looking for wcsstr - found
+-- Looking for wcscasecmp
+-- Looking for wcscasecmp - found
+-- Looking for _wcsicmp
+-- Looking for _wcsicmp - not found
+-- Looking for wcsncasecmp
+-- Looking for wcsncasecmp - found
+-- Looking for _wcsnicmp
+-- Looking for _wcsnicmp - not found
+-- Looking for sscanf
+-- Looking for sscanf - found
+-- Looking for vsscanf
+-- Looking for vsscanf - found
+-- Looking for vsnprintf
+-- Looking for vsnprintf - found
+-- Looking for fopen64
+-- Looking for fopen64 - not found
+-- Looking for fseeko
+-- Looking for fseeko - found
+-- Looking for fseeko64
+-- Looking for fseeko64 - not found
+-- Looking for _Exit
+-- Looking for _Exit - found
+-- Looking for sigaction
+-- Looking for sigaction - not found
+-- Looking for sigtimedwait
+-- Looking for sigtimedwait - not found
+-- Looking for setjmp
+-- Looking for setjmp - found
+-- Looking for nanosleep
+-- Looking for nanosleep - found
+-- Looking for sysconf
+-- Looking for sysconf - found
+-- Looking for sysctlbyname
+-- Looking for sysctlbyname - not found
+-- Looking for getauxval
+-- Looking for getauxval - not found
+-- Looking for elf_aux_info
+-- Looking for elf_aux_info - not found
+-- Looking for poll
+-- Looking for poll - found
+-- Looking for memfd_create
+-- Looking for memfd_create - not found
+-- Looking for posix_fallocate
+-- Looking for posix_fallocate - not found
+-- Looking for pow in m
+-- Looking for pow in m - found
+-- Looking for atan
+-- Looking for atan - found
+-- Looking for atan2
+-- Looking for atan2 - found
+-- Looking for atanf
+-- Looking for atanf - found
+-- Looking for atan2f
+-- Looking for atan2f - found
+-- Looking for ceil
+-- Looking for ceil - found
+-- Looking for ceilf
+-- Looking for ceilf - found
+-- Looking for copysign
+-- Looking for copysign - found
+-- Looking for copysignf
+-- Looking for copysignf - found
+-- Looking for cos
+-- Looking for cos - found
+-- Looking for cosf
+-- Looking for cosf - found
+-- Looking for exp
+-- Looking for exp - found
+-- Looking for expf
+-- Looking for expf - found
+-- Looking for fabs
+-- Looking for fabs - found
+-- Looking for fabsf
+-- Looking for fabsf - found
+-- Looking for floor
+-- Looking for floor - found
+-- Looking for floorf
+-- Looking for floorf - found
+-- Looking for fmod
+-- Looking for fmod - found
+-- Looking for fmodf
+-- Looking for fmodf - found
+-- Looking for log
+-- Looking for log - found
+-- Looking for logf
+-- Looking for logf - found
+-- Looking for log10
+-- Looking for log10 - found
+-- Looking for log10f
+-- Looking for log10f - found
+-- Looking for lround
+-- Looking for lround - found
+-- Looking for lroundf
+-- Looking for lroundf - found
+-- Looking for pow
+-- Looking for pow - found
+-- Looking for powf
+-- Looking for powf - found
+-- Looking for round
+-- Looking for round - found
+-- Looking for roundf
+-- Looking for roundf - found
+-- Looking for scalbn
+-- Looking for scalbn - found
+-- Looking for scalbnf
+-- Looking for scalbnf - found
+-- Looking for sin
+-- Looking for sin - found
+-- Looking for sinf
+-- Looking for sinf - found
+-- Looking for sqrt
+-- Looking for sqrt - found
+-- Looking for sqrtf
+-- Looking for sqrtf - found
+-- Looking for tan
+-- Looking for tan - found
+-- Looking for tanf
+-- Looking for tanf - found
+-- Looking for acos
+-- Looking for acos - found
+-- Looking for acosf
+-- Looking for acosf - found
+-- Looking for asin
+-- Looking for asin - found
+-- Looking for asinf
+-- Looking for asinf - found
+-- Looking for trunc
+-- Looking for trunc - found
+-- Looking for truncf
+-- Looking for truncf - found
+-- Performing Test ICONV_IN_LIBC
+-- Performing Test ICONV_IN_LIBC - Failed
+-- Performing Test ICONV_IN_LIBICONV
+-- Performing Test ICONV_IN_LIBICONV - Failed
+-- Looking for alloca.h
+-- Looking for alloca.h - found
+-- Looking for alloca
+-- Looking for alloca - found
+-- Looking for alloca
+-- Looking for alloca - found
+-- Looking for alloca
+-- Looking for alloca - not found
+-- Performing Test HAVE_SA_SIGACTION
+-- Performing Test HAVE_SA_SIGACTION - Failed
+-- Found Git: /usr/bin/git (found version "2.39.5")
+CMake Deprecation Warning at CMakeLists.txt:3311 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- 
+-- SDL2 was configured with the following options:
+-- 
+-- Platform: Nintendo3DS-1
+-- 64-bit:   FALSE
+-- Compiler: /opt/devkitpro/devkitARM/bin/arm-none-eabi-gcc
+-- Revision: SDL-2.33.0-gc080cc8
+-- 
+-- Subsystems:
+--   Atomic:	ON
+--   Audio:	ON
+--   Video:	ON
+--   Render:	ON
+--   Events:	ON
+--   Joystick:	ON
+--   Haptic:	ON
+--   Hidapi:	ON
+--   Power:	ON
+--   Threads:	ON
+--   Timers:	ON
+--   File:	ON
+--   Loadso:	OFF
+--   CPUinfo:	ON
+--   Filesystem:	ON
+--   Sensor:	ON
+--   Locale:	ON
+--   Misc:	ON
+-- 
+-- Options:
+--   SDL2_DISABLE_INSTALL        (Wanted: OFF): OFF
+--   SDL2_DISABLE_SDL2MAIN       (Wanted: OFF): OFF
+--   SDL2_DISABLE_UNINSTALL      (Wanted: OFF): OFF
+--   SDL_3DNOW                   (Wanted: OFF): OFF
+--   SDL_ALSA                    (Wanted: OFF): OFF
+--   SDL_ALSA_SHARED             (Wanted: OFF): OFF
+--   SDL_ALTIVEC                 (Wanted: ON): OFF
+--   SDL_ARMNEON                 (Wanted: OFF): OFF
+--   SDL_ARMSIMD                 (Wanted: OFF): OFF
+--   SDL_ARTS                    (Wanted: OFF): OFF
+--   SDL_ARTS_SHARED             (Wanted: OFF): OFF
+--   SDL_ASAN                    (Wanted: OFF): OFF
+--   SDL_ASSEMBLY                (Wanted: ON): ON
+--   SDL_ASSERTIONS              (Wanted: auto): auto
+--   SDL_BACKGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_CCACHE                  (Wanted: ON): OFF
+--   SDL_CLOCK_GETTIME           (Wanted: OFF): OFF
+--   SDL_COCOA                   (Wanted: OFF): OFF
+--   SDL_DBUS                    (Wanted: OFF): OFF
+--   SDL_DIRECTFB                (Wanted: OFF): OFF
+--   SDL_DIRECTFB_SHARED         (Wanted: OFF): OFF
+--   SDL_DIRECTX                 (Wanted: OFF): OFF
+--   SDL_DISKAUDIO               (Wanted: ON): ON
+--   SDL_DUMMYAUDIO              (Wanted: ON): ON
+--   SDL_DUMMYVIDEO              (Wanted: ON): ON
+--   SDL_ESD                     (Wanted: OFF): OFF
+--   SDL_ESD_SHARED              (Wanted: OFF): OFF
+--   SDL_FOREGROUNDING_SIGNAL    (Wanted: OFF): OFF
+--   SDL_FUSIONSOUND             (Wanted: OFF): OFF
+--   SDL_FUSIONSOUND_SHARED      (Wanted: OFF): OFF
+--   SDL_GCC_ATOMICS             (Wanted: ON): ON
+--   SDL_HIDAPI                  (Wanted: ON): OFF
+--   SDL_HIDAPI_JOYSTICK         (Wanted: ON): OFF
+--   SDL_HIDAPI_LIBUSB           (Wanted: OFF): OFF
+--   SDL_IBUS                    (Wanted: OFF): OFF
+--   SDL_INSTALL_TESTS           (Wanted: OFF): OFF
+--   SDL_JACK                    (Wanted: OFF): OFF
+--   SDL_JACK_SHARED             (Wanted: OFF): OFF
+--   SDL_KMSDRM                  (Wanted: OFF): OFF
+--   SDL_KMSDRM_SHARED           (Wanted: OFF): OFF
+--   SDL_LASX                    (Wanted: OFF): OFF
+--   SDL_LIBC                    (Wanted: ON): ON
+--   SDL_LIBICONV                (Wanted: OFF): OFF
+--   SDL_LIBSAMPLERATE           (Wanted: OFF): OFF
+--   SDL_LIBSAMPLERATE_SHARED    (Wanted: OFF): OFF
+--   SDL_LIBUDEV                 (Wanted: ON): OFF
+--   SDL_LSX                     (Wanted: OFF): OFF
+--   SDL_METAL                   (Wanted: OFF): OFF
+--   SDL_MMX                     (Wanted: OFF): OFF
+--   SDL_NAS                     (Wanted: OFF): OFF
+--   SDL_NAS_SHARED              (Wanted: OFF): OFF
+--   SDL_OFFSCREEN               (Wanted: ON): ON
+--   SDL_OPENGL                  (Wanted: ON): OFF
+--   SDL_OPENGLES                (Wanted: ON): OFF
+--   SDL_OSS                     (Wanted: OFF): OFF
+--   SDL_PIPEWIRE                (Wanted: OFF): OFF
+--   SDL_PIPEWIRE_SHARED         (Wanted: OFF): OFF
+--   SDL_PTHREADS                (Wanted: OFF): OFF
+--   SDL_PTHREADS_SEM            (Wanted: OFF): OFF
+--   SDL_PULSEAUDIO              (Wanted: OFF): OFF
+--   SDL_PULSEAUDIO_SHARED       (Wanted: OFF): OFF
+--   SDL_RENDER_D3D              (Wanted: OFF): OFF
+--   SDL_RENDER_METAL            (Wanted: OFF): OFF
+--   SDL_RPATH                   (Wanted: OFF): OFF
+--   SDL_RPI                     (Wanted: OFF): OFF
+--   SDL_SNDIO                   (Wanted: OFF): OFF
+--   SDL_SNDIO_SHARED            (Wanted: OFF): OFF
+--   SDL_SSE                     (Wanted: OFF): OFF
+--   SDL_SSE2                    (Wanted: OFF): OFF
+--   SDL_SSE3                    (Wanted: OFF): OFF
+--   SDL_SSEMATH                 (Wanted: OFF): OFF
+--   SDL_STATIC_PIC              (Wanted: OFF): OFF
+--   SDL_SYSTEM_ICONV            (Wanted: ON): OFF
+--   SDL_TESTS                   (Wanted: OFF): OFF
+--   SDL_VENDOR_INFO             (Wanted: ): OFF
+--   SDL_VIRTUAL_JOYSTICK        (Wanted: ON): ON
+--   SDL_VIVANTE                 (Wanted: OFF): OFF
+--   SDL_VULKAN                  (Wanted: OFF): OFF
+--   SDL_WASAPI                  (Wanted: OFF): OFF
+--   SDL_WAYLAND                 (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR        (Wanted: OFF): OFF
+--   SDL_WAYLAND_LIBDECOR_SHARED (Wanted: OFF): OFF
+--   SDL_WAYLAND_QT_TOUCH        (Wanted: OFF): OFF
+--   SDL_WAYLAND_SHARED          (Wanted: OFF): OFF
+--   SDL_X11                     (Wanted: OFF): OFF
+--   SDL_X11_SHARED              (Wanted: OFF): OFF
+--   SDL_X11_XCURSOR             (Wanted: OFF): OFF
+--   SDL_X11_XDBE                (Wanted: OFF): OFF
+--   SDL_X11_XFIXES              (Wanted: OFF): OFF
+--   SDL_X11_XINPUT              (Wanted: OFF): OFF
+--   SDL_X11_XRANDR              (Wanted: OFF): OFF
+--   SDL_X11_XSCRNSAVER          (Wanted: OFF): OFF
+--   SDL_X11_XSHAPE              (Wanted: OFF): OFF
+--   SDL_XINPUT                  (Wanted: OFF): OFF
+-- 
+--  CFLAGS:        -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft -mword-relocations -ffunction-sections -D__3DS__ -idirafter "/tmp/SDL2/src/video/khronos"
+--  EXTRA_CFLAGS:   -Wall -Wundef -fno-strict-aliasing -Wdeclaration-after-statement -fvisibility=hidden -Wshadow -Wno-unused-local-typedefs
+--  EXTRA_LDFLAGS:  -Wl,--no-undefined
+--  EXTRA_LIBS:    m;ctru -lm
+-- 
+--  Build Shared Library: OFF
+--  Build Static Library: ON
+--  Build Static Library with Position Independent Code: OFF
+-- 
+-- Configuring done (16.8s)
+-- Generating done (0.0s)
+-- Build files have been written to: /tmp/SDL2/build
+[  1%] Generating include/SDL2/SDL_atomic.h
+[  1%] Generating include/SDL2/SDL.h
+[  1%] Generating include/SDL2/SDL_assert.h
+[  2%] Generating include/SDL2/SDL_audio.h
+[  3%] Generating include/SDL2/SDL_bits.h
+[  3%] Generating include/SDL2/SDL_blendmode.h
+[  3%] Generating include/SDL2/SDL_clipboard.h
+[  3%] Generating include/SDL2/SDL_copying.h
+[  4%] Generating include/SDL2/SDL_egl.h
+[  5%] Generating include/SDL2/SDL_cpuinfo.h
+[  5%] Generating include/SDL2/SDL_endian.h
+[  5%] Generating include/SDL2/SDL_error.h
+[  6%] Generating include/SDL2/SDL_events.h
+[  6%] Generating include/SDL2/SDL_filesystem.h
+[  6%] Generating include/SDL2/SDL_gamecontroller.h
+[  7%] Generating include/SDL2/SDL_gesture.h
+[  7%] Generating include/SDL2/SDL_haptic.h
+[  7%] Generating include/SDL2/SDL_guid.h
+[  7%] Generating include/SDL2/SDL_hints.h
+[  8%] Generating include/SDL2/SDL_hidapi.h
+[  9%] Generating include/SDL2/SDL_joystick.h
+[  9%] Generating include/SDL2/SDL_keyboard.h
+[  9%] Generating include/SDL2/SDL_keycode.h
+[ 10%] Generating include/SDL2/SDL_loadso.h
+[ 10%] Generating include/SDL2/SDL_locale.h
+[ 11%] Generating include/SDL2/SDL_log.h
+[ 11%] Generating include/SDL2/SDL_main.h
+[ 11%] Generating include/SDL2/SDL_messagebox.h
+[ 12%] Generating include/SDL2/SDL_misc.h
+[ 12%] Generating include/SDL2/SDL_metal.h
+[ 12%] Generating include/SDL2/SDL_mouse.h
+[ 13%] Generating include/SDL2/SDL_mutex.h
+[ 13%] Generating include/SDL2/SDL_name.h
+[ 14%] Generating include/SDL2/SDL_opengl.h
+[ 14%] Generating include/SDL2/SDL_opengl_glext.h
+[ 14%] Generating include/SDL2/SDL_opengles.h
+[ 15%] Generating include/SDL2/SDL_opengles2.h
+[ 15%] Generating include/SDL2/SDL_opengles2_gl2.h
+[ 15%] Generating include/SDL2/SDL_opengles2_gl2platform.h
+[ 16%] Generating include/SDL2/SDL_opengles2_gl2ext.h
+[ 16%] Generating include/SDL2/SDL_opengles2_khrplatform.h
+[ 17%] Generating include/SDL2/SDL_pixels.h
+[ 17%] Generating include/SDL2/SDL_platform.h
+[ 18%] Generating include/SDL2/SDL_power.h
+[ 18%] Generating include/SDL2/SDL_quit.h
+[ 18%] Generating include/SDL2/SDL_rect.h
+[ 19%] Generating include/SDL2/SDL_render.h
+[ 19%] Generating include/SDL2/SDL_rwops.h
+[ 20%] Generating include/SDL2/SDL_sensor.h
+[ 20%] Generating include/SDL2/SDL_scancode.h
+[ 20%] Generating include/SDL2/SDL_shape.h
+[ 21%] Generating include/SDL2/SDL_stdinc.h
+[ 21%] Generating include/SDL2/SDL_surface.h
+[ 22%] Generating include/SDL2/SDL_system.h
+[ 22%] Generating include/SDL2/SDL_syswm.h
+[ 22%] Generating include/SDL2/SDL_test.h
+[ 23%] Generating include/SDL2/SDL_test_common.h
+[ 23%] Generating include/SDL2/SDL_test_assert.h
+[ 23%] Generating include/SDL2/SDL_test_compare.h
+[ 24%] Generating include/SDL2/SDL_test_crc32.h
+[ 24%] Generating include/SDL2/SDL_test_font.h
+[ 25%] Generating include/SDL2/SDL_test_fuzzer.h
+[ 25%] Generating include/SDL2/SDL_test_harness.h
+[ 25%] Generating include/SDL2/SDL_test_images.h
+[ 26%] Generating include/SDL2/SDL_test_log.h
+[ 26%] Generating include/SDL2/SDL_test_md5.h
+[ 27%] Generating include/SDL2/SDL_test_memory.h
+[ 27%] Generating include/SDL2/SDL_test_random.h
+[ 28%] Generating include/SDL2/SDL_thread.h
+[ 28%] Generating include/SDL2/SDL_timer.h
+[ 28%] Generating include/SDL2/SDL_touch.h
+[ 29%] Generating include/SDL2/SDL_types.h
+[ 29%] Generating include/SDL2/SDL_version.h
+[ 29%] Generating include/SDL2/SDL_video.h
+[ 30%] Generating include/SDL2/SDL_vulkan.h
+[ 30%] Generating include/SDL2/begin_code.h
+[ 31%] Generating include/SDL2/close_code.h
+[ 31%] Built target sdl_headers_copy
+[ 31%] Building C object CMakeFiles/SDL2main.dir/src/main/n3ds/SDL_n3ds_main.o
+[ 32%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_common.o
+[ 32%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_assert.o
+[ 32%] Building C object CMakeFiles/SDL2-static.dir/src/SDL.o
+[ 32%] Linking C static library libSDL2main.a
+[ 32%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_compare.o
+[ 32%] Built target SDL2main
+[ 32%] Building C object CMakeFiles/SDL2-static.dir/src/SDL_assert.o
+[ 33%] Building C object CMakeFiles/SDL2-static.dir/src/SDL_dataqueue.o
+[ 33%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_crc32.o
+[ 34%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_font.o
+[ 34%] Building C object CMakeFiles/SDL2-static.dir/src/SDL_error.o
+[ 34%] Building C object CMakeFiles/SDL2-static.dir/src/SDL_guid.o
+[ 34%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_fuzzer.o
+[ 35%] Building C object CMakeFiles/SDL2-static.dir/src/SDL_hints.o
+[ 35%] Building C object CMakeFiles/SDL2-static.dir/src/SDL_list.o
+[ 36%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_harness.o
+[ 37%] Building C object CMakeFiles/SDL2-static.dir/src/SDL_log.o
+[ 37%] Building C object CMakeFiles/SDL2-static.dir/src/SDL_utils.o
+[ 37%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_imageBlit.o
+[ 37%] Building C object CMakeFiles/SDL2-static.dir/src/atomic/SDL_atomic.o
+[ 38%] Building C object CMakeFiles/SDL2-static.dir/src/atomic/SDL_spinlock.o
+[ 38%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_imageBlitBlend.o
+[ 38%] Building C object CMakeFiles/SDL2-static.dir/src/audio/SDL_audio.o
+[ 39%] Building C object CMakeFiles/SDL2-static.dir/src/audio/SDL_audiocvt.o
+[ 40%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_imageFace.o
+[ 40%] Building C object CMakeFiles/SDL2-static.dir/src/audio/SDL_audiodev.o
+[ 40%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_imagePrimitives.o
+[ 41%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_imagePrimitivesBlend.o
+[ 41%] Building C object CMakeFiles/SDL2-static.dir/src/audio/SDL_audiotypecvt.o
+[ 41%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_log.o
+[ 41%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_md5.o
+[ 42%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_memory.o
+[ 43%] Building C object CMakeFiles/SDL2-static.dir/src/audio/SDL_mixer.o
+[ 43%] Building C object CMakeFiles/SDL2_test.dir/src/test/SDL_test_random.o
+[ 43%] Building C object CMakeFiles/SDL2-static.dir/src/audio/SDL_wave.o
+[ 44%] Linking C static library libSDL2_test.a
+[ 45%] Building C object CMakeFiles/SDL2-static.dir/src/cpuinfo/SDL_cpuinfo.o
+[ 45%] Built target SDL2_test
+[ 45%] Building C object CMakeFiles/SDL2-static.dir/src/dynapi/SDL_dynapi.o
+[ 45%] Building C object CMakeFiles/SDL2-static.dir/src/events/SDL_clipboardevents.o
+[ 46%] Building C object CMakeFiles/SDL2-static.dir/src/events/SDL_displayevents.o
+[ 46%] Building C object CMakeFiles/SDL2-static.dir/src/events/SDL_dropevents.o
+[ 47%] Building C object CMakeFiles/SDL2-static.dir/src/events/SDL_events.o
+[ 47%] Building C object CMakeFiles/SDL2-static.dir/src/events/SDL_gesture.o
+[ 47%] Building C object CMakeFiles/SDL2-static.dir/src/events/SDL_keyboard.o
+[ 48%] Building C object CMakeFiles/SDL2-static.dir/src/events/SDL_keysym_to_scancode.o
+[ 48%] Building C object CMakeFiles/SDL2-static.dir/src/events/SDL_mouse.o
+[ 48%] Building C object CMakeFiles/SDL2-static.dir/src/events/SDL_quit.o
+[ 49%] Building C object CMakeFiles/SDL2-static.dir/src/events/SDL_scancode_tables.o
+[ 50%] Building C object CMakeFiles/SDL2-static.dir/src/events/SDL_touch.o
+[ 50%] Building C object CMakeFiles/SDL2-static.dir/src/events/SDL_windowevents.o
+[ 50%] Building C object CMakeFiles/SDL2-static.dir/src/events/imKStoUCS.o
+[ 50%] Building C object CMakeFiles/SDL2-static.dir/src/file/SDL_rwops.o
+[ 51%] Building C object CMakeFiles/SDL2-static.dir/src/haptic/SDL_haptic.o
+[ 51%] Building C object CMakeFiles/SDL2-static.dir/src/hidapi/SDL_hidapi.o
+[ 52%] Building C object CMakeFiles/SDL2-static.dir/src/joystick/SDL_gamecontroller.o
+[ 52%] Building C object CMakeFiles/SDL2-static.dir/src/joystick/SDL_joystick.o
+[ 52%] Building C object CMakeFiles/SDL2-static.dir/src/joystick/SDL_steam_virtual_gamepad.o
+[ 53%] Building C object CMakeFiles/SDL2-static.dir/src/joystick/controller_type.o
+[ 53%] Building C object CMakeFiles/SDL2-static.dir/src/libm/e_atan2.o
+[ 54%] Building C object CMakeFiles/SDL2-static.dir/src/libm/e_exp.o
+[ 54%] Building C object CMakeFiles/SDL2-static.dir/src/libm/e_fmod.o
+[ 54%] Building C object CMakeFiles/SDL2-static.dir/src/libm/e_log.o
+[ 55%] Building C object CMakeFiles/SDL2-static.dir/src/libm/e_log10.o
+[ 55%] Building C object CMakeFiles/SDL2-static.dir/src/libm/e_pow.o
+[ 56%] Building C object CMakeFiles/SDL2-static.dir/src/libm/e_rem_pio2.o
+[ 56%] Building C object CMakeFiles/SDL2-static.dir/src/libm/e_sqrt.o
+[ 56%] Building C object CMakeFiles/SDL2-static.dir/src/libm/k_cos.o
+[ 57%] Building C object CMakeFiles/SDL2-static.dir/src/libm/k_rem_pio2.o
+[ 57%] Building C object CMakeFiles/SDL2-static.dir/src/libm/k_sin.o
+[ 58%] Building C object CMakeFiles/SDL2-static.dir/src/libm/k_tan.o
+[ 58%] Building C object CMakeFiles/SDL2-static.dir/src/libm/s_atan.o
+[ 58%] Building C object CMakeFiles/SDL2-static.dir/src/libm/s_copysign.o
+[ 59%] Building C object CMakeFiles/SDL2-static.dir/src/libm/s_cos.o
+[ 59%] Building C object CMakeFiles/SDL2-static.dir/src/libm/s_fabs.o
+[ 59%] Building C object CMakeFiles/SDL2-static.dir/src/libm/s_floor.o
+[ 60%] Building C object CMakeFiles/SDL2-static.dir/src/libm/s_scalbn.o
+[ 60%] Building C object CMakeFiles/SDL2-static.dir/src/libm/s_sin.o
+[ 61%] Building C object CMakeFiles/SDL2-static.dir/src/libm/s_tan.o
+[ 61%] Building C object CMakeFiles/SDL2-static.dir/src/locale/SDL_locale.o
+[ 61%] Building C object CMakeFiles/SDL2-static.dir/src/misc/SDL_url.o
+[ 62%] Building C object CMakeFiles/SDL2-static.dir/src/power/SDL_power.o
+[ 62%] Building C object CMakeFiles/SDL2-static.dir/src/render/SDL_d3dmath.o
+[ 63%] Building C object CMakeFiles/SDL2-static.dir/src/render/SDL_render.o
+[ 63%] Building C object CMakeFiles/SDL2-static.dir/src/render/SDL_yuv_sw.o
+[ 63%] Building C object CMakeFiles/SDL2-static.dir/src/render/direct3d/SDL_render_d3d.o
+[ 64%] Building C object CMakeFiles/SDL2-static.dir/src/render/direct3d/SDL_shaders_d3d.o
+[ 64%] Building C object CMakeFiles/SDL2-static.dir/src/render/direct3d11/SDL_render_d3d11.o
+[ 65%] Building C object CMakeFiles/SDL2-static.dir/src/render/direct3d11/SDL_shaders_d3d11.o
+[ 65%] Building C object CMakeFiles/SDL2-static.dir/src/render/direct3d12/SDL_render_d3d12.o
+[ 65%] Building C object CMakeFiles/SDL2-static.dir/src/render/direct3d12/SDL_shaders_d3d12.o
+[ 66%] Building C object CMakeFiles/SDL2-static.dir/src/render/opengl/SDL_render_gl.o
+[ 66%] Building C object CMakeFiles/SDL2-static.dir/src/render/opengl/SDL_shaders_gl.o
+[ 67%] Building C object CMakeFiles/SDL2-static.dir/src/render/opengles/SDL_render_gles.o
+[ 67%] Building C object CMakeFiles/SDL2-static.dir/src/render/opengles2/SDL_shaders_gles2.o
+[ 67%] Building C object CMakeFiles/SDL2-static.dir/src/render/opengles2/SDL_render_gles2.o
+[ 68%] Building C object CMakeFiles/SDL2-static.dir/src/render/ps2/SDL_render_ps2.o
+[ 68%] Building C object CMakeFiles/SDL2-static.dir/src/render/psp/SDL_render_psp.o
+[ 68%] Building C object CMakeFiles/SDL2-static.dir/src/render/software/SDL_blendfillrect.o
+[ 69%] Building C object CMakeFiles/SDL2-static.dir/src/render/software/SDL_blendline.o
+[ 69%] Building C object CMakeFiles/SDL2-static.dir/src/render/software/SDL_blendpoint.o
+[ 70%] Building C object CMakeFiles/SDL2-static.dir/src/render/software/SDL_drawline.o
+[ 70%] Building C object CMakeFiles/SDL2-static.dir/src/render/software/SDL_drawpoint.o
+[ 70%] Building C object CMakeFiles/SDL2-static.dir/src/render/software/SDL_render_sw.o
+[ 71%] Building C object CMakeFiles/SDL2-static.dir/src/render/software/SDL_rotate.o
+[ 71%] Building C object CMakeFiles/SDL2-static.dir/src/render/software/SDL_triangle.o
+[ 72%] Building C object CMakeFiles/SDL2-static.dir/src/render/vitagxm/SDL_render_vita_gxm.o
+[ 72%] Building C object CMakeFiles/SDL2-static.dir/src/render/vitagxm/SDL_render_vita_gxm_memory.o
+[ 72%] Building C object CMakeFiles/SDL2-static.dir/src/render/vitagxm/SDL_render_vita_gxm_tools.o
+[ 73%] Building C object CMakeFiles/SDL2-static.dir/src/sensor/SDL_sensor.o
+[ 73%] Building C object CMakeFiles/SDL2-static.dir/src/stdlib/SDL_crc16.o
+[ 74%] Building C object CMakeFiles/SDL2-static.dir/src/stdlib/SDL_crc32.o
+[ 74%] Building C object CMakeFiles/SDL2-static.dir/src/stdlib/SDL_getenv.o
+[ 74%] Building C object CMakeFiles/SDL2-static.dir/src/stdlib/SDL_iconv.o
+[ 75%] Building C object CMakeFiles/SDL2-static.dir/src/stdlib/SDL_malloc.o
+[ 75%] Building C object CMakeFiles/SDL2-static.dir/src/stdlib/SDL_mslibc.o
+[ 76%] Building C object CMakeFiles/SDL2-static.dir/src/stdlib/SDL_qsort.o
+[ 76%] Building C object CMakeFiles/SDL2-static.dir/src/stdlib/SDL_stdlib.o
+[ 76%] Building C object CMakeFiles/SDL2-static.dir/src/stdlib/SDL_string.o
+[ 77%] Building C object CMakeFiles/SDL2-static.dir/src/stdlib/SDL_strtokr.o
+[ 77%] Building C object CMakeFiles/SDL2-static.dir/src/thread/SDL_thread.o
+[ 78%] Building C object CMakeFiles/SDL2-static.dir/src/timer/SDL_timer.o
+[ 78%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_RLEaccel.o
+[ 78%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_blit.o
+[ 79%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_blit_0.o
+[ 79%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_blit_1.o
+[ 79%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_blit_A.o
+[ 80%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_blit_N.o
+[ 80%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_blit_auto.o
+[ 81%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_blit_copy.o
+[ 81%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_blit_slow.o
+[ 81%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_bmp.o
+[ 82%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_clipboard.o
+[ 82%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_egl.o
+[ 83%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_fillrect.o
+[ 83%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_pixels.o
+[ 83%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_rect.o
+[ 84%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_shape.o
+[ 84%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_stretch.o
+[ 85%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_surface.o
+[ 85%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_video.o
+[ 85%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_vulkan_utils.o
+[ 86%] Building C object CMakeFiles/SDL2-static.dir/src/video/SDL_yuv.o
+[ 86%] Building C object CMakeFiles/SDL2-static.dir/src/video/yuv2rgb/yuv_rgb_lsx.o
+[ 87%] Building C object CMakeFiles/SDL2-static.dir/src/video/yuv2rgb/yuv_rgb_sse.o
+[ 87%] Building C object CMakeFiles/SDL2-static.dir/src/video/yuv2rgb/yuv_rgb_std.o
+[ 87%] Building C object CMakeFiles/SDL2-static.dir/src/audio/dummy/SDL_dummyaudio.o
+[ 88%] Building C object CMakeFiles/SDL2-static.dir/src/audio/disk/SDL_diskaudio.o
+[ 88%] Building C object CMakeFiles/SDL2-static.dir/src/joystick/virtual/SDL_virtualjoystick.o
+[ 88%] Building C object CMakeFiles/SDL2-static.dir/src/video/dummy/SDL_nullevents.o
+[ 89%] Building C object CMakeFiles/SDL2-static.dir/src/video/dummy/SDL_nullframebuffer.o
+[ 89%] Building C object CMakeFiles/SDL2-static.dir/src/video/dummy/SDL_nullvideo.o
+[ 90%] Building C object CMakeFiles/SDL2-static.dir/src/video/offscreen/SDL_offscreenevents.o
+[ 90%] Building C object CMakeFiles/SDL2-static.dir/src/video/offscreen/SDL_offscreenframebuffer.o
+[ 90%] Building C object CMakeFiles/SDL2-static.dir/src/video/offscreen/SDL_offscreenopengles.o
+[ 91%] Building C object CMakeFiles/SDL2-static.dir/src/video/offscreen/SDL_offscreenvideo.o
+[ 91%] Building C object CMakeFiles/SDL2-static.dir/src/video/offscreen/SDL_offscreenwindow.o
+[ 92%] Building C object CMakeFiles/SDL2-static.dir/src/audio/n3ds/SDL_n3dsaudio.o
+[ 92%] Building C object CMakeFiles/SDL2-static.dir/src/filesystem/n3ds/SDL_sysfilesystem.o
+[ 92%] Building C object CMakeFiles/SDL2-static.dir/src/joystick/n3ds/SDL_sysjoystick.o
+[ 93%] Building C object CMakeFiles/SDL2-static.dir/src/power/n3ds/SDL_syspower.o
+[ 93%] Building C object CMakeFiles/SDL2-static.dir/src/thread/n3ds/SDL_sysmutex.o
+[ 94%] Building C object CMakeFiles/SDL2-static.dir/src/thread/n3ds/SDL_syssem.o
+[ 94%] Building C object CMakeFiles/SDL2-static.dir/src/thread/n3ds/SDL_systhread.o
+[ 94%] Building C object CMakeFiles/SDL2-static.dir/src/thread/generic/SDL_systls.o
+[ 95%] Building C object CMakeFiles/SDL2-static.dir/src/thread/generic/SDL_syscond.o
+[ 95%] Building C object CMakeFiles/SDL2-static.dir/src/timer/n3ds/SDL_systimer.o
+[ 96%] Building C object CMakeFiles/SDL2-static.dir/src/sensor/n3ds/SDL_n3dssensor.o
+[ 96%] Building C object CMakeFiles/SDL2-static.dir/src/video/n3ds/SDL_n3dsevents.o
+[ 96%] Building C object CMakeFiles/SDL2-static.dir/src/video/n3ds/SDL_n3dsframebuffer.o
+[ 97%] Building C object CMakeFiles/SDL2-static.dir/src/video/n3ds/SDL_n3dsswkb.o
+[ 97%] Building C object CMakeFiles/SDL2-static.dir/src/video/n3ds/SDL_n3dstouch.o
+[ 98%] Building C object CMakeFiles/SDL2-static.dir/src/video/n3ds/SDL_n3dsvideo.o
+[ 98%] Building C object CMakeFiles/SDL2-static.dir/src/locale/n3ds/SDL_syslocale.o
+[ 99%] Building C object CMakeFiles/SDL2-static.dir/src/haptic/dummy/SDL_syshaptic.o
+[ 99%] Building C object CMakeFiles/SDL2-static.dir/src/file/n3ds/SDL_rwopsromfs.o
+[ 99%] Building C object CMakeFiles/SDL2-static.dir/src/loadso/dummy/SDL_sysloadso.o
+[ 99%] Building C object CMakeFiles/SDL2-static.dir/src/misc/dummy/SDL_sysurl.o
+[100%] Linking C static library libSDL2.a
+[100%] Built target SDL2-static
+-- Install configuration: "Release"
+-- Installing: /opt/devkitpro/portlibs/3ds/lib/libSDL2main.a
+-- Installing: /opt/devkitpro/portlibs/3ds/lib/libSDL2.a
+-- Installing: /opt/devkitpro/portlibs/3ds/lib/libSDL2_test.a
+-- Installing: /opt/devkitpro/portlibs/3ds/lib/cmake/SDL2/SDL2mainTargets.cmake
+-- Installing: /opt/devkitpro/portlibs/3ds/lib/cmake/SDL2/SDL2mainTargets-release.cmake
+-- Installing: /opt/devkitpro/portlibs/3ds/lib/cmake/SDL2/SDL2staticTargets.cmake
+-- Installing: /opt/devkitpro/portlibs/3ds/lib/cmake/SDL2/SDL2staticTargets-release.cmake
+-- Installing: /opt/devkitpro/portlibs/3ds/lib/cmake/SDL2/SDL2testTargets.cmake
+-- Installing: /opt/devkitpro/portlibs/3ds/lib/cmake/SDL2/SDL2testTargets-release.cmake
+-- Installing: /opt/devkitpro/portlibs/3ds/lib/cmake/SDL2/SDL2Config.cmake
+-- Installing: /opt/devkitpro/portlibs/3ds/lib/cmake/SDL2/SDL2ConfigVersion.cmake
+-- Installing: /opt/devkitpro/portlibs/3ds/lib/cmake/SDL2/sdlfind.cmake
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_assert.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_atomic.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_audio.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_bits.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_blendmode.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_clipboard.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_copying.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_cpuinfo.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_egl.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_endian.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_error.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_events.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_filesystem.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_gamecontroller.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_gesture.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_guid.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_haptic.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_hidapi.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_hints.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_joystick.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_keyboard.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_keycode.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_loadso.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_locale.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_log.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_main.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_messagebox.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_metal.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_misc.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_mouse.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_mutex.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_name.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_opengl.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_opengl_glext.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_opengles.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_opengles2.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_opengles2_gl2.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_opengles2_gl2ext.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_opengles2_gl2platform.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_opengles2_khrplatform.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_pixels.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_platform.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_power.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_quit.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_rect.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_render.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_rwops.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_scancode.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_sensor.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_shape.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_stdinc.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_surface.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_system.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_syswm.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_test.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_test_assert.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_test_common.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_test_compare.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_test_crc32.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_test_font.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_test_fuzzer.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_test_harness.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_test_images.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_test_log.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_test_md5.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_test_memory.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_test_random.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_thread.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_timer.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_touch.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_types.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_version.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_video.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_vulkan.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/begin_code.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/close_code.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_revision.h
+-- Installing: /opt/devkitpro/portlibs/3ds/include/SDL2/SDL_config.h
+-- Installing: /opt/devkitpro/portlibs/3ds/share/licenses/SDL2/LICENSE.txt
+-- Installing: /opt/devkitpro/portlibs/3ds/lib/pkgconfig/sdl2.pc
+-- Installing: /opt/devkitpro/portlibs/3ds/bin/sdl2-config
+-- Installing: /opt/devkitpro/portlibs/3ds/share/aclocal/sdl2.m4
+== fallout1
+frame_tex.t3s
+Used lz11 for compression
+vshader.v.pica
+vshader.shbin
+audio_engine.cc
+fps_limiter.cc
+movie_lib.cc
+platform_compat.cc
+/src/fallout1/src/movie_lib.cc: In function 'int fallout::_ioReset(void*)':
+/src/fallout1/src/movie_lib.cc:696:40: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  696 |     if (~mve->field_16 - mve->field_18 != 0xFFFFEDCC) {
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+/src/fallout1/src/movie_lib.cc: In function 'void fallout::_nfPkDecomp(unsigned char*, unsigned char*, int, int, int, int)':
+/src/fallout1/src/movie_lib.cc:1883:19: warning: unused variable 'src_ptr' [-Wunused-variable]
+ 1883 |     unsigned int* src_ptr;
+      |                   ^~~~~~~
+pointer_registry.cc
+/src/fallout1/src/movie_lib.cc: At global scope:
+/src/fallout1/src/movie_lib.cc:1777:13: warning: 'void fallout::_MVE_frClose(STRUCT_4F6930*)' defined but not used [-Wunused-function]
+ 1777 | static void _MVE_frClose(STRUCT_4F6930* a1)
+      |             ^~~~~~~~~~~~
+/src/fallout1/src/movie_lib.cc:1156:13: warning: 'void fallout::_MVE_syncSync()' defined but not used [-Wunused-function]
+ 1156 | static void _MVE_syncSync()
+      |             ^~~~~~~~~~~~~
+/src/fallout1/src/movie_lib.cc:783:12: warning: 'int fallout::_MVE_rmHoldMovie()' defined but not used [-Wunused-function]
+  783 | static int _MVE_rmHoldMovie()
+      |            ^~~~~~~~~~~~~~~~
+/src/fallout1/src/movie_lib.cc:618:12: warning: 'int fallout::_sub_4F4B5()' defined but not used [-Wunused-function]
+  618 | static int _sub_4F4B5()
+      |            ^~~~~~~~~~
+/src/fallout1/src/audio_engine.cc: In function 'bool fallout::audioEngineIsInitialized()':
+/src/fallout1/src/audio_engine.cc:82:33: warning: comparison of integer expressions of different signedness: 'SDL_AudioDeviceID' {aka 'long unsigned int'} and 'int' [-Wsign-compare]
+   82 |     return gAudioEngineDeviceId != -1;
+      |            ~~~~~~~~~~~~~~~~~~~~~^~~~~
+/src/fallout1/src/audio_engine.cc: In function 'void fallout::audioEngineMixin(void*, Uint8*, int)':
+/src/fallout1/src/audio_engine.cc:112:31: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  112 |                 if (remaining > sizeof(buffer)) {
+      |                     ~~~~~~~~~~^~~~~~~~~~~~~~~~
+/src/fallout1/src/audio_engine.cc: In function 'bool fallout::audioEngineSoundBufferLock(int, unsigned int, unsigned int, void**, unsigned int*, void**, unsigned int*, unsigned int)':
+/src/fallout1/src/audio_engine.cc:563:22: warning: unused variable 'remainder' [-Wunused-variable]
+  563 |         unsigned int remainder = writePos + writeBytes - soundBuffer->size;
+      |                      ^~~~~~~~~
+sound_decoder.cc
+actions.cc
+amutex.cc
+anim.cc
+art.cc
+/src/fallout1/src/game/art.cc:30:12: warning: 'int fallout::art_readSubFrameData(unsigned char*, DB_FILE*, int)' declared 'static' but never defined [-Wunused-function]
+   30 | static int art_readSubFrameData(unsigned char* data, DB_FILE* stream, int count);
+      |            ^~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/game/actions.cc: In function 'int fallout::action_melee(Attack*, int)':
+/src/fallout1/src/game/actions.cc:572:9: warning: variable 'flag' set but not used [-Wunused-but-set-variable]
+  572 |     int flag;
+      |         ^~~~
+/src/fallout1/src/game/actions.cc: In function 'int fallout::pick_hex()':
+/src/fallout1/src/game/actions.cc:1446:26: warning: comparison of integer expressions of different signedness: 'unsigned int' and 'int' [-Wsign-compare]
+ 1446 |             if (rotation == -1) {
+      |                 ~~~~~~~~~^~~~~
+automap.cc
+bmpdlog.cc
+cache.cc
+combatai.cc
+/src/fallout1/src/game/bmpdlog.cc: In function 'int fallout::file_dialog(char*, char**, char*, int, int, int, int)':
+/src/fallout1/src/game/bmpdlog.cc:659:9: warning: unused variable 'scrollDownButton' [-Wunused-variable]
+  659 |     int scrollDownButton = win_register_button(win,
+      |         ^~~~~~~~~~~~~~~~
+/src/fallout1/src/game/bmpdlog.cc: In function 'int fallout::save_file_dialog(char*, char**, char*, int, int, int, int)':
+/src/fallout1/src/game/bmpdlog.cc:1048:9: warning: unused variable 'scrollDownButton' [-Wunused-variable]
+ 1048 |     int scrollDownButton = win_register_button(win,
+      |         ^~~~~~~~~~~~~~~~
+combat.cc
+config.cc
+credits.cc
+critter.cc
+cycle.cc
+/src/fallout1/src/game/credits.cc: In function 'void fallout::credits(const char*, int, bool)':
+/src/fallout1/src/game/credits.cc:141:48: warning: unused variable 'v40' [-Wunused-variable]
+  141 |                                 unsigned char* v40 = intermediateBuffer + windowWidth * windowHeight - windowWidth;
+      |                                                ^~~
+/src/fallout1/src/game/critter.cc: In function 'char* fallout::critter_name(Object*)':
+/src/fallout1/src/game/critter.cc:181:18: warning: variable '_name_critter' set but not used [-Wunused-but-set-variable]
+  181 |     static char* _name_critter = _aCorpse;
+      |                  ^~~~~~~~~~~~~
+dashboard_3ds.cc
+display.cc
+editor.cc
+elevator.cc
+endgame.cc
+fontmgr.cc
+/src/fallout1/src/game/fontmgr.cc: In function 'int fallout::FMtext_char_width(char)':
+/src/fallout1/src/game/fontmgr.cc:248:38: warning: array subscript has type 'char' [-Wchar-subscripts]
+  248 |         width = gCurrentFont->glyphs[c].width;
+      |                                      ^
+/src/fallout1/src/game/fontmgr.cc: In function 'void fallout::FMtext_to_buf(unsigned char*, const char*, int, int, int)':
+/src/fallout1/src/game/fontmgr.cc:362:21: warning: operation on 'ptr' may be undefined [-Wsequence-point]
+  362 |                 *ptr++ = palette[(byte << 8) + *ptr];
+      |                  ~~~^~
+/src/fallout1/src/game/editor.cc: In function 'int fallout::get_input_str(int, int, char*, int, int, int, int, int, int)':
+/src/fallout1/src/game/editor.cc:1464:9: warning: unused variable 'cursorWidth' [-Wunused-variable]
+ 1464 |     int cursorWidth = text_width("_") - 4;
+      |         ^~~~~~~~~~~
+/src/fallout1/src/game/editor.cc:1466:9: warning: unused variable 'v60' [-Wunused-variable]
+ 1466 |     int v60 = text_height();
+      |         ^~~
+/src/fallout1/src/game/fontmgr.cc:362:21: warning: operation on 'ptr' may be undefined [-Wsequence-point]
+game.cc
+/src/fallout1/src/game/editor.cc: In function 'int fallout::InputPDLoop(int, void (*)())':
+/src/fallout1/src/game/editor.cc:5537:9: warning: unused variable 'v3' [-Wunused-variable]
+ 5537 |     int v3 = count - 11;
+      |         ^~
+/src/fallout1/src/game/editor.cc:5543:9: warning: unused variable 'v7' [-Wunused-variable]
+ 5543 |     int v7 = 0;
+      |         ^~
+/src/fallout1/src/game/editor.cc: At global scope:
+/src/fallout1/src/game/editor.cc:596:12: warning: 'fallout::trait_bids' defined but not used [-Wunused-variable]
+  596 | static int trait_bids[TRAIT_COUNT];
+      |            ^~~~~~~~~~
+/src/fallout1/src/game/elevator.cc: In function 'int fallout::Check4Keys(int, int)':
+/src/fallout1/src/game/elevator.cc:562:12: warning: statement has no effect [-Wunused-value]
+  562 |     toupper(keyCode);
+      |     ~~~~~~~^~~~~~~~~
+/src/fallout1/src/game/endgame.cc: In function 'void fallout::endgame_slideshow()':
+/src/fallout1/src/game/endgame.cc:280:53: warning: suggest parentheses around '&&' within '||' [-Wparentheses]
+  280 |             if (game_get_global_var(GVAR_GARL_DEAD) && v1 < 8 || v1 < 4) {
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~
+/src/fallout1/src/game/endgame.cc: In function 'void fallout::endgame_pan_desert(int, const char*)':
+/src/fallout1/src/game/endgame.cc:461:13: warning: unused variable 'height' [-Wunused-variable]
+  461 |         int height = art_frame_length(background, 0, 0);
+      |             ^~~~~~
+/src/fallout1/src/game/endgame.cc: At global scope:
+/src/fallout1/src/game/endgame.cc:84:12: warning: 'int fallout::endgame_load_slide_info()' declared 'static' but never defined [-Wunused-function]
+   84 | static int endgame_load_slide_info();
+      |            ^~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/game/endgame.cc:85:13: warning: 'void fallout::endgame_unload_slide_info()' declared 'static' but never defined [-Wunused-function]
+   85 | static void endgame_unload_slide_info();
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/game/endgame.cc:86:12: warning: 'int fallout::endgameSetupInit(int*)' declared 'static' but never defined [-Wunused-function]
+   86 | static int endgameSetupInit(int* percentage);
+      |            ^~~~~~~~~~~~~~~~
+/src/fallout1/src/game/endgame.cc:91:20: warning: 'fallout::endgame_voiceover_path' defined but not used [-Wunused-variable]
+   91 | static const char* endgame_voiceover_path = "narrator\\";
+      |                    ^~~~~~~~~~~~~~~~~~~~~~
+gconfig.cc
+gdebug.cc
+gdialog.cc
+/src/fallout1/src/game/gconfig.cc: In function 'bool fallout::gconfig_init(bool, int, char**)':
+/src/fallout1/src/game/gconfig.cc:51:11: warning: unused variable 'sep' [-Wunused-variable]
+   51 |     char* sep;
+      |           ^~~
+gmemory.cc
+gmouse.cc
+gmovie.cc
+graphlib.cc
+gsound.cc
+/src/fallout1/src/game/gdialog.cc: In function 'void fallout::gDialogProcessUpdate()':
+/src/fallout1/src/game/gdialog.cc:1819:9: warning: unused variable 'v21' [-Wunused-variable]
+ 1819 |     int v21 = 0;
+      |         ^~~
+/src/fallout1/src/game/gdialog.cc: In function 'void fallout::head_bk()':
+/src/fallout1/src/game/gdialog.cc:2074:16: warning: variable 'loop_cnt' set but not used [-Wunused-but-set-variable]
+ 2074 |     static int loop_cnt = -1;
+      |                ^~~~~~~~
+/src/fallout1/src/game/gmouse.cc: In function 'void fallout::gmouse_bk_process()':
+/src/fallout1/src/game/gmouse.cc:497:16: warning: variable 'last_tile' set but not used [-Wunused-but-set-variable]
+  497 |     static int last_tile = -1;
+      |                ^~~~~~~~~
+/src/fallout1/src/game/gdialog.cc: At global scope:
+/src/fallout1/src/game/gdialog.cc:451:23: warning: 'fallout::gdAboutWinBuf' defined but not used [-Wunused-variable]
+  451 | static unsigned char* gdAboutWinBuf = NULL;
+      |                       ^~~~~~~~~~~~~
+/src/fallout1/src/game/gdialog.cc:448:12: warning: 'fallout::gdAboutRebuildButtons' defined but not used [-Wunused-variable]
+  448 | static int gdAboutRebuildButtons = 1;
+      |            ^~~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/game/gdialog.cc:445:12: warning: 'fallout::dgAboutWinKey' defined but not used [-Wunused-variable]
+  445 | static int dgAboutWinKey = -1;
+      |            ^~~~~~~~~~~~~
+heap.cc
+/src/fallout1/src/game/heap.cc: In function 'bool fallout::heap_allocate(Heap*, int*, int, int)':
+/src/fallout1/src/game/heap.cc:270:27: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  270 |         if (remainingSize > HEAP_BLOCK_MIN_SIZE) {
+      |                           ^
+/src/fallout1/src/game/heap.cc: In function 'bool fallout::heap_deallocate(Heap*, int*)':
+/src/fallout1/src/game/heap.cc:349:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  349 |     if (blockHeader->guard != HEAP_BLOCK_HEADER_GUARD) {
+      |                            ^
+/src/fallout1/src/game/heap.cc:354:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  354 |     if (blockFooter->guard != HEAP_BLOCK_FOOTER_GUARD) {
+      |                            ^
+/src/fallout1/src/game/heap.cc: In function 'bool fallout::heap_lock(Heap*, int, unsigned char**)':
+/src/fallout1/src/game/heap.cc:416:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  416 |     if (blockHeader->guard != HEAP_BLOCK_HEADER_GUARD) {
+      |                            ^
+/src/fallout1/src/game/heap.cc:422:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  422 |     if (blockFooter->guard != HEAP_BLOCK_FOOTER_GUARD) {
+      |                            ^
+/src/fallout1/src/game/heap.cc: In function 'bool fallout::heap_unlock(Heap*, int)':
+/src/fallout1/src/game/heap.cc:477:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  477 |     if (blockHeader->guard != HEAP_BLOCK_HEADER_GUARD) {
+      |                            ^
+/src/fallout1/src/game/heap.cc:482:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  482 |     if (blockFooter->guard != HEAP_BLOCK_FOOTER_GUARD) {
+      |                            ^
+/src/fallout1/src/game/heap.cc: In function 'bool fallout::heap_validate(Heap*)':
+/src/fallout1/src/game/heap.cc:532:32: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  532 |         if (blockHeader->guard != HEAP_BLOCK_HEADER_GUARD) {
+      |                                ^
+/src/fallout1/src/game/heap.cc:538:32: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  538 |         if (blockFooter->guard != HEAP_BLOCK_FOOTER_GUARD) {
+      |                                ^
+/src/fallout1/src/game/heap.cc:600:27: warning: comparison of integer expressions of different signedness: 'unsigned int' and 'int' [-Wsign-compare]
+  600 |         if (handle->state != HEAP_HANDLE_STATE_INVALID && (handle->state & HEAP_BLOCK_STATE_SYSTEM) != 0) {
+      |                           ^
+/src/fallout1/src/game/heap.cc:602:36: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  602 |             if (blockHeader->guard != HEAP_BLOCK_HEADER_GUARD) {
+      |                                    ^
+/src/fallout1/src/game/heap.cc:608:36: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  608 |             if (blockFooter->guard != HEAP_BLOCK_FOOTER_GUARD) {
+      |                                    ^
+/src/fallout1/src/game/heap.cc: In function 'bool fallout::heap_acquire_handle(Heap*, int*)':
+/src/fallout1/src/game/heap.cc:773:27: warning: comparison of integer expressions of different signedness: 'unsigned int' and 'int' [-Wsign-compare]
+  773 |         if (handle->state == HEAP_HANDLE_STATE_INVALID) {
+      |                           ^
+/src/fallout1/src/game/heap.cc: In function 'bool fallout::heap_find_free_block(Heap*, int, void**, int)':
+/src/fallout1/src/game/heap.cc:1008:31: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+ 1008 |             if (remainingSize < HEAP_BLOCK_MIN_SIZE) {
+      |                               ^
+intface.cc
+inventry.cc
+item.cc
+/src/fallout1/src/game/gsound.cc:2073:13: warning: 'void fallout::gsound_check_active_effects()' defined but not used [-Wunused-function]
+ 2073 | static void gsound_check_active_effects()
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+light.cc
+lip_sync.cc
+/src/fallout1/src/game/inventry.cc:269:13: warning: 'void fallout::inven_update_lighting(Object*)' declared 'static' but never defined [-Wunused-function]
+  269 | static void inven_update_lighting(Object* a1);
+      |             ^~~~~~~~~~~~~~~~~~~~~
+loadsave.cc
+main.cc
+mainmenu.cc
+map.cc
+/src/fallout1/src/game/loadsave.cc: In function 'int fallout::LoadSlot(int)':
+/src/fallout1/src/game/loadsave.cc:1730:17: warning: unused variable 'v12' [-Wunused-variable]
+ 1730 |             int v12 = db_ftell(flptr);
+      |                 ^~~
+/src/fallout1/src/game/loadsave.cc: In function 'int fallout::SaveHeader(int)':
+/src/fallout1/src/game/loadsave.cc:1790:49: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+ 1790 |     if (db_fwrite(ptr->signature, 1, 24, flptr) == -1) {
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+/src/fallout1/src/game/loadsave.cc: In function 'void fallout::DrawInfoBox(int)':
+/src/fallout1/src/game/loadsave.cc:2090:26: warning: unused variable 'c' [-Wunused-variable]
+ 2090 |                     char c = *ending;
+      |                          ^
+/src/fallout1/src/game/loadsave.cc: In function 'int fallout::get_input_str2(int, int, int, char*, int, int, int, int, int, int)':
+/src/fallout1/src/game/loadsave.cc:2310:9: warning: unused variable 'cursorWidth' [-Wunused-variable]
+ 2310 |     int cursorWidth = text_width("_") - 4;
+      |         ^~~~~~~~~~~
+/src/fallout1/src/game/loadsave.cc: In function 'int fallout::GameMap2Slot(DB_FILE*)':
+/src/fallout1/src/game/loadsave.cc:2494:62: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+ 2494 |         if (db_fwrite(string, strlen(string) + 1, 1, stream) == -1) {
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+message.cc
+moviefx.cc
+object.cc
+options.cc
+palette.cc
+party.cc
+perk.cc
+/src/fallout1/src/game/object.cc: In function 'void fallout::object_fix_weapon_ammo(Object*)':
+/src/fallout1/src/game/object.cc:619:25: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  619 |         if (ammoTypePid == 0xCCCCCCCC || ammoTypePid == -1) {
+      |             ~~~~~~~~~~~~^~~~~~~~~~~~~
+/src/fallout1/src/game/object.cc:624:21: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  624 |         if (charges == 0xCCCCCCCC || charges == -1 || charges != proto->item.data.weapon.ammoCapacity) {
+      |             ~~~~~~~~^~~~~~~~~~~~~
+/src/fallout1/src/game/object.cc:631:25: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  631 |             if (charges == 0xCCCCCCCC) {
+      |                 ~~~~~~~~^~~~~~~~~~~~~
+/src/fallout1/src/game/object.cc:634:29: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  634 |                 if (charges == 0xCCCCCCCC) {
+      |                     ~~~~~~~~^~~~~~~~~~~~~
+/src/fallout1/src/game/object.cc: In function 'void fallout::obj_render_pre_roof(Rect*, int)':
+/src/fallout1/src/game/object.cc:799:10: warning: unused variable 'offsets' [-Wunused-variable]
+  799 |     int* offsets = offsetTable[parity];
+      |          ^~~~~~~
+/src/fallout1/src/game/options.cc: In function 'void fallout::DoThing(int)':
+/src/fallout1/src/game/options.cc:1240:13: warning: unused variable 'value' [-Wunused-variable]
+ 1240 |         int value = *valuePtr;
+      |             ^~~~~
+/src/fallout1/src/game/options.cc:1293:13: warning: unused variable 'knobX' [-Wunused-variable]
+ 1293 |         int knobX = (int)(219.0 / (meta->maxValue - meta->minValue));
+      |             ^~~~~
+/src/fallout1/src/game/object.cc: In function 'int fallout::obj_load_dude(DB_FILE*)':
+/src/fallout1/src/game/object.cc:3389:9: warning: unused variable 'savedRotation' [-Wunused-variable]
+ 3389 |     int savedRotation = obj_dude->rotation;
+      |         ^~~~~~~~~~~~~
+pipboy.cc
+/src/fallout1/src/game/object.cc: In function 'void fallout::obj_render_object(Object*, Rect*, int)':
+/src/fallout1/src/game/object.cc:4687:20: warning: unused variable 'src2' [-Wunused-variable]
+ 4687 |     unsigned char* src2 = src;
+      |                    ^~~~
+/src/fallout1/src/game/object.cc: At global scope:
+/src/fallout1/src/game/object.cc:128:12: warning: 'fallout::highlight_fid' defined but not used [-Wunused-variable]
+  128 | static int highlight_fid = -1;
+      |            ^~~~~~~~~~~~~
+/src/fallout1/src/game/object.cc:125:12: warning: 'fallout::translucence' defined but not used [-Wunused-variable]
+  125 | static int translucence = 0;
+      |            ^~~~~~~~~~~~
+protinst.cc
+proto.cc
+queue.cc
+/src/fallout1/src/game/pipboy.cc: In function 'int fallout::PrintAMList(int)':
+/src/fallout1/src/game/pipboy.cc:1668:9: warning: unused variable 'index' [-Wunused-variable]
+ 1668 |     int index = 0;
+      |         ^~~~~
+/src/fallout1/src/game/pipboy.cc: In function 'bool fallout::TimedRest(int, int, int)':
+/src/fallout1/src/game/pipboy.cc:2063:17: warning: unused variable 'v5' [-Wunused-variable]
+ 2063 |             int v5 = 0;
+      |                 ^~
+reaction.cc
+/src/fallout1/src/game/proto.cc: In function 'int fallout::proto_read_protoUpdateData(Object*, DB_FILE*)':
+/src/fallout1/src/game/proto.cc:502:29: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  502 |         if (obj->data.flags == 0xCCCCCCCC) {
+      |             ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+/src/fallout1/src/game/proto.cc: At global scope:
+/src/fallout1/src/game/proto.cc:1810:12: warning: 'int fallout::proto_new_id(int)' defined but not used [-Wunused-function]
+ 1810 | static int proto_new_id(int type)
+      |            ^~~~~~~~~~~~
+/src/fallout1/src/game/proto.cc:98:12: warning: 'fallout::proto_blocking_list' defined but not used [-Wunused-variable]
+   98 | static int proto_blocking_list[9] = {
+      |            ^~~~~~~~~~~~~~~~~~~
+roll.cc
+scripts.cc
+/src/fallout1/src/game/reaction.cc: In function 'int fallout::reaction_to_level_internal(int, int)':
+/src/fallout1/src/game/reaction.cc:30:9: warning: variable 'level' set but not used [-Wunused-but-set-variable]
+   30 |     int level;
+      |         ^~~~~
+select.cc
+selfrun.cc
+/src/fallout1/src/game/scripts.cc: In function 'void fallout::doBkProcesses()':
+/src/fallout1/src/game/scripts.cc:556:16: warning: variable 'lasttime' set but not used [-Wunused-but-set-variable]
+  556 |     static int lasttime;
+      |                ^~~~~~~~
+/src/fallout1/src/game/scripts.cc: In function 'int fallout::scr_ptr(int, Script**)':
+/src/fallout1/src/game/scripts.cc:1928:13: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+ 1928 |     if (sid == 0xCCCCCCCC) {
+      |         ~~~~^~~~~~~~~~~~~
+sfxcache.cc
+sfxlist.cc
+/src/fallout1/src/game/scripts.cc: At global scope:
+/src/fallout1/src/game/scripts.cc:86:13: warning: 'void fallout::scrExecMapProcScripts(int)' declared 'static' but never defined [-Wunused-function]
+   86 | static void scrExecMapProcScripts(int a1);
+      |             ^~~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/game/sfxcache.cc: In function 'int fallout::sfxc_decode(int, void*, unsigned int)':
+/src/fallout1/src/game/sfxcache.cc:501:23: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+  501 |         if (bytesRead != soundEffect->position) {
+      |             ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/game/sfxcache.cc: At global scope:
+/src/fallout1/src/game/sfxcache.cc:467:13: warning: 'bool fallout::sfxc_mode_is_legal(int)' defined but not used [-Wunused-function]
+  467 | static bool sfxc_mode_is_legal(int mode)
+      |             ^~~~~~~~~~~~~~~~~~
+skill.cc
+skilldex.cc
+stat.cc
+textobj.cc
+tile.cc
+/src/fallout1/src/game/stat.cc: In function 'void fallout::stat_recalc_derived(Object*)':
+/src/fallout1/src/game/stat.cc:403:9: warning: unused variable 'intelligence' [-Wunused-variable]
+  403 |     int intelligence = stat_level(critter, STAT_INTELLIGENCE);
+      |         ^~~~~~~~~~~~
+trait.cc
+version.cc
+wordwrap.cc
+worldmap.cc
+worldmap_walkmask.cc
+audio.cc
+audiof.cc
+datafile.cc
+dialog.cc
+export.cc
+intlib.cc
+/src/fallout1/src/game/worldmap.cc: In function 'fallout::WorldMapContext fallout::town_map(WorldMapContext)':
+/src/fallout1/src/game/worldmap.cc:3107:18: warning: variable 'time' set but not used [-Wunused-but-set-variable]
+ 3107 |     unsigned int time;
+      |                  ^~~~
+intrpret.cc
+/src/fallout1/src/int/dialog.cc:387:13: warning: 'void fallout::drawStr(int, char*, int, int, int, int, int, int, int, int)' defined but not used [-Wunused-function]
+  387 | static void drawStr(int win, char* str, int font, int width, int height, int left, int top, int a8, int a9, int a10)
+      |             ^~~~~~~
+/src/fallout1/src/int/dialog.cc:371:13: warning: 'void fallout::endReply()' defined but not used [-Wunused-function]
+  371 | static void endReply()
+      |             ^~~~~~~~
+/src/fallout1/src/int/dialog.cc:341:12: warning: 'int fallout::abortReply(int)' defined but not used [-Wunused-function]
+  341 | static int abortReply(int a1)
+      |            ^~~~~~~~~~
+memdbg.cc
+mousemgr.cc
+movie.cc
+nevs.cc
+/src/fallout1/src/int/intrpret.cc: In function 'void fallout::op_pop_to_base(Program*)':
+/src/fallout1/src/int/intrpret.cc:622:41: warning: comparison of integer expressions of different signedness: 'std::vector<fallout::ProgramValue>::size_type' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+  622 |     while (program->stackValues->size() != program->framePointer) {
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/int/intrpret.cc: In function 'void fallout::op_call(Program*)':
+/src/fallout1/src/int/intrpret.cc:1909:14: warning: unused variable 'type' [-Wunused-variable]
+ 1909 |     opcode_t type;
+      |              ^~~~
+/src/fallout1/src/int/intrpret.cc:1911:14: warning: unused variable 'argumentType' [-Wunused-variable]
+ 1911 |     opcode_t argumentType;
+      |              ^~~~~~~~~~~~
+/src/fallout1/src/int/intrpret.cc:1912:14: warning: unused variable 'argumentValue' [-Wunused-variable]
+ 1912 |     opcode_t argumentValue;
+      |              ^~~~~~~~~~~~~
+/src/fallout1/src/int/intrpret.cc:1915:11: warning: unused variable 'procedureIdentifier' [-Wunused-variable]
+ 1915 |     char* procedureIdentifier;
+      |           ^~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/int/intrpret.cc:1916:14: warning: unused variable 'externalProgram' [-Wunused-variable]
+ 1916 |     Program* externalProgram;
+      |              ^~~~~~~~~~~~~~~
+/src/fallout1/src/int/intrpret.cc:1917:9: warning: unused variable 'externalProcedureAddress' [-Wunused-variable]
+ 1917 |     int externalProcedureAddress;
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/int/intrpret.cc:1918:9: warning: unused variable 'externalProcedureArgumentCount' [-Wunused-variable]
+ 1918 |     int externalProcedureArgumentCount;
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/int/intrpret.cc:1919:13: warning: unused variable 'tempProgram' [-Wunused-variable]
+ 1919 |     Program tempProgram;
+      |             ^~~~~~~~~~~
+/src/fallout1/src/int/intrpret.cc:1920:10: warning: unused variable 'err' [-Wunused-variable]
+ 1920 |     char err[256];
+      |          ^~~
+/src/fallout1/src/int/intrpret.cc: At global scope:
+/src/fallout1/src/int/intrpret.cc:49:13: warning: 'void fallout::checkProgramStrings(Program*)' declared 'static' but never defined [-Wunused-function]
+   49 | static void checkProgramStrings(Program* program);
+      |             ^~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/int/intrpret.cc:354:17: warning: 'fallout::opcode_t fallout::popShortStack(unsigned char*, int*)' defined but not used [-Wunused-function]
+  354 | static opcode_t popShortStack(unsigned char* data, int* pointer)
+      |                 ^~~~~~~~~~~~~
+/src/fallout1/src/int/intrpret.cc:342:12: warning: 'int fallout::popLongStack(unsigned char*, int*)' defined but not used [-Wunused-function]
+  342 | static int popLongStack(unsigned char* data, int* pointer)
+      |            ^~~~~~~~~~~~
+/src/fallout1/src/int/intrpret.cc:326:13: warning: 'void fallout::pushLongStack(unsigned char*, int*, int)' defined but not used [-Wunused-function]
+  326 | static void pushLongStack(unsigned char* data, int* pointer, int value)
+      |             ^~~~~~~~~~~~~
+/src/fallout1/src/int/intrpret.cc:314:13: warning: 'void fallout::pushShortStack(unsigned char*, int*, int)' defined but not used [-Wunused-function]
+  314 | static void pushShortStack(unsigned char* data, int* pointer, int value)
+      |             ^~~~~~~~~~~~~~
+pcx.cc
+/src/fallout1/src/int/movie.cc: In function 'bool fallout::movieRead(void*, void*, int)':
+/src/fallout1/src/int/movie.cc:246:72: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+  246 |     return db_fread(buf, 1, count, reinterpret_cast<DB_FILE*>(handle)) == count;
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+region.cc
+/src/fallout1/src/int/movie.cc: In function 'void fallout::movie_MVE_ShowFrame(SDL_Surface*, int, int, int, int, int, int, int, int)':
+/src/fallout1/src/int/movie.cc:252:9: warning: variable 'v14' set but not used [-Wunused-but-set-variable]
+  252 |     int v14;
+      |         ^~~
+share1.cc
+/src/fallout1/src/int/movie.cc: At global scope:
+/src/fallout1/src/int/movie.cc:37:13: warning: 'bool fallout::movieRead(int, void*, int)' declared 'static' but never defined [-Wunused-function]
+   37 | static bool movieRead(int fileHandle, void* buf, int count);
+      |             ^~~~~~~~~
+/src/fallout1/src/int/movie.cc:900:13: warning: 'bool fallout::localMovieCallback()' defined but not used [-Wunused-function]
+  900 | static bool localMovieCallback()
+      |             ^~~~~~~~~~~~~~~~~~
+sound.cc
+widget.cc
+window.cc
+intextra.cc
+/src/fallout1/src/int/widget.cc:110:13: warning: 'void fallout::insertChar(char*, char, int, int)' defined but not used [-Wunused-function]
+  110 | static void insertChar(char* string, char ch, int pos, int length)
+      |             ^~~~~~~~~~
+/src/fallout1/src/int/widget.cc:102:13: warning: 'void fallout::deleteChar(char*, int, int)' defined but not used [-Wunused-function]
+  102 | static void deleteChar(char* string, int pos, int length)
+      |             ^~~~~~~~~~
+/src/fallout1/src/int/sound.cc: In function 'void fallout::refreshSoundBuffers(Sound*)':
+/src/fallout1/src/int/sound.cc:329:35: warning: comparison of integer expressions of different signedness: 'unsigned int' and 'int' [-Wsign-compare]
+  329 |     if (audioBytes1 + audioBytes2 != sound->dataSize * v53) {
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
+assoc.cc
+/src/fallout1/src/plib/assoc/assoc.cc: In function 'int fallout::assoc_resize(assoc_array*, int)':
+/src/fallout1/src/plib/assoc/assoc.cc:89:22: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+   89 |     if (a->init_flag != DICTIONARY_MARKER) {
+      |                      ^
+/src/fallout1/src/plib/assoc/assoc.cc: In function 'int fallout::assoc_free(assoc_array*)':
+/src/fallout1/src/plib/assoc/assoc.cc:111:22: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  111 |     if (a->init_flag != DICTIONARY_MARKER) {
+      |                      ^
+/src/fallout1/src/plib/assoc/assoc.cc: In function 'int fallout::assoc_find(assoc_array*, const char*, int*)':
+/src/fallout1/src/plib/assoc/assoc.cc:143:22: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  143 |     if (a->init_flag != DICTIONARY_MARKER) {
+      |                      ^
+/src/fallout1/src/plib/assoc/assoc.cc: In function 'int fallout::assoc_search(assoc_array*, const char*)':
+/src/fallout1/src/plib/assoc/assoc.cc:191:22: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  191 |     if (a->init_flag != DICTIONARY_MARKER) {
+      |                      ^
+/src/fallout1/src/plib/assoc/assoc.cc: In function 'int fallout::assoc_insert(assoc_array*, const char*, const void*)':
+/src/fallout1/src/plib/assoc/assoc.cc:212:22: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  212 |     if (a->init_flag != DICTIONARY_MARKER) {
+      |                      ^
+/src/fallout1/src/plib/assoc/assoc.cc: In function 'int fallout::assoc_delete(assoc_array*, const char*)':
+/src/fallout1/src/plib/assoc/assoc.cc:276:22: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  276 |     if (a->init_flag != DICTIONARY_MARKER) {
+      |                      ^
+/src/fallout1/src/plib/assoc/assoc.cc: In function 'int fallout::assoc_copy(assoc_array*, assoc_array*)':
+/src/fallout1/src/plib/assoc/assoc.cc:311:24: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  311 |     if (src->init_flag != DICTIONARY_MARKER) {
+      |                        ^
+/src/fallout1/src/plib/assoc/assoc.cc: In function 'int fallout::assoc_load(FILE*, assoc_array*, int)':
+/src/fallout1/src/plib/assoc/assoc.cc:398:22: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  398 |     if (a->init_flag != DICTIONARY_MARKER) {
+      |                      ^
+/src/fallout1/src/plib/assoc/assoc.cc: In function 'int fallout::assoc_save(FILE*, assoc_array*, int)':
+/src/fallout1/src/plib/assoc/assoc.cc:511:22: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  511 |     if (a->init_flag != DICTIONARY_MARKER) {
+      |                      ^
+/src/fallout1/src/int/sound.cc: At global scope:
+/src/fallout1/src/int/sound.cc:70:12: warning: 'fallout::defaultChannel' defined but not used [-Wunused-variable]
+   70 | static int defaultChannel = 2;
+      |            ^~~~~~~~~~~~~~
+color.cc
+db.cc
+/src/fallout1/src/plib/color/color.cc:484:17: warning: multi-character character constant [-Wmultichar]
+  484 |     if (type == 'NEWC') {
+      |                 ^~~~~~
+/src/fallout1/src/plib/db/db.cc: In function 'size_t fallout::db_fread(void*, size_t, size_t, DB_FILE*)':
+/src/fallout1/src/plib/db/db.cc:814:44: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+  814 |                                     if (v1 > chunk_size) {
+      |                                         ~~~^~~~~~~~~~~~
+/src/fallout1/src/plib/db/db.cc:841:44: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+  841 |                                     if (v1 > remaining_size) {
+      |                                         ~~~^~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/db/db.cc:860:44: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+  860 |                                     if (v1 > remaining_size) {
+      |                                         ~~~^~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/db/db.cc: In function 'int fallout::db_freadFloat(DB_FILE*, float*)':
+/src/fallout1/src/plib/db/db.cc:1276:11: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+ 1276 |     *q = *(float*)&l;
+      |           ^~~~~~~~~~
+/src/fallout1/src/plib/db/db.cc: In function 'int fallout::db_fwriteFloat(DB_FILE*, float)':
+/src/fallout1/src/plib/db/db.cc:1333:35: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+ 1333 |     return db_fwriteLong(stream, *(unsigned long*)&q);
+      |                                   ^~~~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/db/db.cc: At global scope:
+/src/fallout1/src/plib/db/db.cc:1828:12: warning: 'int fallout::db_assoc_save_db_dir_entry(DB_FILE*, void*, size_t, int)' defined but not used [-Wunused-function]
+ 1828 | static int db_assoc_save_db_dir_entry(DB_FILE* stream, void* buffer, size_t size, int flags)
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/db/db.cc:1811:12: warning: 'int fallout::db_assoc_load_db_dir_entry(DB_FILE*, void*, size_t, int)' defined but not used [-Wunused-function]
+ 1811 | static int db_assoc_load_db_dir_entry(DB_FILE* stream, void* buffer, size_t size, int flags)
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/int/window.cc:639:13: warning: 'void fallout::redrawButton(ManagedButton*)' defined but not used [-Wunused-function]
+  639 | static void redrawButton(ManagedButton* button)
+      |             ^~~~~~~~~~~~
+/src/fallout1/src/int/support/intextra.cc: In function 'void fallout::op_skill_contest(Program*)':
+/src/fallout1/src/int/support/intextra.cc:372:9: warning: variable 'data' set but not used [-Wunused-but-set-variable]
+  372 |     int data[3];
+      |         ^~~~
+/src/fallout1/src/int/support/intextra.cc: In function 'void fallout::op_how_much(Program*)':
+/src/fallout1/src/int/support/intextra.cc:462:9: warning: unused variable 'data' [-Wunused-variable]
+  462 |     int data = programStackPopInteger(program);
+      |         ^~~~
+/src/fallout1/src/int/support/intextra.cc: In function 'void fallout::op_roll_dice(Program*)':
+/src/fallout1/src/int/support/intextra.cc:524:9: warning: variable 'data' set but not used [-Wunused-but-set-variable]
+  524 |     int data[2];
+      |         ^~~~
+/src/fallout1/src/int/support/intextra.cc: In function 'void fallout::objs_area_turn_on_off(int, int, int, int, int)':
+/src/fallout1/src/int/support/intextra.cc:1645:49: warning: comparison of integer expressions of different signedness: 'unsigned int' and 'int' [-Wsign-compare]
+ 1645 |             if ((object->flags & OBJECT_HIDDEN) == enabled) {
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~
+/src/fallout1/src/int/support/intextra.cc: In function 'void fallout::op_barter_offer(Program*)':
+/src/fallout1/src/int/support/intextra.cc:1775:9: warning: variable 'data' set but not used [-Wunused-but-set-variable]
+ 1775 |     int data[3];
+      |         ^~~~
+/src/fallout1/src/int/support/intextra.cc: In function 'void fallout::op_barter_asking(Program*)':
+/src/fallout1/src/int/support/intextra.cc:1785:9: warning: variable 'data' set but not used [-Wunused-but-set-variable]
+ 1785 |     int data[3];
+      |         ^~~~
+/src/fallout1/src/int/support/intextra.cc: In function 'void fallout::op_set_light_level(Program*)':
+/src/fallout1/src/int/support/intextra.cc:1840:9: warning: unused variable 'lightLevel' [-Wunused-variable]
+ 1840 |     int lightLevel = data;
+      |         ^~~~~~~~~~
+/src/fallout1/src/int/support/intextra.cc: In function 'void fallout::op_critter_rm_trait(Program*)':
+/src/fallout1/src/int/support/intextra.cc:2450:9: warning: unused variable 'value' [-Wunused-variable]
+ 2450 |     int value = programStackPopInteger(program);
+      |         ^~~~~
+/src/fallout1/src/int/support/intextra.cc:2451:9: warning: unused variable 'param' [-Wunused-variable]
+ 2451 |     int param = programStackPopInteger(program);
+      |         ^~~~~
+/src/fallout1/src/int/support/intextra.cc: In function 'void fallout::op_gsay_message(Program*)':
+/src/fallout1/src/int/support/intextra.cc:3168:9: warning: unused variable 'reaction' [-Wunused-variable]
+ 3168 |     int reaction = programStackPopInteger(program);
+      |         ^~~~~~~~
+lzss.cc
+/src/fallout1/src/plib/color/color.cc: In function 'void fallout::buildBlendTable(unsigned char*, unsigned char)':
+/src/fallout1/src/plib/color/color.cc:550:20: warning: variable 'beg' set but not used [-Wunused-but-set-variable]
+  550 |     unsigned char* beg;
+      |                    ^~~
+button.cc
+debug.cc
+/src/fallout1/src/plib/color/color.cc: At global scope:
+/src/fallout1/src/plib/color/color.cc:25:13: warning: 'void fallout::maxfill()' declared 'static' but never defined [-Wunused-function]
+   25 | static void maxfill();
+      |             ^~~~~~~
+/src/fallout1/src/plib/color/color.cc:682:13: warning: 'void fallout::maxfill(long unsigned int*, int)' defined but not used [-Wunused-function]
+  682 | static void maxfill(unsigned long* buffer, int side)
+      |             ^~~~~~~
+/src/fallout1/src/plib/color/color.cc:426:13: warning: 'void fallout::setMixTable()' defined but not used [-Wunused-function]
+  426 | static void setMixTable()
+      |             ^~~~~~~~~~~
+dxinput.cc
+gnw.cc
+grbuf.cc
+/src/fallout1/src/plib/gnw/dxinput.cc:122:6: warning: 'void fallout::dxinput_keyboard_exit()' defined but not used [-Wunused-function]
+  122 | void dxinput_keyboard_exit()
+      |      ^~~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/gnw/dxinput.cc:116:6: warning: 'bool fallout::dxinput_keyboard_init()' defined but not used [-Wunused-function]
+  116 | bool dxinput_keyboard_init()
+      |      ^~~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/gnw/dxinput.cc:111:6: warning: 'void fallout::dxinput_mouse_exit()' defined but not used [-Wunused-function]
+  111 | void dxinput_mouse_exit()
+      |      ^~~~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/gnw/dxinput.cc:105:6: warning: 'bool fallout::dxinput_mouse_init()' defined but not used [-Wunused-function]
+  105 | bool dxinput_mouse_init()
+      |      ^~~~~~~~~~~~~~~~~~
+input.cc
+intrface.cc
+kb.cc
+memory.cc
+/src/fallout1/src/plib/gnw/input.cc: In function 'void fallout::GNW95_process_message()':
+/src/fallout1/src/plib/gnw/input.cc:1165:27: warning: comparison of integer expressions of different signedness: 'unsigned int' and 'int' [-Wsign-compare]
+ 1165 |             if (ptr->time != -1) {
+      |                 ~~~~~~~~~~^~~~~
+/src/fallout1/src/plib/gnw/memory.cc: In function 'void fallout::mem_check_block(void*)':
+/src/fallout1/src/plib/gnw/memory.cc:238:23: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  238 |     if (header->guard != MEMORY_BLOCK_HEADER_GUARD) {
+      |                       ^
+/src/fallout1/src/plib/gnw/memory.cc:243:23: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  243 |     if (footer->guard != MEMORY_BLOCK_FOOTER_GUARD) {
+      |                       ^
+mouse.cc
+/src/fallout1/src/plib/gnw/intrface.cc:1320:13: warning: 'void fallout::tm_click_response(int)' defined but not used [-Wunused-function]
+ 1320 | static void tm_click_response(int btn)
+      |             ^~~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/gnw/intrface.cc:1171:12: warning: 'int fallout::calc_max_field_chars_wcursor(int, int)' defined but not used [-Wunused-function]
+ 1171 | static int calc_max_field_chars_wcursor(int value1, int value2)
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/gnw/kb.cc:1920:13: warning: 'void fallout::kb_map_ascii_Spanish()' defined but not used [-Wunused-function]
+ 1920 | static void kb_map_ascii_Spanish()
+      |             ^~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/gnw/kb.cc:1780:13: warning: 'void fallout::kb_map_ascii_Italian()' defined but not used [-Wunused-function]
+ 1780 | static void kb_map_ascii_Italian()
+      |             ^~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/gnw/kb.cc:1570:13: warning: 'void fallout::kb_map_ascii_German()' defined but not used [-Wunused-function]
+ 1570 | static void kb_map_ascii_German()
+      |             ^~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/gnw/kb.cc:1390:13: warning: 'void fallout::kb_map_ascii_French()' defined but not used [-Wunused-function]
+ 1390 | static void kb_map_ascii_French()
+      |             ^~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/gnw/kb.cc:516:12: warning: 'int fallout::kb_next_ascii_Spanish()' defined but not used [-Wunused-function]
+  516 | static int kb_next_ascii_Spanish()
+      |            ^~~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/gnw/kb.cc:508:12: warning: 'int fallout::kb_next_ascii_Italian()' defined but not used [-Wunused-function]
+  508 | static int kb_next_ascii_Italian()
+      |            ^~~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/gnw/kb.cc:500:12: warning: 'int fallout::kb_next_ascii_German()' defined but not used [-Wunused-function]
+  500 | static int kb_next_ascii_German()
+      |            ^~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/gnw/kb.cc:492:12: warning: 'int fallout::kb_next_ascii_French()' defined but not used [-Wunused-function]
+  492 | static int kb_next_ascii_French()
+      |            ^~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/gnw/kb.cc:66:23: warning: 'fallout::extended_code' defined but not used [-Wunused-variable]
+   66 | static unsigned short extended_code = 0;
+      |                       ^~~~~~~~~~~~~
+rect.cc
+svga.cc
+text.cc
+/src/fallout1/src/plib/gnw/text.cc: In function 'int fallout::load_font(int)':
+/src/fallout1/src/plib/gnw/text.cc:167:95: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+  167 |     if (db_fread(textFontDescriptor->info, sizeof(FontInfo), textFontDescriptor->num, stream) != textFontDescriptor->num) {
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout1/src/plib/gnw/text.cc:177:65: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+  177 |     if (db_fread(textFontDescriptor->data, 1, dataSize, stream) != dataSize) {
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+/src/fallout1/src/plib/gnw/text.cc: In function 'int fallout::GNW_text_width(const char*)':
+/src/fallout1/src/plib/gnw/text.cc:390:41: warning: array subscript has type 'char' [-Wchar-subscripts]
+  390 |             fi = &(curr_font->info[str[i]]);
+      |                                    ~~~~~^
+/src/fallout1/src/plib/gnw/text.cc: In function 'int fallout::GNW_text_char_width(char)':
+/src/fallout1/src/plib/gnw/text.cc:401:28: warning: array subscript has type 'char' [-Wchar-subscripts]
+  401 |     return curr_font->info[c].width;
+      |                            ^
+touch.cc
+vcr.cc
+/src/fallout1/src/plib/gnw/mouse.cc: In function 'void fallout::mouse_info()':
+/src/fallout1/src/plib/gnw/mouse.cc:444:16: warning: enumeration value 'kUnrecognized' not handled in switch [-Wswitch]
+  444 |         switch (gesture.type) {
+      |                ^
+winmain.cc
+ctr_gfx.cc
+/src/fallout1/src/plib/gnw/touch.cc: In function 'void fallout::touch_process_gesture()':
+/src/fallout1/src/plib/gnw/touch.cc:219:38: warning: comparison of integer expressions of different signedness: 'Uint32' {aka 'long unsigned int'} and 'int' [-Wsign-compare]
+  219 |             if (sequenceEndTimestamp != -1) {
+      |                 ~~~~~~~~~~~~~~~~~~~~~^~~~~
+/src/fallout1/src/plib/gnw/touch.cc:242:68: warning: comparison of integer expressions of different signedness: 'Uint32' {aka 'long unsigned int'} and 'int' [-Wsign-compare]
+  242 |         if (currentGesture.state == kEnded && sequenceEndTimestamp != -1) {
+      |                                               ~~~~~~~~~~~~~~~~~~~~~^~~~~
+ctr_input.cc
+ctr_manual.cc
+ctr_rectmap.cc
+ctr_sys.cc
+selftest.c
+/src/fallout1/src/platform/ctr/ctr_manual.cc: In function 'void fallout::ctr_manual_run()':
+/src/fallout1/src/platform/ctr/ctr_manual.cc:337:13: warning: unused variable 'held' [-Wunused-variable]
+  337 |         u32 held = ctr_remap(hidKeysHeld());
+      |             ^~~~
+fpattern.c
+/src/fallout1/third_party/fpattern/fpattern.c:66:25: warning: 'copyright' defined but not used [-Wunused-const-variable=]
+   66 | static const char       copyright[] =
+      |                         ^~~~~~~~~
+/src/fallout1/third_party/fpattern/fpattern.c:63:25: warning: 'id' defined but not used [-Wunused-const-variable=]
+   63 | static const char       id[] =
+      |                         ^~
+linking fallout-ce.elf
+built ... fallout-ce.3dsx
+== fallout2
+frame_tex.t3s
+Used lz11 for compression
+vshader.v.pica
+vshader.shbin
+actions.cc
+animation.cc
+art.cc
+audio.cc
+audio_engine.cc
+/src/fallout2/src/art.cc: In function 'int fallout::artInit()':
+/src/fallout2/src/art.cc:166:10: warning: unused variable 'critterDbSelected' [-Wunused-variable]
+  166 |     bool critterDbSelected = false;
+      |          ^~~~~~~~~~~~~~~~~
+/src/fallout2/src/art.cc: In function 'int fallout::artCacheGetFileSizeImpl(int, int*)':
+/src/fallout2/src/art.cc:951:14: warning: unused variable 'loaded' [-Wunused-variable]
+  951 |         bool loaded = false;
+      |              ^~~~~~
+/src/fallout2/src/audio_engine.cc: In function 'bool fallout::audioEngineIsInitialized()':
+/src/fallout2/src/audio_engine.cc:84:33: warning: comparison of integer expressions of different signedness: 'SDL_AudioDeviceID' {aka 'long unsigned int'} and 'int' [-Wsign-compare]
+   84 |     return gAudioEngineDeviceId != -1;
+      |            ~~~~~~~~~~~~~~~~~~~~~^~~~~
+/src/fallout2/src/audio_engine.cc: In function 'bool fallout::audioEngineSoundBufferLock(int, unsigned int, unsigned int, void**, unsigned int*, void**, unsigned int*, unsigned int)':
+/src/fallout2/src/audio_engine.cc:580:22: warning: unused variable 'remainder' [-Wunused-variable]
+  580 |         unsigned int remainder = writePos + writeBytes - soundBuffer->size;
+      |                      ^~~~~~~~~
+In file included from /src/fallout2/src/actions.cc:35:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/actions.cc:25:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+In file included from /src/fallout2/src/art.cc:17:
+/src/fallout2/src/proto.h: At global scope:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+audio_file.cc
+automap.cc
+autorun.cc
+cache.cc
+character_editor.cc
+In file included from /src/fallout2/src/animation.cc:34:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/animation.cc:26:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+character_selector.cc
+color.cc
+/src/fallout2/src/color.cc:343:17: warning: multi-character character constant [-Wmultichar]
+  343 |     if (type == 'NEWC') {
+      |                 ^~~~~~
+/src/fallout2/src/color.cc: In function 'void fallout::_buildBlendTable(unsigned char*, unsigned char)':
+/src/fallout2/src/color.cc:380:20: warning: variable 'beg' set but not used [-Wunused-but-set-variable]
+  380 |     unsigned char* beg;
+      |                    ^~~
+/src/fallout2/src/character_editor.cc: In function 'int fallout::_get_input_str(int, int, char*, int, int, int, int, int, int)':
+/src/fallout2/src/character_editor.cc:1931:9: warning: unused variable 'cursorWidth' [-Wunused-variable]
+ 1931 |     int cursorWidth = fontGetStringWidth("_") - 4;
+      |         ^~~~~~~~~~~
+/src/fallout2/src/character_editor.cc:1933:9: warning: unused variable 'v60' [-Wunused-variable]
+ 1933 |     int v60 = fontGetLineHeight();
+      |         ^~~
+/src/fallout2/src/character_editor.cc: In function 'int fallout::characterPrintToFile(const char*)':
+/src/fallout2/src/character_editor.cc:4606:31: warning: comparison of integer expressions of different signedness: 'int' and 'std::vector<fallout::TownReputationEntry>::size_type' {aka 'unsigned int'} [-Wsign-compare]
+ 4606 |     for (int index = 0; index < gCustomTownReputationEntries.size(); index++) {
+      |                         ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/character_editor.cc: In function 'void fallout::characterEditorDrawKarmaFolder()':
+/src/fallout2/src/character_editor.cc:5590:31: warning: comparison of integer expressions of different signedness: 'int' and 'std::vector<fallout::TownReputationEntry>::size_type' {aka 'unsigned int'} [-Wsign-compare]
+ 5590 |     for (int index = 0; index < gCustomTownReputationEntries.size(); index++) {
+      |                         ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/color.cc: At global scope:
+/src/fallout2/src/color.cc:30:13: warning: 'fallout::aColor_cColor_0' defined but not used [-Wunused-variable]
+   30 | static char aColor_cColor_0[] = "color.c: colorpalettestack underflow";
+      |             ^~~~~~~~~~~~~~~
+/src/fallout2/src/color.cc:27:13: warning: 'fallout::_aColor_cColorpa' defined but not used [-Wunused-variable]
+   27 | static char _aColor_cColorpa[] = "color.c: colorpalettestack overflow";
+      |             ^~~~~~~~~~~~~~~~
+/src/fallout2/src/character_editor.cc: In function 'int fallout::perkDialogHandleInput(int, void (*)())':
+/src/fallout2/src/character_editor.cc:6028:9: warning: unused variable 'v3' [-Wunused-variable]
+ 6028 |     int v3 = count - 11;
+      |         ^~
+/src/fallout2/src/character_editor.cc:6034:9: warning: unused variable 'v7' [-Wunused-variable]
+ 6034 |     int v7 = 0;
+      |         ^~
+combat_ai.cc
+combat.cc
+In file included from /src/fallout2/src/character_editor.cc:38:
+/src/fallout2/src/proto.h: At global scope:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+In file included from /src/fallout2/src/character_selector.cc:27:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+config.cc
+credits.cc
+critter.cc
+In file included from /src/fallout2/src/combat_ai.cc:36:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/combat_ai.cc:27:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+In file included from /src/fallout2/src/combat.cc:45:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/combat.cc:34:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+In file included from /src/fallout2/src/critter.cc:30:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/critter.cc:23:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+cycle.cc
+dashboard_3ds.cc
+datafile.cc
+db.cc
+dbox.cc
+/src/fallout2/src/db.cc: In function 'int fallout::fileReadInt32(File*, int*)':
+/src/fallout2/src/db.cc:325:41: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+  325 |     if (xfileRead(&value, 4, 1, stream) == -1) {
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+/src/fallout2/src/db.cc: In function 'int fallout::fileWriteFloat(File*, float)':
+/src/fallout2/src/db.cc:432:36: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  432 |     return _db_fwriteLong(stream, *(int*)&value);
+      |                                    ^~~~~~~~~~~~
+In file included from /src/fallout2/src/dashboard_3ds.cc:25:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/dashboard_3ds.cc:20:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+debug.cc
+delay.cc
+dfile.cc
+/src/fallout2/src/debug.cc:153:12: warning: 'int fallout::_debug_puts(char*)' defined but not used [-Wunused-function]
+  153 | static int _debug_puts(char* string)
+      |            ^~~~~~~~~~~
+/src/fallout2/src/dbox.cc: In function 'int fallout::showLoadFileDialog(char*, char**, char*, int, int, int, int)':
+/src/fallout2/src/dbox.cc:702:9: warning: unused variable 'scrollDownButton' [-Wunused-variable]
+  702 |     int scrollDownButton = buttonCreate(win,
+      |         ^~~~~~~~~~~~~~~~
+/src/fallout2/src/dbox.cc: In function 'int fallout::showSaveFileDialog(char*, char**, char*, int, int, int, int)':
+/src/fallout2/src/dbox.cc:1067:9: warning: unused variable 'scrollDownButton' [-Wunused-variable]
+ 1067 |     int scrollDownButton = buttonCreate(win,
+      |         ^~~~~~~~~~~~~~~~
+dialog.cc
+dictionary.cc
+/src/fallout2/src/dictionary.cc: In function 'int fallout::dictionarySetCapacity(Dictionary*, int)':
+/src/fallout2/src/dictionary.cc:56:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+   56 |     if (dictionary->marker != DICTIONARY_MARKER) {
+      |                            ^
+/src/fallout2/src/dictionary.cc: In function 'int fallout::dictionaryFree(Dictionary*)':
+/src/fallout2/src/dictionary.cc:78:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+   78 |     if (dictionary->marker != DICTIONARY_MARKER) {
+      |                            ^
+/src/fallout2/src/dictionary.cc: In function 'int fallout::dictionaryFindIndexForKey(Dictionary*, const char*, int*)':
+/src/fallout2/src/dictionary.cc:110:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  110 |     if (dictionary->marker != DICTIONARY_MARKER) {
+      |                            ^
+/src/fallout2/src/dictionary.cc: In function 'int fallout::dictionaryGetIndexByKey(Dictionary*, const char*)':
+/src/fallout2/src/dictionary.cc:158:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  158 |     if (dictionary->marker != DICTIONARY_MARKER) {
+      |                            ^
+/src/fallout2/src/dictionary.cc: In function 'int fallout::dictionaryAddValue(Dictionary*, const char*, const void*)':
+/src/fallout2/src/dictionary.cc:179:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  179 |     if (dictionary->marker != DICTIONARY_MARKER) {
+      |                            ^
+/src/fallout2/src/dictionary.cc: In function 'int fallout::dictionaryRemoveValue(Dictionary*, const char*)':
+/src/fallout2/src/dictionary.cc:243:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  243 |     if (dictionary->marker != DICTIONARY_MARKER) {
+      |                            ^
+/src/fallout2/src/dictionary.cc: In function 'int fallout::dictionaryCopy(Dictionary*, Dictionary*)':
+/src/fallout2/src/dictionary.cc:278:21: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  278 |     if (src->marker != DICTIONARY_MARKER) {
+      |                     ^
+/src/fallout2/src/dictionary.cc: In function 'int fallout::dictionaryLoad(FILE*, Dictionary*, int)':
+/src/fallout2/src/dictionary.cc:365:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  365 |     if (dictionary->marker != DICTIONARY_MARKER) {
+      |                            ^
+/src/fallout2/src/dictionary.cc: In function 'int fallout::dictionaryWrite(FILE*, Dictionary*, int)':
+/src/fallout2/src/dictionary.cc:478:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  478 |     if (dictionary->marker != DICTIONARY_MARKER) {
+      |                            ^
+dinput.cc
+display_monitor.cc
+draw.cc
+elevator.cc
+endgame.cc
+export.cc
+/src/fallout2/src/elevator.cc: In function 'int fallout::elevatorGetLevelFromKeyCode(int, int)':
+/src/fallout2/src/elevator.cc:649:12: warning: statement has no effect [-Wunused-value]
+  649 |     toupper(keyCode);
+      |     ~~~~~~~^~~~~~~~~
+file_find.cc
+file_utils.cc
+font_manager.cc
+fps_limiter.cc
+/src/fallout2/src/endgame.cc: In function 'void fallout::endgameEndingRenderPanningScene(int, const char*)':
+/src/fallout2/src/endgame.cc:326:13: warning: unused variable 'height' [-Wunused-variable]
+  326 |         int height = artGetHeight(background, 0, 0);
+      |             ^~~~~~
+/src/fallout2/src/font_manager.cc: In function 'void fallout::interfaceFontDrawImpl(unsigned char*, const char*, int, int, int)':
+/src/fallout2/src/font_manager.cc:377:21: warning: operation on 'ptr' may be undefined [-Wsequence-point]
+  377 |                 *ptr++ = palette[(byte << 8) + *ptr];
+      |                  ~~~^~
+/src/fallout2/src/font_manager.cc:377:21: warning: operation on 'ptr' may be undefined [-Wsequence-point]
+game.cc
+/src/fallout2/src/game.cc:1519:20: warning: multi-character character constant [-Wmultichar]
+ 1519 |     if (version != 'RIX3') {
+      |                    ^~~~~~
+game_config.cc
+game_dialog.cc
+game_memory.cc
+game_mouse.cc
+/src/fallout2/src/game_config.cc: In function 'bool fallout::gameConfigInit(bool, int, char**)':
+/src/fallout2/src/game_config.cc:168:17: warning: unused variable 'configFileName' [-Wunused-variable]
+  168 |     const char* configFileName = customConfigFileName != nullptr && *customConfigFileName != '\0'
+      |                 ^~~~~~~~~~~~~~
+game_movie.cc
+/src/fallout2/src/game.cc: In function 'int fallout::gameDbInit()':
+/src/fallout2/src/game.cc:1460:35: warning: ISO C++ forbids converting a string constant to 'char*' [-Wwrite-strings]
+ 1460 |         path_file_name_template = "patch%03d.dat";
+      |                                   ^~~~~~~~~~~~~~~
+/src/fallout2/src/game_dialog.cc: In function 'void fallout::partyMemberCustomizationWindowHandleEvents()':
+/src/fallout2/src/game_dialog.cc:4017:21: warning: comparison of integer expressions of different signedness: 'unsigned int' and 'int' [-Wsign-compare]
+ 4017 |         if (keyCode != -1) {
+      |             ~~~~~~~~^~~~~
+In file included from /src/fallout2/src/game_dialog.cc:42:
+/src/fallout2/src/tile.h: At global scope:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/game_dialog.cc:33:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+In file included from /src/fallout2/src/game.cc:71:
+/src/fallout2/src/tile.h: At global scope:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/game.cc:48:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+game_sound.cc
+geometry.cc
+In file included from /src/fallout2/src/game_mouse.cc:36:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/game_mouse.cc:28:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+graph_lib.cc
+heap.cc
+/src/fallout2/src/heap.cc: In function 'bool fallout::heapBlockAllocate(Heap*, int*, int, int)':
+/src/fallout2/src/heap.cc:355:27: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  355 |         if (remainingSize > HEAP_BLOCK_MIN_SIZE) {
+      |                           ^
+/src/fallout2/src/heap.cc: In function 'bool fallout::heapBlockDeallocate(Heap*, int*)':
+/src/fallout2/src/heap.cc:435:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  435 |     if (blockHeader->guard != HEAP_BLOCK_HEADER_GUARD) {
+      |                            ^
+/src/fallout2/src/heap.cc:440:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  440 |     if (blockFooter->guard != HEAP_BLOCK_FOOTER_GUARD) {
+      |                            ^
+/src/fallout2/src/heap.cc: In function 'bool fallout::heapLock(Heap*, int, unsigned char**)':
+/src/fallout2/src/heap.cc:504:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  504 |     if (blockHeader->guard != HEAP_BLOCK_HEADER_GUARD) {
+      |                            ^
+/src/fallout2/src/heap.cc:510:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  510 |     if (blockFooter->guard != HEAP_BLOCK_FOOTER_GUARD) {
+      |                            ^
+/src/fallout2/src/heap.cc: In function 'bool fallout::heapUnlock(Heap*, int)':
+/src/fallout2/src/heap.cc:565:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  565 |     if (blockHeader->guard != HEAP_BLOCK_HEADER_GUARD) {
+      |                            ^
+/src/fallout2/src/heap.cc:570:28: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  570 |     if (blockFooter->guard != HEAP_BLOCK_FOOTER_GUARD) {
+      |                            ^
+/src/fallout2/src/heap.cc: In function 'bool fallout::heapFindFreeHandle(Heap*, int*)':
+/src/fallout2/src/heap.cc:644:27: warning: comparison of integer expressions of different signedness: 'unsigned int' and 'int' [-Wsign-compare]
+  644 |         if (handle->state == HEAP_HANDLE_STATE_INVALID) {
+      |                           ^
+/src/fallout2/src/heap.cc: In function 'bool fallout::heapFindFreeBlock(Heap*, int, void**, int)':
+/src/fallout2/src/heap.cc:866:31: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  866 |             if (remainingSize < HEAP_BLOCK_MIN_SIZE) {
+      |                               ^
+/src/fallout2/src/heap.cc: In function 'bool fallout::heapValidate(Heap*)':
+/src/fallout2/src/heap.cc:1154:32: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+ 1154 |         if (blockHeader->guard != HEAP_BLOCK_HEADER_GUARD) {
+      |                                ^
+/src/fallout2/src/heap.cc:1160:32: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+ 1160 |         if (blockFooter->guard != HEAP_BLOCK_FOOTER_GUARD) {
+      |                                ^
+/src/fallout2/src/heap.cc:1222:27: warning: comparison of integer expressions of different signedness: 'unsigned int' and 'int' [-Wsign-compare]
+ 1222 |         if (handle->state != HEAP_HANDLE_STATE_INVALID && (handle->state & HEAP_BLOCK_STATE_SYSTEM) != 0) {
+      |                           ^
+/src/fallout2/src/heap.cc:1224:36: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+ 1224 |             if (blockHeader->guard != HEAP_BLOCK_HEADER_GUARD) {
+      |                                    ^
+/src/fallout2/src/heap.cc:1230:36: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+ 1230 |             if (blockFooter->guard != HEAP_BLOCK_FOOTER_GUARD) {
+      |                                    ^
+input.cc
+interface.cc
+interpreter.cc
+/src/fallout2/src/game_sound.cc:1041:6: warning: 'void fallout::speechResume()' defined but not used [-Wunused-function]
+ 1041 | void speechResume()
+      |      ^~~~~~~~~~~~
+/src/fallout2/src/game_sound.cc:1033:6: warning: 'void fallout::speechPause()' defined but not used [-Wunused-function]
+ 1033 | void speechPause()
+      |      ^~~~~~~~~~~
+/src/fallout2/src/game_sound.cc:857:5: warning: 'int fallout::_gsound_speech_volume_get_set(int)' defined but not used [-Wunused-function]
+  857 | int _gsound_speech_volume_get_set(int volume)
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/game_sound.cc:799:6: warning: 'void fallout::speechDisable()' defined but not used [-Wunused-function]
+  799 | void speechDisable()
+      |      ^~~~~~~~~~~~~
+/src/fallout2/src/game_sound.cc:590:5: warning: 'int fallout::backgroundSoundGetDuration()' defined but not used [-Wunused-function]
+  590 | int backgroundSoundGetDuration()
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/game_sound.cc:487:5: warning: 'int fallout::soundEffectsGetVolume()' defined but not used [-Wunused-function]
+  487 | int soundEffectsGetVolume()
+      |     ^~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/game_sound.cc:423:5: warning: 'int fallout::soundEffectsIsEnabled()' defined but not used [-Wunused-function]
+  423 | int soundEffectsIsEnabled()
+      |     ^~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/game_sound.cc:415:6: warning: 'void fallout::soundEffectsDisable()' defined but not used [-Wunused-function]
+  415 | void soundEffectsDisable()
+      |      ^~~~~~~~~~~~~~~~~~~
+In file included from /src/fallout2/src/game_sound.cc:20:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+/src/fallout2/src/interpreter.cc: In function 'void fallout::opPopToBase(Program*)':
+/src/fallout2/src/interpreter.cc:710:41: warning: comparison of integer expressions of different signedness: 'std::vector<fallout::ProgramValue>::size_type' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+  710 |     while (program->stackValues->size() != program->framePointer) {
+      |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
+interpreter_extra.cc
+In file included from /src/fallout2/src/interface.cc:35:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/interface.cc:28:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+/src/fallout2/src/interpreter.cc: At global scope:
+/src/fallout2/src/interpreter.cc:43:13: warning: 'void fallout::programReturnStackPushInt16(Program*, int)' declared 'static' but never defined [-Wunused-function]
+   43 | static void programReturnStackPushInt16(Program* program, int value);
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/interpreter.cc:44:17: warning: 'fallout::opcode_t fallout::programReturnStackPopInt16(Program*)' declared 'static' but never defined [-Wunused-function]
+   44 | static opcode_t programReturnStackPopInt16(Program* program);
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/interpreter.cc:45:12: warning: 'int fallout::programReturnStackPopInt32(Program*)' declared 'static' but never defined [-Wunused-function]
+   45 | static int programReturnStackPopInt32(Program* program);
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/interpreter.cc: In function 'void fallout::programFatalError(const char*, ...)':
+/src/fallout2/src/interpreter.cc:272:1: warning: 'noreturn' function does return
+  272 | }
+      | ^
+/src/fallout2/src/interpreter.cc: At global scope:
+/src/fallout2/src/interpreter.cc:3085:13: warning: 'void fallout::interpreterPrintStats()' defined but not used [-Wunused-function]
+ 3085 | static void interpreterPrintStats()
+      |             ^~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/interpreter.cc:359:17: warning: 'fallout::opcode_t fallout::stackPopInt16(unsigned char*, int*)' defined but not used [-Wunused-function]
+  359 | static opcode_t stackPopInt16(unsigned char* data, int* pointer)
+      |                 ^~~~~~~~~~~~~
+/src/fallout2/src/interpreter.cc:346:12: warning: 'int fallout::stackPopInt32(unsigned char*, int*)' defined but not used [-Wunused-function]
+  346 | static int stackPopInt32(unsigned char* data, int* pointer)
+      |            ^~~~~~~~~~~~~
+/src/fallout2/src/interpreter.cc:329:13: warning: 'void fallout::stackPushInt32(unsigned char*, int*, int)' defined but not used [-Wunused-function]
+  329 | static void stackPushInt32(unsigned char* data, int* pointer, int value)
+      |             ^~~~~~~~~~~~~~
+/src/fallout2/src/interpreter.cc:316:13: warning: 'void fallout::stackPushInt16(unsigned char*, int*, int)' defined but not used [-Wunused-function]
+  316 | static void stackPushInt16(unsigned char* data, int* pointer, int value)
+      |             ^~~~~~~~~~~~~~
+interpreter_lib.cc
+inventory.cc
+item.cc
+/src/fallout2/src/interpreter_extra.cc: In function 'void fallout::opSkillContest(Program*)':
+/src/fallout2/src/interpreter_extra.cc:625:9: warning: variable 'data' set but not used [-Wunused-but-set-variable]
+  625 |     int data[3];
+      |         ^~~~
+/src/fallout2/src/interpreter_extra.cc: In function 'void fallout::opHowMuch(Program*)':
+/src/fallout2/src/interpreter_extra.cc:719:9: warning: unused variable 'data' [-Wunused-variable]
+  719 |     int data = programStackPopInteger(program);
+      |         ^~~~
+/src/fallout2/src/interpreter_extra.cc: In function 'void fallout::opReactionInfluence(Program*)':
+/src/fallout2/src/interpreter_extra.cc:762:9: warning: variable 'data' set but not used [-Wunused-but-set-variable]
+  762 |     int data[3];
+      |         ^~~~
+/src/fallout2/src/interpreter_extra.cc: In function 'void fallout::opRollDice(Program*)':
+/src/fallout2/src/interpreter_extra.cc:791:9: warning: variable 'data' set but not used [-Wunused-but-set-variable]
+  791 |     int data[2];
+      |         ^~~~
+/src/fallout2/src/interpreter_extra.cc: In function 'void fallout::opSetExitGrids(Program*)':
+/src/fallout2/src/interpreter_extra.cc:2182:9: warning: unused variable 'destinationRotation' [-Wunused-variable]
+ 2182 |     int destinationRotation = programStackPopInteger(program);
+      |         ^~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/interpreter_extra.cc: In function 'void fallout::opSetLightLevel(Program*)':
+/src/fallout2/src/interpreter_extra.cc:2250:9: warning: unused variable 'lightLevel' [-Wunused-variable]
+ 2250 |     int lightLevel = data;
+      |         ^~~~~~~~~~
+/src/fallout2/src/interpreter_extra.cc: In function 'void fallout::opKillCritterType(Program*)':
+/src/fallout2/src/interpreter_extra.cc:2434:37: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+ 2434 |                         if (ftIndex >= (sizeof(ftList) / sizeof(ftList[0]))) {
+      |                             ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/interpreter_extra.cc: In function 'void fallout::opCritterRemoveTrait(Program*)':
+/src/fallout2/src/interpreter_extra.cc:2931:9: warning: unused variable 'value' [-Wunused-variable]
+ 2931 |     int value = programStackPopInteger(program);
+      |         ^~~~~
+/src/fallout2/src/interpreter_extra.cc: In function 'void fallout::_op_gsay_message(Program*)':
+/src/fallout2/src/interpreter_extra.cc:3834:9: warning: unused variable 'reaction' [-Wunused-variable]
+ 3834 |     int reaction = programStackPopInteger(program);
+      |         ^~~~~~~~
+/src/fallout2/src/interpreter_lib.cc:39:13: warning: 'void fallout::_interpretFadePaletteBK(unsigned char*, unsigned char*, int, float, bool)' declared 'static' but never defined [-Wunused-function]
+   39 | static void _interpretFadePaletteBK(unsigned char* oldPalette, unsigned char* newPalette, int a3, float duration, bool shouldProcessBk);
+      |             ^~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/interpreter_lib.cc:999:13: warning: 'void fallout::setTimeOut(int)' defined but not used [-Wunused-function]
+  999 | static void setTimeOut(int value)
+      |             ^~~~~~~~~~
+/src/fallout2/src/interpreter_lib.cc:991:12: warning: 'int fallout::getTimeOut()' defined but not used [-Wunused-function]
+  991 | static int getTimeOut()
+      |            ^~~~~~~~~~
+/src/fallout2/src/interpreter_lib.cc:517:13: warning: 'void fallout::interpretFadeInNoBK(float)' defined but not used [-Wunused-function]
+  517 | static void interpretFadeInNoBK(float duration)
+      |             ^~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/interpreter_lib.cc:500:13: warning: 'void fallout::interpretFadeOutNoBK(float)' defined but not used [-Wunused-function]
+  500 | static void interpretFadeOutNoBK(float duration)
+      |             ^~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/interpreter_lib.cc:467:12: warning: 'int fallout::intlibGetFadeIn()' defined but not used [-Wunused-function]
+  467 | static int intlibGetFadeIn()
+      |            ^~~~~~~~~~~~~~~
+/src/fallout2/src/interpreter_lib.cc:461:13: warning: 'void fallout::interpretFadePalette(unsigned char*, unsigned char*, int, float)' defined but not used [-Wunused-function]
+  461 | static void interpretFadePalette(unsigned char* oldPalette, unsigned char* newPalette, int a3, float duration)
+      |             ^~~~~~~~~~~~~~~~~~~~
+In file included from /src/fallout2/src/interpreter_extra.cc:44:
+/src/fallout2/src/tile.h: At global scope:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/interpreter_extra.cc:32:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+kb.cc
+In file included from /src/fallout2/src/item.cc:33:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/item.cc:26:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+In file included from /src/fallout2/src/inventory.cc:50:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/inventory.cc:41:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+light.cc
+lips.cc
+/src/fallout2/src/kb.cc:1802:13: warning: 'void fallout::keyboardBuildSpanishConfiguration()' defined but not used [-Wunused-function]
+ 1802 | static void keyboardBuildSpanishConfiguration()
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/kb.cc:1662:13: warning: 'void fallout::keyboardBuildItalianConfiguration()' defined but not used [-Wunused-function]
+ 1662 | static void keyboardBuildItalianConfiguration()
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/kb.cc:1452:13: warning: 'void fallout::keyboardBuildGermanConfiguration()' defined but not used [-Wunused-function]
+ 1452 | static void keyboardBuildGermanConfiguration()
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/kb.cc:1272:13: warning: 'void fallout::keyboardBuildFrenchConfiguration()' defined but not used [-Wunused-function]
+ 1272 | static void keyboardBuildFrenchConfiguration()
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/kb.cc:53:14: warning: 'fallout::word_51E2E8' defined but not used [-Wunused-variable]
+   53 | static short word_51E2E8 = 0;
+      |              ^~~~~~~~~~~
+loadsave.cc
+main.cc
+In file included from /src/fallout2/src/light.cc:8:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+mainmenu.cc
+map.cc
+/src/fallout2/src/loadsave.cc: In function 'int fallout::lsgLoadGame(int)':
+/src/fallout2/src/loadsave.cc:1045:22: warning: unused variable 'time' [-Wunused-variable]
+ 1045 |         unsigned int time = getTicks();
+      |                      ^~~~
+/src/fallout2/src/loadsave.cc: In function 'int fallout::lsgLoadGameInSlot(int)':
+/src/fallout2/src/loadsave.cc:1777:17: warning: unused variable 'v12' [-Wunused-variable]
+ 1777 |             int v12 = fileTell(_flptr);
+      |                 ^~~
+/src/fallout2/src/loadsave.cc: In function 'int fallout::lsgSaveHeaderInSlot(int)':
+/src/fallout2/src/loadsave.cc:1837:50: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+ 1837 |     if (fileWrite(ptr->signature, 1, 24, _flptr) == -1) {
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+/src/fallout2/src/loadsave.cc: In function 'void fallout::_DrawInfoBox(int)':
+/src/fallout2/src/loadsave.cc:2149:26: warning: unused variable 'c' [-Wunused-variable]
+ 2149 |                     char c = *ending;
+      |                          ^
+/src/fallout2/src/loadsave.cc: In function 'int fallout::_get_input_str2(int, int, int, char*, int, int, int, int, int, int)':
+/src/fallout2/src/loadsave.cc:2368:9: warning: unused variable 'cursorWidth' [-Wunused-variable]
+ 2368 |     int cursorWidth = fontGetStringWidth("_") - 4;
+      |         ^~~~~~~~~~~
+/src/fallout2/src/loadsave.cc: In function 'int fallout::_GameMap2Slot(File*)':
+/src/fallout2/src/loadsave.cc:2573:62: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+ 2573 |         if (fileWrite(string, strlen(string) + 1, 1, stream) == -1) {
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+memory.cc
+In file included from /src/fallout2/src/main.cc:30:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+/src/fallout2/src/memory.cc: In function 'void fallout::memoryBlockValidate(void*)':
+/src/fallout2/src/memory.cc:213:23: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  213 |     if (header->guard != MEMORY_BLOCK_HEADER_GUARD) {
+      |                       ^
+/src/fallout2/src/memory.cc:218:23: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  218 |     if (footer->guard != MEMORY_BLOCK_FOOTER_GUARD) {
+      |                       ^
+memory_manager.cc
+In file included from /src/fallout2/src/loadsave.cc:59:
+/src/fallout2/src/tile.h: At global scope:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/loadsave.cc:47:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+message.cc
+/src/fallout2/src/map.cc: In function 'int fallout::mapHandleTransition()':
+/src/fallout2/src/map.cc:1327:72: warning: format '%u' expects argument of type 'unsigned int', but argument 5 has type 'long unsigned int' [-Wformat=]
+ 1327 |                 snprintf(loadMsg, sizeof(loadMsg), "map change to %d: %u ms, %u SD opens, %u lookups skipped",
+      |                                                                       ~^
+      |                                                                        |
+      |                                                                        unsigned int
+      |                                                                       %lu
+ 1328 |                     gMapTransition.map, SDL_GetTicks() - loadStart, gCtrSdOpens - opens0, gCtrSdSkipped - skipped0);
+      |                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~      
+      |                                                        |
+      |                                                        long unsigned int
+mouse.cc
+In file included from /src/fallout2/src/map.cc:49:
+/src/fallout2/src/tile.h: At global scope:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/map.cc:41:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+mouse_manager.cc
+movie.cc
+/src/fallout2/src/mouse.cc: In function 'void fallout::_mouse_info()':
+/src/fallout2/src/mouse.cc:397:16: warning: enumeration value 'kUnrecognized' not handled in switch [-Wswitch]
+  397 |         switch (gesture.type) {
+      |                ^
+movie_effect.cc
+movie_lib.cc
+nevs.cc
+object.cc
+/src/fallout2/src/movie.cc: In function 'bool fallout::movieReadImpl(void*, void*, int)':
+/src/fallout2/src/movie.cc:215:55: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+  215 |         return fileRead(buf, 1, count, (File*)handle) == count;
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+/src/fallout2/src/movie.cc: In function 'void fallout::movieDirectImpl(unsigned char*, int, int, int, int, int, int, int, int)':
+/src/fallout2/src/movie.cc:250:9: warning: variable 'v14' set but not used [-Wunused-but-set-variable]
+  250 |     int v14;
+      |         ^~~
+/src/fallout2/src/movie.cc:253:14: warning: variable 'srcRect' set but not used [-Wunused-but-set-variable]
+  253 |     SDL_Rect srcRect;
+      |              ^~~~~~~
+/src/fallout2/src/movie_lib.cc:1181:13: warning: 'void fallout::_MVE_sndResume()' defined but not used [-Wunused-function]
+ 1181 | static void _MVE_sndResume()
+      |             ^~~~~~~~~~~~~~
+/src/fallout2/src/movie_lib.cc:872:13: warning: 'void fallout::MVE_syncSync()' defined but not used [-Wunused-function]
+  872 | static void MVE_syncSync()
+      |             ^~~~~~~~~~~~
+/src/fallout2/src/movie_lib.cc:631:13: warning: 'void fallout::_MVE_sndPause()' defined but not used [-Wunused-function]
+  631 | static void _MVE_sndPause()
+      |             ^~~~~~~~~~~~~
+/src/fallout2/src/movie_lib.cc:480:12: warning: 'int fallout::_sub_4F4B5()' defined but not used [-Wunused-function]
+  480 | static int _sub_4F4B5()
+      |            ^~~~~~~~~~
+/src/fallout2/src/movie_lib.cc:400:12: warning: 'fallout::dword_6B402B' defined but not used [-Wunused-variable]
+  400 | static int dword_6B402B;
+      |            ^~~~~~~~~~~~
+/src/fallout2/src/movie_lib.cc:373:12: warning: 'fallout::dword_6B3CF8' defined but not used [-Wunused-variable]
+  373 | static int dword_6B3CF8;
+      |            ^~~~~~~~~~~~
+/src/fallout2/src/movie_lib.cc:129:13: warning: 'fallout::dword_51EE20' defined but not used [-Wunused-variable]
+  129 | static bool dword_51EE20 = false;
+      |             ^~~~~~~~~~~~
+/src/fallout2/src/movie.cc: At global scope:
+/src/fallout2/src/movie.cc:814:13: warning: 'bool fallout::_localMovieCallback()' defined but not used [-Wunused-function]
+  814 | static bool _localMovieCallback()
+      |             ^~~~~~~~~~~~~~~~~~~
+options.cc
+palette.cc
+party_member.cc
+In file included from /src/fallout2/src/party_member.cc:33:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/party_member.cc:24:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+In file included from /src/fallout2/src/options.cc:21:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+/src/fallout2/src/object.cc: In function 'void fallout::_object_fix_weapon_ammo(Object*)':
+/src/fallout2/src/object.cc:645:25: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  645 |         if (ammoTypePid == 0xCCCCCCCC || ammoTypePid == -1) {
+      |             ~~~~~~~~~~~~^~~~~~~~~~~~~
+/src/fallout2/src/object.cc:650:21: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  650 |         if (charges == 0xCCCCCCCC || charges == -1 || charges != proto->item.data.weapon.ammoCapacity) {
+      |             ~~~~~~~~^~~~~~~~~~~~~
+/src/fallout2/src/object.cc:657:25: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  657 |             if (charges == 0xCCCCCCCC) {
+      |                 ~~~~~~~~^~~~~~~~~~~~~
+/src/fallout2/src/object.cc:660:29: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  660 |                 if (charges == 0xCCCCCCCC) {
+      |                     ~~~~~~~~^~~~~~~~~~~~~
+/src/fallout2/src/object.cc: In function 'int fallout::_obj_load_dude(File*)':
+/src/fallout2/src/object.cc:3662:9: warning: unused variable 'savedRotation' [-Wunused-variable]
+ 3662 |     int savedRotation = gDude->rotation;
+      |         ^~~~~~~~~~~~~
+pcx.cc
+/src/fallout2/src/object.cc: In function 'void fallout::_obj_render_object(Object*, Rect*, int)':
+/src/fallout2/src/object.cc:4975:20: warning: unused variable 'src2' [-Wunused-variable]
+ 4975 |     unsigned char* src2 = src;
+      |                    ^~~~
+perk.cc
+pipboy.cc
+platform_compat.cc
+/src/fallout2/src/object.cc: At global scope:
+/src/fallout2/src/object.cc:214:12: warning: 'fallout::_objItemOutlineState' defined but not used [-Wunused-variable]
+  214 | static int _objItemOutlineState = 0;
+      |            ^~~~~~~~~~~~~~~~~~~~
+In file included from /src/fallout2/src/object.cc:32:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+pointer_registry.cc
+preferences.cc
+/src/fallout2/src/pipboy.cc: In function 'int fallout::_PrintAMList(int)':
+/src/fallout2/src/pipboy.cc:1610:9: warning: unused variable 'index' [-Wunused-variable]
+ 1610 |     int index = 0;
+      |         ^~~~~
+/src/fallout2/src/pipboy.cc: In function 'bool fallout::pipboyRest(int, int, int)':
+/src/fallout2/src/pipboy.cc:1996:17: warning: unused variable 'v5' [-Wunused-variable]
+ 1996 |             int v5 = 0;
+      |                 ^~
+proto.cc
+proto_instance.cc
+/src/fallout2/src/preferences.cc: In function 'void fallout::_DoThing(int)':
+/src/fallout2/src/preferences.cc:1386:13: warning: unused variable 'value' [-Wunused-variable]
+ 1386 |         int value = *valuePtr;
+      |             ^~~~~
+/src/fallout2/src/preferences.cc:1439:13: warning: unused variable 'knobX' [-Wunused-variable]
+ 1439 |         int knobX = (int)(219.0 / (meta->maxValue - meta->minValue));
+      |             ^~~~~
+/src/fallout2/src/proto.cc: In function 'int fallout::objectDataRead(Object*, File*)':
+/src/fallout2/src/proto.cc:625:29: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  625 |         if (obj->data.flags == 0xCCCCCCCC) {
+      |             ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+queue.cc
+In file included from /src/fallout2/src/proto_instance.cc:32:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/proto_instance.cc:26:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+random.cc
+reaction.cc
+In file included from /src/fallout2/src/queue.cc:14:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+region.cc
+scripts.cc
+select_file_list.cc
+settings.cc
+sfall_arrays.cc
+/src/fallout2/src/scripts.cc: In function 'int fallout::scriptGetScript(int, Script**)':
+/src/fallout2/src/scripts.cc:2116:13: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+ 2116 |     if (sid == 0xCCCCCCCC) {
+      |         ~~~~^~~~~~~~~~~~~
+sfall_config.cc
+In file included from /src/fallout2/src/scripts.cc:37:
+/src/fallout2/src/tile.h: At global scope:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/scripts.cc:29:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+sfall_global_scripts.cc
+sfall_global_vars.cc
+sfall_ini.cc
+sfall_kb_helpers.cc
+sfall_lists.cc
+/src/fallout2/src/sfall_arrays.cc: In member function 'void fallout::ArrayElement::setString(const char*, size_t)':
+/src/fallout2/src/sfall_arrays.cc:221:18: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+  221 |         if (sLen == -1) {
+      |             ~~~~~^~~~~
+sfall_metarules.cc
+sfall_opcodes.cc
+In file included from /src/fallout2/src/sfall_metarules.cc:15:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+skill.cc
+skilldex.cc
+/src/fallout2/src/sfall_opcodes.cc: In function 'void fallout::opSubstr(Program*)':
+/src/fallout2/src/sfall_opcodes.cc:663:16: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  663 |     if (length > sizeof(buf) - 1) {
+      |         ~~~~~~~^~~~~~~~~~~~~~~~~
+/src/fallout2/src/sfall_opcodes.cc: In function 'void fallout::opGetArray(Program*)':
+/src/fallout2/src/sfall_opcodes.cc:846:17: warning: comparison of integer expressions of different signedness: 'int' and 'size_t' {aka 'unsigned int'} [-Wsign-compare]
+  846 |         if (pos < strlen(str)) {
+      |             ~~~~^~~~~~~~~~~~~
+In file included from /src/fallout2/src/sfall_opcodes.cc:32:
+/src/fallout2/src/tile.h: At global scope:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/sfall_opcodes.cc:21:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+sound.cc
+In file included from /src/fallout2/src/skill.cc:23:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+sound_decoder.cc
+sound_effects_cache.cc
+sound_effects_list.cc
+/src/fallout2/src/sound.cc: In function 'void fallout::_refreshSoundBuffers(Sound*)':
+/src/fallout2/src/sound.cc:341:35: warning: comparison of integer expressions of different signedness: 'unsigned int' and 'int' [-Wsign-compare]
+  341 |     if (audioBytes1 + audioBytes2 != sound->dataSize * v53) {
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
+stat.cc
+string_parsers.cc
+svga.cc
+/src/fallout2/src/sound_effects_cache.cc: In function 'int fallout::soundEffectsCacheFileReadCompressed(int, void*, unsigned int)':
+/src/fallout2/src/sound_effects_cache.cc:491:23: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+  491 |         if (bytesRead != soundEffect->position) {
+      |             ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/string_parsers.cc: In function 'int fallout::strParseIntWithKey(char**, const char*, int*, const char*)':
+/src/fallout2/src/string_parsers.cc:164:28: warning: variable 'v5' set but not used [-Wunused-but-set-variable]
+  164 |     size_t v1, v2, v3, v4, v5;
+      |                            ^~
+/src/fallout2/src/string_parsers.cc: In function 'int fallout::strParseKeyValue(char**, char*, int*, const char*)':
+/src/fallout2/src/string_parsers.cc:222:28: warning: variable 'v5' set but not used [-Wunused-but-set-variable]
+  222 |     size_t v1, v2, v3, v4, v5;
+      |                            ^~
+text_font.cc
+/src/fallout2/src/text_font.cc: In function 'int fallout::textFontLoad(int)':
+/src/fallout2/src/text_font.cc:187:109: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+  187 |     if (fileRead(textFontDescriptor->glyphs, sizeof(TextFontGlyph), textFontDescriptor->glyphCount, stream) != textFontDescriptor->glyphCount) {
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/src/fallout2/src/text_font.cc:197:65: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+  197 |     if (fileRead(textFontDescriptor->data, 1, dataSize, stream) != dataSize) {
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+text_object.cc
+tile.cc
+/src/fallout2/src/stat.cc: In function 'void fallout::critterUpdateDerivedStats(Object*)':
+/src/fallout2/src/stat.cc:559:9: warning: unused variable 'intelligence' [-Wunused-variable]
+  559 |     int intelligence = critterGetStat(critter, STAT_INTELLIGENCE);
+      |         ^~~~~~~~~~~~
+In file included from /src/fallout2/src/stat.cc:26:
+/src/fallout2/src/tile.h: At global scope:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+In file included from /src/fallout2/src/stat.cc:21:
+/src/fallout2/src/proto.h:143:13: warning: 'bool fallout::isExitGridPid(int)' defined but not used [-Wunused-function]
+  143 | static bool isExitGridPid(int pid)
+      |             ^~~~~~~~~~~~~
+touch.cc
+/src/fallout2/src/svga.cc:433:13: warning: 'void fallout::destroyRenderer()' defined but not used [-Wunused-function]
+  433 | static void destroyRenderer()
+      |             ^~~~~~~~~~~~~~~
+/src/fallout2/src/svga.cc:402:13: warning: 'bool fallout::createRenderer(int, int)' defined but not used [-Wunused-function]
+  402 | static bool createRenderer(int width, int height)
+      |             ^~~~~~~~~~~~~~
+trait.cc
+version.cc
+In file included from /src/fallout2/src/text_object.cc:13:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+widget.cc
+win32.cc
+window.cc
+/src/fallout2/src/touch.cc: In function 'void fallout::touch_process_gesture()':
+/src/fallout2/src/touch.cc:219:38: warning: comparison of integer expressions of different signedness: 'Uint32' {aka 'long unsigned int'} and 'int' [-Wsign-compare]
+  219 |             if (sequenceEndTimestamp != -1) {
+      |                 ~~~~~~~~~~~~~~~~~~~~~^~~~~
+/src/fallout2/src/touch.cc:242:68: warning: comparison of integer expressions of different signedness: 'Uint32' {aka 'long unsigned int'} and 'int' [-Wsign-compare]
+  242 |         if (currentGesture.state == kEnded && sequenceEndTimestamp != -1) {
+      |                                               ~~~~~~~~~~~~~~~~~~~~~^~~~~
+window_manager.cc
+window_manager_private.cc
+word_wrap.cc
+worldmap.cc
+/src/fallout2/src/window.cc:76:12: warning: 'fallout::_holdTime' defined but not used [-Wunused-variable]
+   76 | static int _holdTime = 250;
+      |            ^~~~~~~~~
+/src/fallout2/src/window_manager_private.cc: In function 'int fallout::_win_input_str(int, char*, int, int, int, int, int)':
+/src/fallout2/src/window_manager_private.cc:1132:22: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+ 1132 |     for (; cursorPos <= maxLength; cursorPos++) {
+      |            ~~~~~~~~~~^~~~~~~~~~~~
+/src/fallout2/src/window_manager_private.cc:1182:31: warning: comparison of integer expressions of different signedness: 'size_t' {aka 'unsigned int'} and 'int' [-Wsign-compare]
+ 1182 |                 if (cursorPos == maxLength) {
+      |                     ~~~~~~~~~~^~~~~~~~~~~~
+/src/fallout2/src/window_manager.cc:472:6: warning: 'void fallout::_win_buffering(bool)' defined but not used [-Wunused-function]
+  472 | void _win_buffering(bool a1)
+      |      ^~~~~~~~~~~~~~
+xfile.cc
+ctr_gfx.cc
+ctr_input.cc
+ctr_manual.cc
+/src/fallout2/src/worldmap.cc: In function 'int fallout::wmInterfaceRefresh()':
+/src/fallout2/src/worldmap.cc:5284:17: warning: unused variable 'v13' [-Wunused-variable]
+ 5284 |             int v13 = 0;
+      |                 ^~~
+/src/fallout2/src/worldmap.cc: At global scope:
+/src/fallout2/src/worldmap.cc:717:20: warning: 'fallout::wmConditionalQualifierStrs' defined but not used [-Wunused-variable]
+  717 | static const char* wmConditionalQualifierStrs[2] = {
+      |                    ^~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /src/fallout2/src/worldmap.cc:53:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+/src/fallout2/src/platform/ctr/ctr_manual.cc: In function 'void fallout::ctr_manual_run()':
+/src/fallout2/src/platform/ctr/ctr_manual.cc:337:13: warning: unused variable 'held' [-Wunused-variable]
+  337 |         u32 held = ctr_remap(hidKeysHeld());
+      |             ^~~~
+ctr_perf.cc
+In file included from /src/fallout2/src/platform/ctr/ctr_input.cc:28:
+/src/fallout2/src/tile.h:58:13: warning: 'bool fallout::tileIsValid(int)' defined but not used [-Wunused-function]
+   58 | static bool tileIsValid(int tile)
+      |             ^~~~~~~~~~~
+ctr_rectmap.cc
+ctr_sys.cc
+selftest.c
+fpattern.c
+/src/fallout2/third_party/fpattern-src/src/fpattern.c:63:25: warning: 'copyright' defined but not used [-Wunused-const-variable=]
+   63 | static const char       copyright[] =
+      |                         ^~~~~~~~~
+/src/fallout2/third_party/fpattern-src/src/fpattern.c:60:25: warning: 'id' defined but not used [-Wunused-const-variable=]
+   60 | static const char       id[] =
+      |                         ^~
+linking fallout2-ce.elf
+built ... fallout2-ce.3dsx
+total 52588
+drwxr-xr-x 2 runner runner     4096 Nov 14 01:06 .
+drwxr-xr-x 9 runner runner     4096 Nov 14 01:05 ..
+-rw-r--r-- 1 runner runner  2669904 Nov 14 01:05 fallout-ce.3dsx
+-rwxr-xr-x 1 runner runner 21434980 Nov 14 01:05 fallout-ce.elf
+-rw-r--r-- 1 runner runner  3185600 Nov 14 01:06 fallout2-ce.3dsx
+-rwxr-xr-x 1 runner runner 26544620 Nov 14 01:06 fallout2-ce.elf
