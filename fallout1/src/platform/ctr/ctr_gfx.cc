@@ -1079,7 +1079,7 @@ static const char* dashHint(const CtrDashboard* d)
         if (d->turn == 1) {
             return "ZR end turn    B attack    Hold R odds    Select+A heal";
         }
-        return nullptr;
+        return "START menu    ZL swap screens    Select+X automap";   // house style: always a hint strip
     case DISPLAY_INVENTORY:
         return "Drag items to hands or armor    Hold for menu    B close";
     case DISPLAY_INVENTORY_LOOT:
@@ -1093,7 +1093,7 @@ static const char* dashHint(const CtrDashboard* d)
     case DISPLAY_PIPBOY:
         return "Tap the buttons on the left    B close";
     default:
-        return nullptr;
+        return "START menu    ZL swap screens";
     }
 }
 
@@ -1148,7 +1148,8 @@ void ctr_dashboard_draw()
 
     rect(0, 0, 400, 240, bg);
 
-    // Header: name + date/time, or whose turn it is in combat
+    // Header bar (house style): name + date/time, or whose turn it is in combat
+    rect(0, 0, 400, 22, panel);
     text(&dashText[DASH_T_NAME], 8, 2, 0.6f, d.sneaking ? amber : green);
     text(&dashText[DASH_T_TIME], 392, 5, 0.45f, d.turn == 1 ? amber : (d.turn == 2 ? red : dim), true);
 
@@ -1253,7 +1254,7 @@ void ctr_help_draw()
         helpTextBuf = C2D_TextBufNew(2048);
         C2D_TextParse(&helpTitle, helpTextBuf, "FALLOUT");
         C2D_TextOptimize(&helpTitle);
-        C2D_TextParse(&helpSub, helpTextBuf, "Select: manual");
+        C2D_TextParse(&helpSub, helpTextBuf, "Tap a button on the touch screen    Select manual");
         C2D_TextOptimize(&helpSub);
         for (int c = 0; c < 2; c++) {
             for (int r = 0; r < 9; r++) {
@@ -1278,14 +1279,16 @@ void ctr_help_draw()
     C2D_SceneBegin(topRenderTarget);
     C2D_DrawRectSolid(0, 0, 0.5f, 400 * kx, 240, bg);
 
-    C2D_DrawText(&helpTitle, C2D_WithColor, 8 * kx, 4, 0.6f, 0.8f * kx, 0.8f, amber);
-    C2D_DrawText(&helpSub, C2D_WithColor | C2D_AlignRight, 392 * kx, 12, 0.6f, 0.5f * kx, 0.5f, dim);
-    C2D_DrawRectSolid(0, 34, 0.5f, 400 * kx, 1, dim);
+    // House style: 22 px header bar, rows, hint strip at y 224 (claude/3ds-look-and-feel.md)
+    C2D_DrawRectSolid(0, 0, 0.5f, 400 * kx, 22, C2D_Color32(40, 56, 120, 0xff));
+    C2D_DrawText(&helpTitle, C2D_WithColor, 8 * kx, 2, 0.6f, 0.6f * kx, 0.6f, amber);
+    C2D_DrawRectSolid(0, 224, 0.5f, 400 * kx, 16, C2D_Color32(20, 30, 70, 0xff));
+    C2D_DrawText(&helpSub, C2D_WithColor | C2D_AlignCenter, 200 * kx, 225, 0.6f, 0.42f * kx, 0.42f, amber);
 
     for (int c = 0; c < 2; c++) {
         float x = c == 0 ? 6.f : 206.f;
         for (int r = 0; r < 9; r++) {
-            float y = 42 + r * 21.5f;
+            float y = 28 + r * 21.5f;
             // shrink a long key name to its column so it never runs into the action text
             const float colW = (c == 0 ? 68.f : 80.f) - 4.f;
             float kw = 0, kh = 0;
@@ -1347,8 +1350,8 @@ void ctr_hint_draw(const char* hint)
     const float kx = 1.f;
     C2D_Prepare();
     C2D_SceneBegin(topRenderTarget);
-    C2D_DrawRectSolid(0, 224, 0.5f, 400 * kx, 16, C2D_Color32(0, 0, 0, 0xc0));
-    C2D_DrawText(&hintTextObj, C2D_WithColor | C2D_AlignCenter, 200 * kx, 225, 0.6f, 0.42f * kx, 0.42f, C2D_Color32(255, 204, 64, 0xff));
+    C2D_DrawRectSolid(0, 224, 0.9f, 400 * kx, 16, C2D_Color32(20, 30, 70, 0xff));   // opaque and in front (depth 0.9): it covers the dashboard's own hint strip
+    C2D_DrawText(&hintTextObj, C2D_WithColor | C2D_AlignCenter, 200 * kx, 225, 0.95f, 0.42f * kx, 0.42f, C2D_Color32(255, 204, 64, 0xff));
     C2D_Flush();
 }
 
