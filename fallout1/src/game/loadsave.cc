@@ -1583,6 +1583,12 @@ static int LSGameStart(int windowType)
     }
 
     win_register_button(lsgwin, 55, 87, 230, 353, -1, -1, -1, 502, NULL, NULL, NULL, BUTTON_FLAG_TRANSPARENT);
+#ifdef __3DS__
+    // On the touchscreen people tap the DONE / CANCEL words, not the small red
+    // dot beside them, so the words do the same as the dot.
+    win_register_button(lsgwin, 406, 347, 76, 26, -1, -1, -1, 500, NULL, NULL, NULL, BUTTON_FLAG_TRANSPARENT);
+    win_register_button(lsgwin, 510, 347, 96, 26, -1, -1, -1, 501, NULL, NULL, NULL, BUTTON_FLAG_TRANSPARENT);
+#endif
     text_font(101);
 
     return 0;

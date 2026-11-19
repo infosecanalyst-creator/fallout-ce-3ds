@@ -1586,6 +1586,12 @@ static int lsgWindowInit(int windowType)
     }
 
     buttonCreate(gLoadSaveWindow, 55, 87, 230, 353, -1, -1, -1, 502, nullptr, nullptr, nullptr, BUTTON_FLAG_TRANSPARENT);
+#ifdef __3DS__
+    // On the touchscreen people tap the DONE / CANCEL words, not the small red
+    // dot beside them, so the words do the same as the dot.
+    buttonCreate(gLoadSaveWindow, 406, 347, 76, 26, -1, -1, -1, 500, nullptr, nullptr, nullptr, BUTTON_FLAG_TRANSPARENT);
+    buttonCreate(gLoadSaveWindow, 510, 347, 96, 26, -1, -1, -1, 501, nullptr, nullptr, nullptr, BUTTON_FLAG_TRANSPARENT);
+#endif
     fontSetCurrent(101);
 
     return 0;
