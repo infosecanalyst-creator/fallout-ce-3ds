@@ -54,6 +54,7 @@ void finishRender();
 void drawRects();
 void drawFrameRect();
 static void ctr_movie_card_draw();
+static void ctr_alert_frame();
 // Shown on the top screen for 2.5 s after Select+R, so the change is visible.
 static u64 ctrWideHintUntil = 0;
 static const char* ctrWideHint = nullptr;
@@ -644,6 +645,8 @@ void drawRects()
     if (ctr_rectMap.active == DISPLAY_MOVIE && !ctrMovieSubtitles) {
         ctr_movie_card_draw();
     }
+
+    ctr_alert_frame();
 
     finishRender();
 }
@@ -1464,6 +1467,98 @@ static void ctr_movie_card_draw()
     C2D_DrawText(&t3, C2D_WithColor | C2D_AlignCenter, 160, 140, 0.6f, 0.5f, 0.5f, C2D_Color32(240, 240, 240, 0xff));
     C2D_Flush();
     gpuStateReady = false;
+}
+
+
+
+// ---------------------------------------------------------------------------
+// UI rule 14 (critical info where the eyes are): the dashboard is on the other
+// screen, so danger and "your turn" also flash for a few seconds in a strip on
+// the screen showing the map (the touch screen normally, the top when ZL put
+// the map there). Colour is never the only signal: each alert is a word.
+// ---------------------------------------------------------------------------
+static char ctrAlertText[64];
+static bool ctrAlertDanger;
+static u64 ctrAlertUntil, ctrAlertAt;
+
+static void ctr_alert_push(const char* text, bool danger)
+{
+    u64 now = osGetTime();
+    // an info alert never replaces a danger alert that has been up less than 1.5 s
+    if (!danger && ctrAlertDanger && now < ctrAlertUntil && now - ctrAlertAt < 1500) return;
+    snprintf(ctrAlertText, sizeof(ctrAlertText), "%s", text);
+    ctrAlertDanger = danger;
+    ctrAlertAt = now;
+    ctrAlertUntil = now + 3000;
+}
+
+static void ctr_alert_update()
+{
+    static bool have = false;
+    static int hp, turn, poison;
+    if (!ctrDashboardAvailable()) {
+        have = false;
+        ctrAlertUntil = 0;
+        return;
+    }
+    static CtrDashboard d;
+    ctrDashboardGather(&d);
+    if (!d.valid) return;
+    if (have) {
+        char b[64];
+        if (d.hp < hp && d.hpMax > 0) {
+            if (d.hp * 4 <= d.hpMax) {
+                snprintf(b, sizeof(b), "! LOW HEALTH   HP %d/%d", d.hp, d.hpMax);
+                ctr_alert_push(b, true);
+            } else if (d.inCombat) {
+                snprintf(b, sizeof(b), "! HIT  -%d HP   (%d/%d)", hp - d.hp, d.hp, d.hpMax);
+                ctr_alert_push(b, true);
+            }
+        }
+        if (d.poison > 0 && poison == 0) ctr_alert_push("! POISONED", true);
+        if (d.turn == 1 && turn != 1) {
+            snprintf(b, sizeof(b), "YOUR TURN   AP %d", d.ap);
+            ctr_alert_push(b, false);
+        }
+    }
+    hp = d.hp;
+    turn = d.turn;
+    poison = d.poison;
+    have = true;
+}
+
+static void ctr_alert_draw(bool onTop)
+{
+    static C2D_TextBuf buf = nullptr;
+    static C2D_Text txt;
+    static char parsed[64];
+    if (osGetTime() >= ctrAlertUntil) return;
+    if (buf == nullptr) buf = C2D_TextBufNew(128);
+    if (strcmp(parsed, ctrAlertText) != 0) {
+        C2D_TextBufClear(buf);
+        C2D_TextParse(&txt, buf, ctrAlertText);
+        C2D_TextOptimize(&txt);
+        strcpy(parsed, ctrAlertText);
+    }
+    const float w = onTop ? 400.f : 320.f;
+    const u32 accent = ctrAlertDanger ? C2D_Color32(255, 80, 64, 0xff) : C2D_Color32(255, 204, 64, 0xff);
+    C2D_Prepare();
+    C2D_SceneBegin(onTop ? topRenderTarget : bottomRenderTarget);
+    // opaque, in front, 6 px from the edges, over the top of the map
+    C2D_DrawRectSolid(6, 6, 0.9f, w - 12, 22, C2D_Color32(8, 12, 40, 0xff));
+    C2D_DrawRectSolid(6, 6, 0.91f, 4, 22, accent);
+    C2D_DrawRectSolid(w - 10, 6, 0.91f, 4, 22, accent);
+    C2D_DrawText(&txt, C2D_WithColor | C2D_AlignCenter, w / 2, 9, 0.95f, 0.5f, 0.5f, accent);
+    C2D_Flush();
+    gpuStateReady = false;
+}
+
+static void ctr_alert_frame()
+{
+    const int a = ctr_rectMap.active;
+    if (a != DISPLAY_FIELD && a != DISPLAY_GUI) return;
+    ctr_alert_update();
+    ctr_alert_draw(a == DISPLAY_GUI);
 }
 
 
