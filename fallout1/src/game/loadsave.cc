@@ -178,6 +178,10 @@ static const int lsgrphs[LOAD_SAVE_FRM_COUNT] = {
 
 // 0x50595C
 static int slot_cursor = 0;
+#ifdef __3DS__
+// rule 17: EXIT GAME's save goes into the reserved last slot (slot 10), named "Exit save".
+static int ctrForcedSlot = -1;
+#endif
 
 #ifdef __3DS__
 static bool ctrLsSaving = false; // which screen the top-screen slot card describes
@@ -384,6 +388,20 @@ static int ctrQuickSlot(bool newest)
 }
 #endif
 
+#ifdef __3DS__
+// rule 17 (Ryan, Nov 19 2026: reserve the last slot): EXIT GAME quick-saves into slot 10.
+int SaveGame(int mode);
+int ctrExitSave()
+{
+    const int keepSlot = slot_cursor;
+    ctrForcedSlot = 9;
+    int rc = SaveGame(LOAD_SAVE_MODE_QUICK);
+    ctrForcedSlot = -1;
+    slot_cursor = keepSlot;
+    return rc;
+}
+#endif
+
 int SaveGame(int mode)
 {
 #ifdef __3DS__
@@ -400,7 +418,7 @@ int SaveGame(int mode)
 
 #ifdef __3DS__
     if (mode == LOAD_SAVE_MODE_QUICK) {
-        slot_cursor = ctrQuickSlot(false);
+        slot_cursor = ctrForcedSlot >= 0 ? ctrForcedSlot : ctrQuickSlot(false);
         quick_done = true;
     }
 #endif
@@ -417,8 +435,8 @@ int SaveGame(int mode)
         {
             int map = map_get_index_number();
             const char* city = map_get_short_name(map);
-            snprintf(LSData[slot_cursor].description, LOAD_SAVE_DESCRIPTION_LENGTH, "Quick: %s",
-                city != NULL ? city : "");
+            snprintf(LSData[slot_cursor].description, LOAD_SAVE_DESCRIPTION_LENGTH, "%s: %s",
+                ctrForcedSlot >= 0 ? "Exit save" : "Quick", city != NULL ? city : "");
         }
 #endif
 

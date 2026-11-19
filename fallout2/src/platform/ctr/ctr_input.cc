@@ -497,6 +497,7 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
                 } else if (choice == 3) {
                     enqueueInputEvent(KEY_ESCAPE);   // the game's options
                 } else if (choice == 5) {
+                    if (ctr_in_gameplay()) enqueueInputEvent(0x7E01);   // save into the reserved slot 10 first (game.cc)
                     enqueueInputEvent(KEY_CTRL_Q);   // the game asks before quitting
                 }
                 key_combi_flags = FLAG_NONE;

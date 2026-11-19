@@ -972,6 +972,14 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
             debugPrint("\n ** Error calling LoadGame()! **\n");
         }
         break;
+#ifdef __3DS__
+    case 0x7E01: {   // START > EXIT GAME (ctr_input.cc): save into the reserved slot 10 first (rule 17)
+        extern int ctrExitSave();
+        int rc = ctrExitSave();
+        debugPrint("\n3ds: exit save -> %d\n", rc);
+        break;
+    }
+#endif
     case KEY_F6:
         if (1) {
             soundPlayFile("ib1p1xx1");

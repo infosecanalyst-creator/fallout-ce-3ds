@@ -206,6 +206,10 @@ static bool ctrLsSaving = false; // which screen the top-screen slot card descri
 
 // 0x5193BC
 static bool _quick_done = false;
+#ifdef __3DS__
+// rule 17: EXIT GAME's save goes into the reserved last slot (slot 10), named "Exit save".
+static int ctrForcedSlot = -1;
+#endif
 
 // 0x5193C0
 static bool gLoadSaveWindowIsoWasEnabled = false;
@@ -372,6 +376,23 @@ void _ResetLoadSave()
 
 // SaveGame
 // 0x47B88C
+#ifdef __3DS__
+// rule 17 (Ryan, Nov 19 2026: reserve the last slot): EXIT GAME quick-saves into slot 10. The
+// previous slot choice is kept, so the player's own quick save (F6) is not moved.
+int lsgSaveGame(int mode);
+int ctrExitSave()
+{
+    const int keepSlot = _slot_cursor;
+    const bool keepQuick = _quick_done;
+    ctrForcedSlot = 9;
+    int rc = lsgSaveGame(LOAD_SAVE_MODE_QUICK);
+    ctrForcedSlot = -1;
+    _slot_cursor = keepSlot;
+    _quick_done = keepQuick;
+    return rc;
+}
+#endif
+
 int lsgSaveGame(int mode)
 {
 #ifdef __3DS__
@@ -389,9 +410,19 @@ int lsgSaveGame(int mode)
         _quick_done = true;
     }
 
+#ifdef __3DS__
+    if (mode == LOAD_SAVE_MODE_QUICK && ctrForcedSlot >= 0) {
+        _quick_done = true;
+        _slot_cursor = ctrForcedSlot;
+    }
+#endif
     if (mode == LOAD_SAVE_MODE_QUICK && _quick_done) {
         // SFALL: cycle through first N slots for quicksaving
-        if (autoQuickSaveSlots) {
+        if (autoQuickSaveSlots
+#ifdef __3DS__
+            && ctrForcedSlot < 0
+#endif
+        ) {
             if (++_slot_cursor >= quickSaveSlots) {
                 _slot_cursor = 0;
             }
@@ -404,6 +435,12 @@ int lsgSaveGame(int mode)
             lsgLoadHeaderInSlot(_slot_cursor);
             fileClose(_flptr);
         }
+#ifdef __3DS__
+        if (ctrForcedSlot >= 0) {
+            strncpy(_LSData[_slot_cursor].description, "Exit save", LOAD_SAVE_DESCRIPTION_LENGTH);
+            _LSData[_slot_cursor].description[LOAD_SAVE_DESCRIPTION_LENGTH - 1] = '\0';
+        }
+#endif
 
         if (!messageListInit(&gLoadSaveMessageList)) {
             return -1;
