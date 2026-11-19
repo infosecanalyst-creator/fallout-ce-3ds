@@ -137,6 +137,14 @@ XFile* xfileOpen(const char* filePath, const char* mode)
         }
     }
 
+#ifdef __3DS__
+    if (mode[0] == 'w' || mode[0] == 'a') {
+        extern void ctr_debug_log(const char* msg);
+        char m[COMPAT_MAX_PATH + 48];
+        snprintf(m, sizeof(m), "XFILE open %s type %d -> %s", mode, stream->type, path);
+        ctr_debug_log(m);
+    }
+#endif
     if (stream->type == XFILE_TYPE_FILE) {
         // Opened file is a plain stream, which might be gzipped. In this case
         // first two bytes will contain magic numbers.

@@ -456,6 +456,14 @@ int lsgSaveGame(int mode)
         int v6 = _QuickSnapShot();
         if (v6 == 1) {
             int v7 = lsgPerformSaveGame();
+#ifdef __3DS__
+            {
+                extern void ctr_debug_log(const char* msg);
+                char m[64];
+                snprintf(m, sizeof(m), "LOADSAVE: quick perform slot %d rc %d", _slot_cursor + 1, v7);
+                ctr_debug_log(m);
+            }
+#endif
             if (v7 != -1) {
                 v6 = v7;
             }
@@ -1675,6 +1683,14 @@ static int lsgPerformSaveGame()
         SaveGameHandler* handler = _master_save_list[index];
         if (handler(_flptr) == -1) {
             debugPrint("\nLOADSAVE: ** Error writing save function #%d data! **\n", index);
+#ifdef __3DS__
+            {
+                extern void ctr_debug_log(const char* msg);
+                char m[64];
+                snprintf(m, sizeof(m), "LOADSAVE: handler %d failed", index);
+                ctr_debug_log(m);
+            }
+#endif
             fileClose(_flptr);
             _RestoreSave();
             snprintf(_gmpath, sizeof(_gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", _slot_cursor + 1);
@@ -1688,6 +1704,14 @@ static int lsgPerformSaveGame()
     }
 
     debugPrint("LOADSAVE: Total save data written: %ld bytes.\n", fileTell(_flptr));
+#ifdef __3DS__
+    {
+        extern void ctr_debug_log(const char* msg);
+        char m[96];
+        snprintf(m, sizeof(m), "LOADSAVE: wrote %ld bytes", (long)fileTell(_flptr));
+        ctr_debug_log(m);
+    }
+#endif
 
     fileClose(_flptr);
 
