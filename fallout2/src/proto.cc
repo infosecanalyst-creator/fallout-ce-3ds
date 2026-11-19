@@ -2000,10 +2000,15 @@ int _proto_save_pid(int pid)
             long length = ftell(mem);
             fclose(mem);
             if (memRc == 0 && length > 0 && length < (long)sizeof(memory)) {
-                File* old = fileOpen(path, "rb");
+                // Compare with the loose copy only: fileOpen would fall back to
+                // the original inside master.dat, the write would be skipped and
+                // saving (which copies the loose file into the slot) would fail.
+                char loosePath[COMPAT_MAX_PATH];
+                snprintf(loosePath, sizeof(loosePath), "%s\\%s", settings.system.master_patches_path.c_str(), path);
+                FILE* old = compat_fopen(loosePath, "rb");
                 if (old != nullptr) {
-                    long oldLength = fileRead(existing, 1, sizeof(existing), old);
-                    fileClose(old);
+                    long oldLength = (long)fread(existing, 1, sizeof(existing), old);
+                    fclose(old);
                     if (oldLength == length && memcmp(existing, memory, length) == 0) {
                         return 0;
                     }
