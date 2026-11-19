@@ -11,7 +11,7 @@ static const char* const kManualLines[] = {
     "",
     "## Reading this manual",
     "- Tap a section on the touch screen to open it.",
-    "- Circle Pad or C-Stick: scroll. Hold to keep scrolling.",
+    "- Circle Pad or C-Stick: scroll. Hold to keep scrolling. You can also drag the stylus up or down on the touch screen.",
     "- D-pad: move between the section buttons.",
     "- L and R: previous and next section.",
     "- B or Start: close. The manual opens again where you left it.",

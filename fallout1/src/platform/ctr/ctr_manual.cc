@@ -346,32 +346,52 @@ void ctr_manual_run()
             select(gCurrent + 1);
         }
 
+        // Touch: a tap (lifted within 6 px of where it went down) presses the section
+        // button there; a touch that moves further drags the text (rule 13), with a little
+        // momentum after the stylus is lifted.
+        static int tx0, ty0, tyLast, tState;   // tState: 0 none, 1 maybe a tap, 2 dragging
+        static float mom;
+        float& scroll = gScroll[gCurrent];
         if (down & KEY_TOUCH) {
             touchPosition touch;
             hidTouchRead(&touch);
-            bool close = false;
-            for (int i = 0; i <= (int)gSections.size(); i++) {
-                float x, y;
-                cellRect(i, &x, &y);
-                // the 4-px gaps and 6-px margins count toward the nearest cell
-                if (touch.px >= x - 2 && touch.px < x + kCellW + 2 && touch.py >= y - 2 && touch.py < y + kCellH + 2) {
-                    if (i == (int)gSections.size()) close = true;
-                    else select(i);
+            tx0 = touch.px; ty0 = touch.py; tyLast = touch.py; tState = 1; mom = 0;
+        } else if (tState && (held & KEY_TOUCH)) {
+            touchPosition touch;
+            hidTouchRead(&touch);
+            if (tState == 1 && (abs(touch.px - tx0) > 6 || abs(touch.py - ty0) > 6)) tState = 2;
+            if (tState == 2) { scroll -= touch.py - tyLast; mom = (float)(tyLast - touch.py); }
+            tyLast = touch.py;
+        } else if (tState) {
+            const int was = tState;
+            tState = 0;
+            if (was == 1) {
+                bool close = false;
+                for (int i = 0; i <= (int)gSections.size(); i++) {
+                    float x, y;
+                    cellRect(i, &x, &y);
+                    // the 4-px gaps and 6-px margins count toward the nearest cell
+                    if (tx0 >= x - 2 && tx0 < x + kCellW + 2 && ty0 >= y - 2 && ty0 < y + kCellH + 2) {
+                        if (i == (int)gSections.size()) close = true;
+                        else select(i);
+                        break;
+                    }
+                }
+                if (close) {
                     break;
                 }
             }
-            if (close) {
-                break;
-            }
+        } else if (mom > 0.5f || mom < -0.5f) {
+            scroll += mom;
+            mom *= 0.88f;
         }
 
-        float& scroll = gScroll[gCurrent];
         circlePosition cp;
         hidCircleRead(&cp);
         circlePosition cs;
         hidCstickRead(&cs);
         int dy = abs(cp.dy) > 20 ? cp.dy : (abs(cs.dy) > 20 ? cs.dy : 0);
-        scroll -= dy / 20.0f;
+        gScroll[gCurrent] -= dy / 20.0f;
         // D-pad moves between the section buttons (it does not scroll):
         // up/down within a column, left/right to the other column.
         {
