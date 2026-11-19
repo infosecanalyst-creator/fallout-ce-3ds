@@ -467,6 +467,11 @@ int lsgSaveGame(int mode)
             if (v7 != -1) {
                 v6 = v7;
             }
+#ifdef __3DS__
+            else {
+                v6 = -1;
+            }
+#endif
         }
 
         if (_snapshotBuf != nullptr) {
@@ -2576,14 +2581,19 @@ static int _EndLoad(File* stream)
 }
 
 // 0x47F510
+#ifdef __3DS__
+#define G2S_FAIL(n) do { extern void ctr_debug_log(const char* msg); char m_[300]; snprintf(m_, sizeof(m_), "G2S fail %d (%s | %s)", n, _str0, _str1); ctr_debug_log(m_); } while (0)
+#else
+#define G2S_FAIL(n) do { } while (0)
+#endif
 static int _GameMap2Slot(File* stream)
 {
     if (_partyMemberPrepSave() == -1) {
-        return -1;
+        G2S_FAIL(1); return -1;
     }
 
     if (_map_save_in_game(false) == -1) {
-        return -1;
+        G2S_FAIL(2); return -1;
     }
 
     for (int index = 1; index < gPartyMemberDescriptionsLength; index += 1) {
@@ -2603,7 +2613,7 @@ static int _GameMap2Slot(File* stream)
         snprintf(_str0, sizeof(_str0), "%s\\%s\\%s", _patches, critterItemPath, path);
         snprintf(_str1, sizeof(_str1), "%s\\%s\\%s%.2d\\%s\\%s", _patches, "SAVEGAME", "SLOT", _slot_cursor + 1, critterItemPath, path);
         if (fileCopyCompressed(_str0, _str1) == -1) {
-            return -1;
+            G2S_FAIL(3); return -1;
         }
     }
 
@@ -2612,24 +2622,24 @@ static int _GameMap2Slot(File* stream)
     char** fileNameList;
     int fileNameListLength = fileNameListInit(_str0, &fileNameList, 0, 0);
     if (fileNameListLength == -1) {
-        return -1;
+        G2S_FAIL(4); return -1;
     }
 
     if (fileWriteInt32(stream, fileNameListLength) == -1) {
         fileNameListFree(&fileNameList, 0);
-        return -1;
+        G2S_FAIL(5); return -1;
     }
 
     if (fileNameListLength == 0) {
         fileNameListFree(&fileNameList, 0);
-        return -1;
+        G2S_FAIL(6); return -1;
     }
 
     snprintf(_gmpath, sizeof(_gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", _slot_cursor + 1);
 
     if (MapDirErase(_gmpath, "SAV") == -1) {
         fileNameListFree(&fileNameList, 0);
-        return -1;
+        G2S_FAIL(7); return -1;
     }
 
     snprintf(_gmpath, sizeof(_gmpath), "%s\\%s\\%s%.2d\\", _patches, "SAVEGAME", "SLOT", _slot_cursor + 1);
@@ -2641,14 +2651,14 @@ static int _GameMap2Slot(File* stream)
         char* string = fileNameList[index];
         if (fileWrite(string, strlen(string) + 1, 1, stream) == -1) {
             fileNameListFree(&fileNameList, 0);
-            return -1;
+            G2S_FAIL(8); return -1;
         }
 
         snprintf(_str0, sizeof(_str0), "%s\\%s\\%s", _patches, "MAPS", string);
         snprintf(_str1, sizeof(_str1), "%s\\%s\\%s%.2d\\%s", _patches, "SAVEGAME", "SLOT", _slot_cursor + 1, string);
         if (fileCopyCompressed(_str0, _str1) == -1) {
             fileNameListFree(&fileNameList, 0);
-            return -1;
+            G2S_FAIL(9); return -1;
         }
     }
 
@@ -2659,29 +2669,29 @@ static int _GameMap2Slot(File* stream)
     snprintf(_str0, sizeof(_str0), "%s\\%s\\%s", _patches, "MAPS", "AUTOMAP.DB");
 
     if (fileCopyCompressed(_str0, _str1) == -1) {
-        return -1;
+        G2S_FAIL(10); return -1;
     }
 
     snprintf(_str0, sizeof(_str0), "%s\\%s", "MAPS", "AUTOMAP.DB");
     File* inStream = fileOpen(_str0, "rb");
     if (inStream == nullptr) {
-        return -1;
+        G2S_FAIL(11); return -1;
     }
 
     int fileSize = fileGetSize(inStream);
     if (fileSize == -1) {
         fileClose(inStream);
-        return -1;
+        G2S_FAIL(12); return -1;
     }
 
     fileClose(inStream);
 
     if (fileWriteInt32(stream, fileSize) == -1) {
-        return -1;
+        G2S_FAIL(13); return -1;
     }
 
     if (_partyMemberUnPrepSave() == -1) {
-        return -1;
+        G2S_FAIL(14); return -1;
     }
 
     return 0;
