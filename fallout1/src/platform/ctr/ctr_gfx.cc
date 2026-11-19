@@ -1413,7 +1413,6 @@ static void ctr_alert_draw(bool onTop)
     C2D_DrawRectSolid(w - 10, 6, 0.91f, 4, 22, accent);
     C2D_DrawText(&txt, C2D_WithColor | C2D_AlignCenter, w / 2, 9, 0.95f, 0.5f, 0.5f, accent);
     C2D_Flush();
-    gpuStateReady = false;
 }
 
 static void ctr_alert_frame()
