@@ -1641,6 +1641,14 @@ static int lsgPerformSaveGame()
     _flptr = fileOpen(_gmpath, "wb");
     if (_flptr == nullptr) {
         debugPrint("\nLOADSAVE: ** Error opening save game for writing! **\n");
+#ifdef __3DS__
+        {
+            extern void ctr_debug_log(const char* msg);
+            char m[COMPAT_MAX_PATH + 40];
+            snprintf(m, sizeof(m), "LOADSAVE: can't open %s for writing (patches %s)", _gmpath, _patches);
+            ctr_debug_log(m);
+        }
+#endif
         _RestoreSave();
         snprintf(_gmpath, sizeof(_gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", _slot_cursor + 1);
         MapDirErase(_gmpath, "BAK");

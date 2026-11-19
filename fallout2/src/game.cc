@@ -977,6 +977,12 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         extern int ctrExitSave();
         int rc = ctrExitSave();
         debugPrint("\n3ds: exit save -> %d\n", rc);
+        {
+            extern void ctr_debug_log(const char* msg);
+            char m[48];
+            snprintf(m, sizeof(m), "EXIT SAVE: slot 10 -> %d", rc);
+            ctr_debug_log(m);
+        }
         break;
     }
 #endif
