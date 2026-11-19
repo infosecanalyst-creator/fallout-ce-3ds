@@ -469,7 +469,7 @@ void menuDrawTop()
 text("FALLOUT", 8, 4, 0.5f, gold);
     text("PAUSED", 392, 4, 0.5f, grey, C2D_AlignRight);
     static const char* const help[kMenuCount] = { "back to the game", "how to play on the 3DS", "save your game", "the game's options",
-        "swap the D-pad and A/B/X/Y", "asks first; unsaved progress is lost" };
+        "swap the D-pad and A/B/X/Y", "saves to slot 10 first, then asks" };
     for (int i = 0; i < kMenuCount; i++) {
         text(i == M_LEFTY ? (gLefty ? "LEFT HAND: ON" : "LEFT HAND: OFF") : kMenuItems[i], 16, 36 + i * 28, 0.5f, i == gMenuSel ? gold : white);
         text(help[i], 170, 37 + i * 28, 0.45f, grey);
