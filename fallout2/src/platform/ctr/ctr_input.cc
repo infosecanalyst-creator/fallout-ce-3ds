@@ -85,6 +85,46 @@ static bool ctr_in_gameplay(void)
     return (ctr_rectMap.main == DISPLAY_FIELD) || (ctr_rectMap.main == DISPLAY_GUI);
 }
 
+// HOME > Close (FO-05): aptMainLoop() went false, SDL sends SDL_QUIT. In a running
+// game, queue the same slot-10 exit save START > EXIT GAME does (game.cc 0x7E01 runs it
+// from the game loop, then quits). Nothing to save, or the save never ran within 5 s
+// (a window that doesn't pass the event on): quit without it. Never quit while a save
+// is being written (ctrSaveWriting, loadsave.cc).
+bool ctrSaveWriting = false;
+static bool homeQuitPending = false;
+static bool homeQuitSaveQueued = false;
+static u64 homeQuitDeadline = 0;
+
+bool ctr_home_quit_pending(void)
+{
+    return homeQuitPending;
+}
+
+static void ctr_home_quit_request(void)
+{
+    if (homeQuitPending) {
+        return;
+    }
+    homeQuitPending = true;
+    homeQuitDeadline = osGetTime() + 5000;
+    if (ctr_in_gameplay() && !ctrSaveWriting) {
+        homeQuitSaveQueued = true;
+        enqueueInputEvent(0x7E01);
+        ctr_debug_log("HOME close: exit save queued");
+    }
+}
+
+static void ctr_home_quit_poll(void)
+{
+    if (!homeQuitPending || ctrSaveWriting) {
+        return;
+    }
+    if (!homeQuitSaveQueued || osGetTime() >= homeQuitDeadline) {
+        ctr_debug_log("HOME close: quitting without the exit save");
+        ctr_app_quit();
+    }
+}
+
 // Keep the player inside the visible part of the map. The 3DS screen only
 // shows part of the 640x480 game view, so without this the character walks
 // out of sight and has to be found again by scrolling.
@@ -278,14 +318,11 @@ void ctr_input_process(void)
             break;
 
         case SDL_QUIT:
-#ifdef __3DS__
-            ctr_app_quit();
-#else
-            exit(EXIT_SUCCESS);
-#endif
+            ctr_home_quit_request();
             break;
         }
     }
+    ctr_home_quit_poll();
     touch_process_gesture();
 
     ctr_input.frame.kHeld = ctr_remap(hidKeysHeld());

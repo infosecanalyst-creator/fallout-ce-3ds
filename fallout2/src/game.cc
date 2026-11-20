@@ -983,6 +983,12 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
             snprintf(m, sizeof(m), "EXIT SAVE: slot 10 -> %d", rc);
             ctr_debug_log(m);
         }
+        // HOME > Close queued this save (ctr_input.cc): now quit.
+        extern bool ctr_home_quit_pending(void);
+        if (ctr_home_quit_pending()) {
+            extern void ctr_app_quit();
+            ctr_app_quit();
+        }
         break;
     }
 #endif

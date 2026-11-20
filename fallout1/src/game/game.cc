@@ -865,6 +865,12 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         extern int ctrExitSave();
         int rc = ctrExitSave();
         debug_printf("\n3ds: exit save -> %d\n", rc);
+        // HOME > Close queued this save (ctr_input.cc): now quit.
+        extern bool ctr_home_quit_pending(void);
+        if (ctr_home_quit_pending()) {
+            extern void ctr_app_quit();
+            ctr_app_quit();
+        }
         break;
     }
 #endif

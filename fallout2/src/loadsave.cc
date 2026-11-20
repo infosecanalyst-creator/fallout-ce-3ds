@@ -1625,6 +1625,14 @@ static int lsgWindowFree(int windowType)
 // 0x47D88C
 static int lsgPerformSaveGame()
 {
+#ifdef __3DS__
+    // HOME > Close waits for this flag to clear (ctr_input.cc): never quit mid-write.
+    extern bool ctrSaveWriting;
+    struct CtrWriting {
+        CtrWriting() { ctrSaveWriting = true; }
+        ~CtrWriting() { ctrSaveWriting = false; }
+    } ctrWriting;
+#endif
     _ls_error_code = 0;
     _map_backup_count = -1;
     gameMouseSetCursor(MOUSE_CURSOR_WAIT_PLANET);
