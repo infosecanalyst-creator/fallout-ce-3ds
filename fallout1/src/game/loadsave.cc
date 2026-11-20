@@ -446,6 +446,8 @@ int SaveGame(int mode)
             int v7 = SaveSlot();
             if (v7 != -1) {
                 v6 = v7;
+            } else {
+                v6 = -1;   // the save failed: report it (exit save and quick save), as Fallout 2 does
             }
         }
 
@@ -1686,7 +1688,16 @@ static int SaveSlot()
 
     debug_printf("LOADSAVE: Total save data written: %ld bytes.\n", db_ftell(flptr));
 
-    db_fclose(flptr);
+    // A full SD card fails at the close: put the previous save back, never erase its .BAK files.
+    if (db_fclose(flptr) != 0) {
+        debug_printf("\nLOADSAVE: ** closing SAVE.DAT failed **\n");
+        RestoreSave();
+        snprintf(gmpath, sizeof(gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
+        MapDirErase(gmpath, "BAK");
+        partyMemberUnPrepSave();
+        gsound_background_unpause();
+        return -1;
+    }
 
     snprintf(gmpath, sizeof(gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
     MapDirErase(gmpath, "BAK");

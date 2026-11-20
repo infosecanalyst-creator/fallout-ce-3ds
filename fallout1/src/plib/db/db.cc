@@ -2451,8 +2451,10 @@ static int db_delete_fp_rec(DB_FILE* stream)
         return -1;
     }
 
+    int rc = 0;
     if ((stream->flags & 0x4) != 0) {
-        fclose(stream->uncompressed_file_stream);
+        // report a failed close (a full SD card loses the last buffered write here)
+        if (fclose(stream->uncompressed_file_stream) != 0) rc = -1;
     } else {
         switch (stream->flags & 0xF0) {
         case 16:
@@ -2473,7 +2475,7 @@ static int db_delete_fp_rec(DB_FILE* stream)
     stream->database->files_length -= 1;
     memset(stream, 0, sizeof(*stream));
 
-    return 0;
+    return rc;
 }
 
 // 0x4B26D0

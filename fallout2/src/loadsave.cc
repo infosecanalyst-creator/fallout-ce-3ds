@@ -1724,7 +1724,17 @@ static int lsgPerformSaveGame()
     }
 #endif
 
-    fileClose(_flptr);
+    // A full SD card fails at the close (the last buffered write): treat it like a
+    // failed handler and put the previous save back, never erase its .BAK files.
+    if (fileClose(_flptr) != 0) {
+        debugPrint("LOADSAVE: ** closing SAVE.DAT failed **\n");
+        _RestoreSave();
+        snprintf(_gmpath, sizeof(_gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", _slot_cursor + 1);
+        MapDirErase(_gmpath, "BAK");
+        _partyMemberUnPrepSave();
+        backgroundSoundResume();
+        return -1;
+    }
 
     // SFALL: Save sfallgv.sav.
     snprintf(_gmpath, sizeof(_gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", _slot_cursor + 1);
