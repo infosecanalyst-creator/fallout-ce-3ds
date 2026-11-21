@@ -208,13 +208,23 @@ Leave a town by walking off the edge of the map. On the world map, tap where you
 
 Quick save rotates through slots 1, 2 and 3 without asking, so the last three quick saves are always kept.
 
-### The options menu
+### The Start menu
 
-Start opens a small menu: Manual, Options, Left hand and Close (A or tap to choose, B or Start to close it). Left hand on/off swaps the D-pad with Y, A, B and X (Y is up, A is right, B is down, X is left, and the reverse) so the stylus can be held in the left hand; it is remembered, and every button combination in this manual follows the swap. Options is the game's options menu: Save game, Load game, Preferences, Exit game and Done. Save and load show the slot list on the touch screen and the slot's picture and description on top.
+Start opens a menu with six big buttons: RESUME, MANUAL, SAVE, SETTINGS, LEFT HAND and EXIT GAME. Tap one, or use the D-pad and A. B or Start closes it. Each button has a one-line reminder of what it does on the top screen.
+
+- SAVE opens the save screen and SETTINGS opens the game's options (Preferences and so on). They only work during play on the map; on the world map or over a window they are greyed out and say so.
+- LEFT HAND on/off swaps the D-pad with Y, A, B and X (Y is up, A is right, B is down, X is left, and the reverse) so the stylus can be held in the left hand. It is remembered, and every button combination in this manual follows the swap.
+- EXIT GAME saves into slot 10 first, then asks before it quits. Where it cannot save (the world map, for example) the line says "not saved here, then asks".
 
 To save, tap a slot and then Done. The 3DS keyboard opens with a description filled in: the name of the place for a new save, or the old description when you overwrite a slot. Tap OK to save, or type your own first. Cancel goes back to the slot list without saving.
 
+A save that fails never costs you the old one: the game puts the previous save back and tells you the save failed instead of saying it worked.
+
 Save often. Fallout is an unforgiving game.
+
+### The exit save
+
+Slot 10 is kept for the exit save. EXIT GAME writes it, and so does closing the game from the HOME menu while you are playing on the map (the game waits until the save is finished before it closes). Your own saves in slots 1 to 9 are never touched by it.
 
 ### Where saves are kept
 
@@ -252,7 +262,7 @@ sdmc:/3ds/fallout2/data/SAVEGAME/SLOT01 to SLOT10.
 | Select+Up/Dn | Zoom |
 | Select+R | Sharper top screen on/off |
 | Select+Start | This manual |
-| Start | Menu: Manual, Options, Close |
+| Start | Menu: Resume, Manual, Save, Settings, Left hand, Exit game |
 | Start+X | Quick save |
 | Start+Y | Quick load |
 
@@ -269,7 +279,7 @@ sdmc:/3ds/fallout2/data/SAVEGAME/SLOT01 to SLOT10.
 
 ## Preferences
 
-Start, Options, then Preferences, changes the game settings. This port ships with:
+Start, then SETTINGS, then Preferences, changes the game settings. This port ships with:
 
 - Running always on: the character runs instead of walking.
 - Combat speed fast, and your own moves sped up too.
@@ -328,7 +338,7 @@ Start it from the Homebrew Launcher. The intro movies play first: tap the screen
 | Picture looks odd | Select+L returns to the normal layout; ZL swaps the screens back |
 | Map loads slowly | Big maps take a few seconds to read from the SD card. A fast card helps |
 | Stuck in a menu | B backs out of menus; in a conversation, tap a reply |
-| Reporting a bug | An empty /3ds/fallout2/debug.txt turns on a detailed debug.log |
+| Reporting a bug | The game always logs its start, exit and failures to /3ds/fallout2/debug.log. An empty /3ds/fallout2/debug.txt switches on the detailed log (it rolls over at 1 MB) |
 
 ### Credits
 

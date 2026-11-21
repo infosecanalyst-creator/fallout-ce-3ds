@@ -24,6 +24,7 @@ Both are forks of [alexbatalov/fallout1-ce](https://github.com/alexbatalov/fallo
 | Highlight | Hold R to outline every item and lootable body on the level (touch has no hover); in combat it also lists your hit chance against each visible enemy. |
 | Quick heal, reload, take all | Select+A uses a Stimpak (or Super Stimpak) and Select+B reloads, without opening the inventory; X takes everything from a body or container. |
 | Back | B and Start back out of any in-game menu (inventory, Pip-Boy, character sheet, Skilldex, automap, options). |
+| Start menu | Six big buttons (Resume, Manual, Save, Settings, Left hand, Exit game). Exit game and HOME > Close save into reserved slot 10 first; Save and Settings are greyed out away from the map. A failed save keeps the previous save. |
 | Out-of-game top screen | Main menu and other screens outside a game show a controls card on the top screen. The character sheet shows a hint that the Circle Pad scrolls down to the skills. |
 | Camera | Follows the player and recenters near the edge of the view; C-stick scrolls (New 3DS); Select recenters. |
 | HUD shortcuts | Every HUD button on the untouchable top screen has a hardware shortcut (see controls). |
@@ -67,7 +68,7 @@ Each game has a built-in manual: press **Select** on the main menu or any menu, 
 | Select+L | Cycle display mode (whole game screen) |
 | Select+R | Sharper 800-pixel top screen on/off |
 | Select+Up/Down, 3D slider | Zoom the map |
-| Start | Options menu / back |
+| Start | Start menu (Resume, Manual, Save, Settings, Left hand, Exit game) / back |
 | Start+X / Start+Y | Quicksave / quickload |
 | Select (menus) / Select+Start (map) | Manual |
 
@@ -88,7 +89,7 @@ fallout.cfg / fallout2.cfg  [preferences]  running=1  combat_speed=50  player_sp
 fallout2/ddraw.ini          [Misc]         AutoQuickSave=3  DisplayKarmaChanges=1
 ```
 
-Debug log (Fallout 2): off by default; create an empty `sdmc:/3ds/fallout2/debug.txt` to write a detailed `debug.log` there (buffered, rolls over at 1 MB). Start, exit and failure lines are always logged.
+Debug log (Fallout 2): `sdmc:/3ds/fallout2/debug.log` always gets the start, exit and failure lines. Create an empty `sdmc:/3ds/fallout2/debug.txt` to switch on the detailed log (buffered, rolls over at 1 MB).
 
 The data files come from the Windows GOG/Steam install. `innoextract -I app setup_fallout*.exe` extracts them from the GOG installers on Linux/macOS.
 
