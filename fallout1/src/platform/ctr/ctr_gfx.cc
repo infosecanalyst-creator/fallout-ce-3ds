@@ -1343,6 +1343,13 @@ static void ctr_movie_card_draw()
 static char ctrAlertText[64];
 static bool ctrAlertDanger;
 static u64 ctrAlertUntil, ctrAlertAt;
+static bool ctrAlertResetPending;
+
+void ctrAlertReset()
+{
+    ctrAlertResetPending = true;
+    ctrAlertUntil = 0;
+}
 
 static void ctr_alert_push(const char* text, bool danger)
 {
@@ -1364,9 +1371,21 @@ static void ctr_alert_update()
         ctrAlertUntil = 0;
         return;
     }
+    // FO-07: one gather per 100 ms is plenty for an alert (the dashboard draw gathers for itself),
+    // instead of a second whole-dashboard gather on every frame.
     static CtrDashboard d;
+    static u64 lastGather = 0;
+    u64 nowMs = osGetTime();
+    if (lastGather != 0 && nowMs - lastGather < 100 && !ctrAlertResetPending) return;
+    lastGather = nowMs;
     ctrDashboardGather(&d);
     if (!d.valid) return;
+    if (ctrAlertResetPending) {
+        // FO-09: a load happened; this sample is the new baseline, nothing is announced
+        ctrAlertResetPending = false;
+        have = false;
+        ctrAlertUntil = 0;
+    }
     if (have) {
         char b[64];
         if (d.hp < hp && d.hpMax > 0) {

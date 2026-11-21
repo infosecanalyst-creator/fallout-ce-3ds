@@ -48,6 +48,7 @@ struct CtrDashboard {
 
 // Game side (dashboard_3ds.cc)
 void ctrDashboardGather(CtrDashboard* dash);
+void ctrAlertReset(); // FO-09: forget the alert baseline (a load changes HP, turn and poison at once)
 bool ctrDashboardAvailable();
 void ctrDashboardSetInGame(bool inGame);
 void ctrDashboardSetTarget(void* critter);

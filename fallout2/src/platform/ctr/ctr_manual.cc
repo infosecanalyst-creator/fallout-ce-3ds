@@ -14,6 +14,7 @@
 
 #include "ctr_gfx.h"
 #include "ctr_manual_text.h"
+#include "click3ds.h"
 
 namespace fallout {
 
@@ -477,6 +478,14 @@ enum { M_RESUME, M_MANUAL, M_SAVE, M_SETTINGS, M_LEFTY, M_EXIT };
 int gMenuSel = 0;
 int gMenuPressed = -1;
 
+// FO-11: SAVE and SETTINGS only make sense during play on the map; elsewhere (world map,
+// over a window) they are greyed out and inert, like the EXIT GAME help line already says.
+bool menuUsable(int i)
+{
+    if (i == M_SAVE || i == M_SETTINGS) return ctr_exit_saves();
+    return true;
+}
+
 void menuRect(int i, float* x, float* y, float* w, float* h)
 {
     // six rows filling the touch screen: 6 px edges, 4 px gaps
@@ -498,8 +507,9 @@ text("FALLOUT 2", 8, 4, 0.5f, gold);
         "swap the D-pad and A/B/X/Y", "saves to slot 10 first, then asks" };
     const char* exitHelp = ctr_exit_saves() ? help[M_EXIT] : "not saved here, then asks";   // FO-04
     for (int i = 0; i < kMenuCount; i++) {
-        text(i == M_LEFTY ? (gLefty ? "LEFT HAND: ON" : "LEFT HAND: OFF") : kMenuItems[i], 16, 36 + i * 28, 0.5f, i == gMenuSel ? gold : white);
-        text(i == M_EXIT ? exitHelp : help[i], 170, 37 + i * 28, 0.45f, grey);
+        const bool usable = menuUsable(i);
+        text(i == M_LEFTY ? (gLefty ? "LEFT HAND: ON" : "LEFT HAND: OFF") : kMenuItems[i], 16, 36 + i * 28, 0.5f, !usable ? grey : (i == gMenuSel ? gold : white));
+        text(!usable ? "only during play on the map" : (i == M_EXIT ? exitHelp : help[i]), 170, 37 + i * 28, 0.45f, grey);
     }
     text("Build " PORT_VERSION, 8, 204, 0.42f, grey);
     C2D_DrawRectSolid(0, 224, 0.41f, 400, 16, C2D_Color32(20, 30, 70, 0xff));
@@ -517,6 +527,13 @@ void menuDrawBottom()
         menuRect(i, &x, &y, &w, &h);
         bool on = i == gMenuSel;
         bool pressed = i == gMenuPressed;
+        const bool usable = menuUsable(i);
+        if (!usable) {   // greyed out: flat, dim, no focus ring
+            C2D_DrawRectSolid(x, y, 0.45f, w, h, C2D_Color32(60, 66, 100, 0xff));
+            C2D_DrawRectSolid(x + 1, y + 1, 0.46f, w - 2, h - 2, C2D_Color32(28, 34, 66, 0xff));
+            text(kMenuItems[i], x + w / 2, y + h / 2 - 7, 0.5f, C2D_Color32(110, 114, 135, 0xff), C2D_AlignCenter);
+            continue;
+        }
         if (on) C2D_DrawRectSolid(x - 2, y - 2, 0.44f, w + 4, h + 4, gold);   // focus ring
         C2D_DrawRectSolid(x, y, 0.45f, w, h, edge);
         C2D_DrawRectSolid(x + 1, y + 1, 0.46f, w - 2, h - 2, pressed ? press : face);
@@ -551,9 +568,10 @@ int ctr_startmenu_run()
                 result = M_RESUME;
                 break;
             }
-            if (down & KEY_DUP) gMenuSel = (gMenuSel + kMenuCount - 1) % kMenuCount;
-            if (down & KEY_DDOWN) gMenuSel = (gMenuSel + 1) % kMenuCount;
+            if (down & KEY_DUP) { do gMenuSel = (gMenuSel + kMenuCount - 1) % kMenuCount; while (!menuUsable(gMenuSel)); }
+            if (down & KEY_DDOWN) { do gMenuSel = (gMenuSel + 1) % kMenuCount; while (!menuUsable(gMenuSel)); }
             if (down & KEY_A) {
+                click3ds::play();
                 if (gMenuSel == M_LEFTY) {
                     leftySet(!gLefty);
                 } else {
@@ -564,15 +582,17 @@ int ctr_startmenu_run()
             if (held & KEY_TOUCH) {
                 touchPosition t;
                 hidTouchRead(&t);
+                const int before = gMenuPressed;
                 gMenuPressed = -1;
                 for (int i = 0; i < kMenuCount; i++) {
                     float x, y, w, h;
                     menuRect(i, &x, &y, &w, &h);
-                    if (t.px >= x && t.px < x + w && t.py >= y && t.py < y + h) {
+                    if (menuUsable(i) && t.px >= x && t.px < x + w && t.py >= y && t.py < y + h) {
                         gMenuPressed = i;
                         gMenuSel = i;
                     }
                 }
+                if (gMenuPressed >= 0 && before < 0) click3ds::play();   // FO-10: the house click on press
             } else if (gMenuPressed >= 0) {
                 if (gMenuPressed == M_LEFTY) {
                     leftySet(!gLefty);

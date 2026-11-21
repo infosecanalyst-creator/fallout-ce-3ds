@@ -1887,6 +1887,7 @@ bool _isLoadingGame()
 // 0x47DC68
 static int lsgLoadGameInSlot(int slot)
 {
+    ctrAlertReset();
     _loadingGame = true;
 
     if (isInCombat()) {
