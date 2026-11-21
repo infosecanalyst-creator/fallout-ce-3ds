@@ -1641,7 +1641,7 @@ static void ctrUndoBackup()
     char pattern[COMPAT_MAX_PATH];
     snprintf(pattern, sizeof(pattern), "%s\\%s%.2d\\*.%s", "SAVEGAME", "SLOT", slot_cursor + 1, "BAK");
     char** fileList = NULL;
-    int count = fileNameListInit(pattern, &fileList, 0, 0);
+    int count = db_get_file_list(pattern, &fileList, NULL, 0);
     if (count <= 0) {
         return;
     }
@@ -1661,7 +1661,7 @@ static void ctrUndoBackup()
             compat_rename(bak, orig);
         }
     }
-    fileNameListFree(&fileList, 0);
+    db_free_file_list(&fileList, NULL);
 }
 // 0x46F978
 static int SaveSlot()
