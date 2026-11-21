@@ -11,7 +11,7 @@ The game is played on the touch screen with the stylus, the way the PC game is p
 ### Reading this manual
 
 - Tap a section on the touch screen to open it.
-- Circle Pad or C-Stick: scroll. Hold to keep scrolling.
+- Circle Pad or C-Stick: scroll. Hold to keep scrolling. You can also drag the stylus up or down on the touch screen.
 - D-pad: move between the section buttons.
 - L and R: previous and next section.
 - B or Start: close. The manual opens again where you left it.
@@ -71,7 +71,7 @@ The dashboard stays on top for the Skilldex, the automap and the options menu. O
 |---|---|
 | ZL | On the map: swap screens, so the map goes on top and the original Fallout interface bar on the touch screen |
 | ZL | On any other screen: switch the top screen between its information and a sharp, full-size view of the part of the screen around where you last touched. Remembered for each screen |
-| Select+L | Whole-screen view: the entire game picture on the touch screen, with a magnified lens on top. Press again to go back |
+| Select+L | Whole-screen view: the entire game picture on the touch screen, the dashboard on top (ZL: a magnified lens that follows the stylus). Press again to go back |
 | Select+Up/Dn | Zoom the map in or out. The 3D slider zooms too |
 | Select+R | Sharper top screen (800 pixels wide) on or off. The choice is remembered. Not on the original 2DS |
 
@@ -210,7 +210,7 @@ Quick save rotates through slots 1, 2 and 3 without asking, overwriting the olde
 
 ### The options menu
 
-Start opens a small menu: Manual, Options and Close (A or tap to choose, B or Start to close it). Options is the game's options menu: Save game, Load game, Preferences, Exit game and Done. Save and load show the slot list on the touch screen and the slot's picture and description on top.
+Start opens a small menu: Manual, Options, Left hand and Close (A or tap to choose, B or Start to close it). Left hand on/off swaps the D-pad with Y, A, B and X (Y is up, A is right, B is down, X is left, and the reverse) so the stylus can be held in the left hand; it is remembered, and every button combination in this manual follows the swap. Options is the game's options menu: Save game, Load game, Preferences, Exit game and Done. Save and load show the slot list on the touch screen and the slot's picture and description on top.
 
 To save, tap a slot and then Done. The 3DS keyboard opens with a description filled in: the name of the place for a new save, or the old description when you overwrite a slot. Tap OK to save, or type your own first. Cancel goes back to the slot list without saving.
 
