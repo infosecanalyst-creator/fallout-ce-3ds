@@ -34,6 +34,23 @@ void ctrDashboardSetInGame(bool inGame)
 }
 
 static Object* gDashTarget = nullptr;
+static Object* gDashAutoTarget = NULL;   // dashCurrentTarget's pick when nothing was tapped
+
+// FO-08: the object is about to be freed (object.cc, its one free point): never keep a pointer
+// to it. (Between the periodic map checks, a target freed by a script or a game load on the same
+// map was still read.)
+void ctrDashboardForget(void* obj)
+{
+    if (obj == NULL) {
+        return;
+    }
+    if (gDashTarget == obj) {
+        gDashTarget = NULL;
+    }
+    if (gDashAutoTarget == obj) {
+        gDashAutoTarget = NULL;
+    }
+}
 
 // True while a game is running (player exists and the interface bar is up).
 bool ctrDashboardAvailable()
@@ -80,7 +97,7 @@ static Object* dashCurrentTarget()
 {
     static int lastMap = -1;
     static int lastElevation = -1;
-    static Object* autoTarget = NULL;
+    Object*& autoTarget = gDashAutoTarget;
     static int searchCountdown = 0;
 
     int map = mapGetCurrentMap();

@@ -3766,6 +3766,11 @@ static void objectDeallocate(Object** objectPtr)
         return;
     }
 
+#ifdef __3DS__
+    extern void ctrDashboardForget(void* obj);   // FO-08 (dashboard_3ds.cc)
+    ctrDashboardForget(*objectPtr);
+#endif
+
     internal_free(*objectPtr);
 
     *objectPtr = nullptr;

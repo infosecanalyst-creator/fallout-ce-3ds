@@ -3493,6 +3493,11 @@ static void obj_destroy_object(Object** objectPtr)
         return;
     }
 
+#ifdef __3DS__
+    extern void ctrDashboardForget(void* obj);   // FO-08 (dashboard_3ds.cc)
+    ctrDashboardForget(*objectPtr);
+#endif
+
     mem_free(*objectPtr);
 
     *objectPtr = NULL;
