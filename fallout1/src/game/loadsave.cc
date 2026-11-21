@@ -1621,6 +1621,48 @@ static int LSGameEnd(int windowType)
     return 0;
 }
 
+
+// FO-02/03: put the previous save back after a failed save; its .BAK files are erased only when
+// that worked (they used to be erased even when the restore failed, losing the old save too).
+static void ctrRestoreOrKeepBak()
+{
+    if (RestoreSave() == 0) {
+        snprintf(gmpath, sizeof(gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
+        MapDirErase(gmpath, "BAK");
+    } else {
+        debug_printf("\nLOADSAVE: ** restoring the previous save failed; its .BAK files are kept **\n");
+    }
+}
+
+// FO-02/03: undo a backup that stopped part way. Every X.BAK whose original is missing was
+// renamed and goes back; one whose original is still there is a copy (the automap) and is removed.
+static void ctrUndoBackup()
+{
+    char pattern[COMPAT_MAX_PATH];
+    snprintf(pattern, sizeof(pattern), "%s\\%s%.2d\\*.%s", "SAVEGAME", "SLOT", slot_cursor + 1, "BAK");
+    char** fileList = NULL;
+    int count = fileNameListInit(pattern, &fileList, 0, 0);
+    if (count <= 0) {
+        return;
+    }
+    for (int index = 0; index < count; index++) {
+        char bak[COMPAT_MAX_PATH], orig[COMPAT_MAX_PATH];
+        snprintf(bak, sizeof(bak), "%s\\%s\\%s%.2d\\%s", patches, "SAVEGAME", "SLOT", slot_cursor + 1, fileList[index]);
+        if (compat_strnicmp(fileList[index], "SAVE.", 5) == 0) {
+            snprintf(orig, sizeof(orig), "%s\\%s\\%s%.2d\\SAVE.DAT", patches, "SAVEGAME", "SLOT", slot_cursor + 1);
+        } else {
+            strmfe(orig, bak, "SAV");
+        }
+        FILE* probe = compat_fopen(orig, "rb");
+        if (probe != NULL) {
+            fclose(probe);
+            compat_remove(bak);
+        } else {
+            compat_rename(bak, orig);
+        }
+    }
+    fileNameListFree(&fileList, 0);
+}
 // 0x46F978
 static int SaveSlot()
 {
@@ -1646,6 +1688,12 @@ static int SaveSlot()
 
     if (SaveBackup() == -1) {
         debug_printf("\nLOADSAVE: Warning, can't backup save file!\n");
+        // FO-02/03: never write over a save that could not be backed up: undo the backup
+        // (every renamed file goes back) and fail the save; the old save stays as it was.
+        ctrUndoBackup();
+        partyMemberUnPrepSave();
+        gsound_background_unpause();
+        return -1;
     }
 
     snprintf(gmpath, sizeof(gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
@@ -1656,9 +1704,7 @@ static int SaveSlot()
     flptr = db_fopen(gmpath, "wb");
     if (flptr == NULL) {
         debug_printf("\nLOADSAVE: ** Error opening save game for writing! **\n");
-        RestoreSave();
-        snprintf(gmpath, sizeof(gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
-        MapDirErase(gmpath, "BAK");
+        ctrRestoreOrKeepBak();
         partyMemberUnPrepSave();
         gsound_background_unpause();
         return -1;
@@ -1669,9 +1715,7 @@ static int SaveSlot()
         debug_printf("\nLOADSAVE: ** Error writing save game header! **\n");
         debug_printf("LOADSAVE: Save file header size written: %d bytes.\n", db_ftell(flptr) - pos);
         db_fclose(flptr);
-        RestoreSave();
-        snprintf(gmpath, sizeof(gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
-        MapDirErase(gmpath, "BAK");
+        ctrRestoreOrKeepBak();
         partyMemberUnPrepSave();
         gsound_background_unpause();
         return -1;
@@ -1683,9 +1727,7 @@ static int SaveSlot()
         if (handler(flptr) == -1) {
             debug_printf("\nLOADSAVE: ** Error writing save function #%d data! **\n", index);
             db_fclose(flptr);
-            RestoreSave();
-            snprintf(gmpath, sizeof(gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
-            MapDirErase(gmpath, "BAK");
+            ctrRestoreOrKeepBak();
             partyMemberUnPrepSave();
             gsound_background_unpause();
             return -1;
@@ -1699,9 +1741,7 @@ static int SaveSlot()
     // A full SD card fails at the close: put the previous save back, never erase its .BAK files.
     if (db_fclose(flptr) != 0) {
         debug_printf("\nLOADSAVE: ** closing SAVE.DAT failed **\n");
-        RestoreSave();
-        snprintf(gmpath, sizeof(gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
-        MapDirErase(gmpath, "BAK");
+        ctrRestoreOrKeepBak();
         partyMemberUnPrepSave();
         gsound_background_unpause();
         return -1;
@@ -2742,7 +2782,9 @@ out:
     }
 
     if (stream2 != NULL) {
-        db_fclose(stream2);
+        if (db_fclose(stream2) != 0) {
+            result = -1;   // FO-02/03: the copy did not reach the card
+        }
     }
 
     if (buf != NULL) {
@@ -2881,7 +2923,7 @@ static int RestoreSave()
     compat_remove(str0);
 
     if (compat_rename(str1, str0) != 0) {
-        EraseSave();
+        // FO-02/03: keep what is there (the .BAK files stay for the next try)
         return -1;
     }
 
@@ -2896,7 +2938,7 @@ static int RestoreSave()
 
     if (fileListLength != map_backup_count) {
         // FIXME: Probably leaks fileList.
-        EraseSave();
+        // FO-02/03: keep what is there (the .BAK files stay for the next try)
         return -1;
     }
 
@@ -2909,7 +2951,7 @@ static int RestoreSave()
         compat_remove(str1);
         if (compat_rename(str0, str1) != 0) {
             // FIXME: Probably leaks fileList.
-            EraseSave();
+            // FO-02/03: keep what is there (the .BAK files stay for the next try)
             return -1;
         }
     }
@@ -2930,7 +2972,7 @@ static int RestoreSave()
     strcat(str1, v2);
 
     if (compat_rename(str0, str1) != 0) {
-        EraseSave();
+        // FO-02/03: keep what is there (the .BAK files stay for the next try)
         return -1;
     }
 
