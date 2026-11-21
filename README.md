@@ -75,8 +75,10 @@ Each game has a built-in manual: press **Select** on the main menu or any menu, 
 
 ```
 sdmc:/3ds/dspfirm.cdc                  (for sound; dump once with the DSP1 homebrew)
-sdmc:/3ds/fallout/   fallout-ce.3dsx   MASTER.DAT CRITTER.DAT DATA/ fallout.cfg
-sdmc:/3ds/fallout2/  fallout2-ce.3dsx  master.dat critter.dat patch000.dat data/ sound/ fallout2.cfg
+sdmc:/3ds/fallout-ce.3dsx              Fallout 1 (the program, directly in /3ds)
+sdmc:/3ds/fallout2-ce.3dsx             Fallout 2 (the program, directly in /3ds)
+sdmc:/3ds/fallout/   MASTER.DAT CRITTER.DAT DATA/ fallout.cfg
+sdmc:/3ds/fallout2/  master.dat critter.dat patch000.dat data/ sound/ fallout2.cfg
 ```
 
 Recommended settings (already what the author ships on his card):

@@ -292,9 +292,10 @@ Text, violence level, subtitles, brightness and sound volume work as on the PC.
 
 ### Files on the SD card
 
-Put the game in sdmc:/3ds/fallout2/:
+Put the program, fallout2-ce.3dsx, directly in sdmc:/3ds/.
 
-- fallout2-ce.3dsx (the program)
+Put the game files in sdmc:/3ds/fallout2/:
+
 - master.dat, critter.dat and patch000.dat from your Fallout 2 install
 - the data and sound folders from your Fallout 2 install
 - fallout2.cfg and ddraw.ini
@@ -308,7 +309,7 @@ Sound needs sdmc:/3ds/dspfirm.cdc, which you dump once with the DSP1 homebrew. W
 ### Updating over Wi-Fi
 
 1. On the 3DS, open the Homebrew Launcher and start ftpd.
-2. From the PC, upload fallout2-ce.3dsx to /3ds/fallout2/ (port 5000).
+2. From the PC, upload fallout2-ce.3dsx to /3ds/ (port 5000).
 3. Close ftpd and start the game from the Homebrew Launcher.
 
 You never need to take the SD card out. Your saves are not touched by an update.
