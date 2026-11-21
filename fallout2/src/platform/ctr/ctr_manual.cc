@@ -17,6 +17,8 @@
 
 namespace fallout {
 
+bool ctr_exit_saves(void);   // ctr_input.cc (FO-04)
+
 #ifndef PORT_VERSION
 #define PORT_VERSION "unknown"
 #endif
@@ -494,7 +496,6 @@ text("FALLOUT 2", 8, 4, 0.5f, gold);
     text("PAUSED", 392, 4, 0.5f, grey, C2D_AlignRight);
     static const char* const help[kMenuCount] = { "back to the game", "how to play on the 3DS", "save your game", "the game's options",
         "swap the D-pad and A/B/X/Y", "saves to slot 10 first, then asks" };
-    extern bool ctr_exit_saves(void);
     const char* exitHelp = ctr_exit_saves() ? help[M_EXIT] : "not saved here, then asks";   // FO-04
     for (int i = 0; i < kMenuCount; i++) {
         text(i == M_LEFTY ? (gLefty ? "LEFT HAND: ON" : "LEFT HAND: OFF") : kMenuItems[i], 16, 36 + i * 28, 0.5f, i == gMenuSel ? gold : white);
