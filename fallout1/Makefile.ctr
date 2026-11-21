@@ -74,6 +74,9 @@ CFLAGS	:=	-g -Wall -mword-relocations \
 			$(ARCH)
 
 CFLAGS	+=	$(INCLUDE) -D__3DS__ -DSDL_MAIN_HANDLED $(EXTRA_DEFS)
+# Port version for the Start menu (build.sh passes git describe of fallout-ce-3ds)
+PORT_VERSION ?= unknown
+CFLAGS	+=	-DPORT_VERSION=\"$(PORT_VERSION)\"
 
 CFLAGS	+=	-Ofast -funroll-loops -fno-math-errno -ffast-math -flto=auto
 #CFLAGS	+=	-D_DEBUG -D_DEBUG_OVERLAY -D_DEBUG_LINK

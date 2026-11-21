@@ -5,6 +5,8 @@
 #   ./build.sh fallout2   # one game
 set -euo pipefail
 cd "$(dirname "$0")"
+# Port version shown in the Start menu, taken before anything is built.
+PORT_VERSION="$(git describe --always --dirty 2>/dev/null || echo unknown)"
 IMAGE=devkitpro/devkitarm:20251231
 TC=fallout-ce-3ds-toolchain
 SDL2_COMMIT=c080cc8068eef29ab0151e9916a890620acad395   # SDL2 branch, 2026-02-06
@@ -27,7 +29,7 @@ games=("${@:-fallout1 fallout2}")
 mkdir -p out
 for g in ${games[@]}; do
   echo "== $g"
-  docker run --rm -v "$PWD:/src" -w "/src/$g" "$TC" make -f Makefile.ctr -j"$(nproc)"
+  docker run --rm -v "$PWD:/src" -w "/src/$g" "$TC" make -f Makefile.ctr PORT_VERSION="$PORT_VERSION" -j"$(nproc)"
   cp "$g"/*.3dsx out/
   cp "$g"/*.elf out/ 2>/dev/null || true
 done

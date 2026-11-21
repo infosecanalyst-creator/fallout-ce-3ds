@@ -17,6 +17,10 @@
 
 namespace fallout {
 
+#ifndef PORT_VERSION
+#define PORT_VERSION "unknown"
+#endif
+
 namespace {
 
 enum LineStyle {
@@ -494,6 +498,7 @@ text("FALLOUT 2", 8, 4, 0.5f, gold);
         text(i == M_LEFTY ? (gLefty ? "LEFT HAND: ON" : "LEFT HAND: OFF") : kMenuItems[i], 16, 36 + i * 28, 0.5f, i == gMenuSel ? gold : white);
         text(help[i], 170, 37 + i * 28, 0.45f, grey);
     }
+    text("Build " PORT_VERSION, 8, 204, 0.42f, grey);
     C2D_DrawRectSolid(0, 224, 0.41f, 400, 16, C2D_Color32(20, 30, 70, 0xff));
     text(gLefty ? "ABXY: choose    D-Rt: select    D-Dn or START: close" : "D-pad: choose    A: select    B or START: close",
         200, 226, 0.42f, gold, C2D_AlignCenter);
