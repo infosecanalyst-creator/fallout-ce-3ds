@@ -19,6 +19,7 @@ jobs:
         run: |
           mkdir -p out
           cp out/*.3dsx out/*.elf build.log out/ 2>/dev/null || true
+          cp LICENSE NOTICE THIRD_PARTY_NOTICES.txt out/ 2>/dev/null || true   # licences travel with the binaries
           echo "$GITHUB_SHA" > out/SOURCE_COMMIT
       - name: Publish to builds branch
         if: success()   # never replace the last good build with a failed one; failed-build logs stay in the Actions run

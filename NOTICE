@@ -20,7 +20,8 @@ Licence: this software is source-available under the Sustainable Use License
 (see LICENSE). It may be used and modified for personal or non-commercial
 purposes and redistributed only free of charge for non-commercial purposes. It
 is NOT open source in the OSI sense. All upstream copyright and licence notices
-are retained.
+are retained. Third-party components in the 3DS builds and their licences are
+listed in THIRD_PARTY_NOTICES.txt.
 
 No game data is included. Fallout is a trademark of its owner. This project is
 not affiliated with or endorsed by Bethesda Softworks, Interplay or Nintendo.

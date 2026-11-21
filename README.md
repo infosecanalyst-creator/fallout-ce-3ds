@@ -107,7 +107,7 @@ Tested in the Azahar emulator (New 3DS mode), both games: main menu, new game, s
 
 ## License
 
-This is source-available software, **not** open source in the OSI sense. The engine code comes from fallout1-ce / fallout2-ce and is under the upstream [Sustainable Use License](LICENSE) (also in [fallout1/LICENSE.md](fallout1/LICENSE.md) and [fallout2/LICENSE.md](fallout2/LICENSE.md)): you may use and modify it for personal or non-commercial purposes and redistribute it only free of charge for non-commercial purposes. See [NOTICE](NOTICE) for what this fork changed. Bundled third-party code (SDL2, zlib, fpattern) keeps its own licence in `third_party/`.
+This is source-available software, **not** open source in the OSI sense. The engine code comes from fallout1-ce / fallout2-ce and is under the upstream [Sustainable Use License](LICENSE) (also in [fallout1/LICENSE.md](fallout1/LICENSE.md) and [fallout2/LICENSE.md](fallout2/LICENSE.md)): you may use and modify it for personal or non-commercial purposes and redistribute it only free of charge for non-commercial purposes. See [NOTICE](NOTICE) for what this fork changed. Bundled third-party code (SDL2, zlib, fpattern, and the devkitPro 3DS libraries) keeps its own licence; [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt) lists every component in the 3DS builds with its copyright and licence text.
 
 The icons, banners and touchscreen frame in `fallout*/os/` are original artwork made for this port; they contain no artwork from the games.
 
