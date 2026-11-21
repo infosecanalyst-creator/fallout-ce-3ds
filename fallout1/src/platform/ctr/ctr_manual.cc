@@ -53,7 +53,7 @@ struct ManualSection {
 const float kTextScale = 0.47f;
 const float kLineHeight = 15.0f;
 const float kTop = 26.0f; // body starts under the header bar
-const float kBottom = 240.0f;
+const float kBottom = 224.0f; // the footer strip is below
 const float kLeft = 8.0f;
 const float kRight = 392.0f;
 const float kKeyColumn = 112.0f;
@@ -261,6 +261,14 @@ void drawTop()
         C2D_DrawRectSolid(396, kTop, 0.6f, 3, viewH, kPanel);
         C2D_DrawRectSolid(396, barY, 0.7f, 3, barH, kLine);
     }
+
+    // Footer strip over the scrolled text: the house wording, the same in every port
+    C2D_DrawRectSolid(0, kBottom, 0.6f, 400, 240 - kBottom, C2D_Color32(20, 30, 70, 0xff));
+    const char* foot = ctr_lefty() ? "Sticks: scroll   A/B/X/Y, L / R: section   D-Down / START: close"
+                                   : "Sticks: scroll   D-Pad, L / R: section   B / START: close";
+    float fs = 0.42f, fw = measure(foot) * fs / kTextScale;
+    if (fw > 384) fs *= 384 / fw;   // shrink to fit, never cut off
+    text(foot, 200, kBottom + 2, fs, kAmber, C2D_AlignCenter, 0.8f);
 }
 
 const int kColumns = 2;
