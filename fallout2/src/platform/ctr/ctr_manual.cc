@@ -494,9 +494,11 @@ text("FALLOUT 2", 8, 4, 0.5f, gold);
     text("PAUSED", 392, 4, 0.5f, grey, C2D_AlignRight);
     static const char* const help[kMenuCount] = { "back to the game", "how to play on the 3DS", "save your game", "the game's options",
         "swap the D-pad and A/B/X/Y", "saves to slot 10 first, then asks" };
+    extern bool ctr_exit_saves(void);
+    const char* exitHelp = ctr_exit_saves() ? help[M_EXIT] : "not saved here, then asks";   // FO-04
     for (int i = 0; i < kMenuCount; i++) {
         text(i == M_LEFTY ? (gLefty ? "LEFT HAND: ON" : "LEFT HAND: OFF") : kMenuItems[i], 16, 36 + i * 28, 0.5f, i == gMenuSel ? gold : white);
-        text(help[i], 170, 37 + i * 28, 0.45f, grey);
+        text(i == M_EXIT ? exitHelp : help[i], 170, 37 + i * 28, 0.45f, grey);
     }
     text("Build " PORT_VERSION, 8, 204, 0.42f, grey);
     C2D_DrawRectSolid(0, 224, 0.41f, 400, 16, C2D_Color32(20, 30, 70, 0xff));

@@ -85,6 +85,13 @@ static bool ctr_in_gameplay(void)
     return (ctr_rectMap.main == DISPLAY_FIELD) || (ctr_rectMap.main == DISPLAY_GUI);
 }
 
+// FO-04: START > EXIT GAME saves into slot 10 only during play on the map (or over its windows);
+// the START menu says so only when it is true (not on the world map, for instance).
+bool ctr_exit_saves(void)
+{
+    return ctr_in_gameplay();
+}
+
 // HOME > Close (FO-05): aptMainLoop() went false, SDL sends SDL_QUIT. In a running
 // game, queue the same slot-10 exit save START > EXIT GAME does (game.cc 0x7E01 runs it
 // from the game loop, then quits). Nothing to save, or the save never ran within 5 s
