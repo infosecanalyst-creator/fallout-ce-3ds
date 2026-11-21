@@ -1,0 +1,70 @@
+fallout-ce-3ds: third-party notices
+===================================
+
+The 3DS builds (fallout-ce.3dsx, fallout2-ce.3dsx) contain the following
+third-party code in addition to the fallout1-ce / fallout2-ce engine (Sustainable
+Use License, see LICENSE and NOTICE). Each keeps its own licence.
+
+1. fpattern - filename pattern matching
+   Copyright (c) 1997-2001 David R Tribble. MIT License (full text below).
+   Fallout 1: fallout1/third_party/fpattern; Fallout 2: fetched by Makefile.ctr
+   from github.com/alexbatalov/fpattern at a pinned commit.
+
+2. SDL2 - Simple DirectMedia Layer
+   Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>. zlib License (below).
+   Built from github.com/libsdl-org/SDL at the commit pinned in build.sh.
+
+3. zlib - compression library (devkitPro portlibs, linked with -lz)
+   Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler. zlib License (below).
+
+4. libctru, citro3d, citro2d - Nintendo 3DS libraries (devkitPro)
+   Copyright (C) the libctru, citro3d and citro2d contributors (smea, fincs,
+   WinterMute, mtheall, Steveice10 and others). zlib License (below).
+
+5. devkitARM runtime (newlib C library, libstdc++ / libgcc runtime)
+   newlib: BSD-style licences (see the newlib COPYING.NEWLIB file).
+   libstdc++ / libgcc: GPL v3 with the GCC Runtime Library Exception, which
+   allows linking them into programs under any licence.
+
+-------------------------------------------------------------------------------
+MIT License (fpattern)
+
+Copyright (c) 1997-2001 by David R Tribble.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-------------------------------------------------------------------------------
+zlib License (SDL2, zlib, libctru, citro3d, citro2d; each with its own copyright
+line above)
+
+This software is provided 'as-is', without any express or implied
+warranty.  In no event will the authors be held liable for any damages
+arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software
+   in a product, an acknowledgment in the product documentation would be
+   appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
