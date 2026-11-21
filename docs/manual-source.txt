@@ -255,6 +255,7 @@ Start it from the Homebrew Launcher. The intro movies play first: tap the screen
 | Picture looks odd | Select+L returns to the normal layout; ZL swaps the screens back
 | Map loads slowly | Big maps take a few seconds to read from the SD card. A fast card helps
 | Stuck in a menu | B backs out of menus; in a conversation, tap a reply
+[2]| Reporting a bug | An empty /3ds/fallout2/debug.txt turns on a detailed debug.log
 
 ## Credits
 [1]Fallout Community Edition by Alexander Batalov. 3DS platform layer by MrHuu. This port: dual-screen layout, dashboard, controls and fixes by Ryan Gurney with Claude.

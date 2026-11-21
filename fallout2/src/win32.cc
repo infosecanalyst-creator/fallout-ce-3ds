@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
     const char* basepath = "sdmc:/3ds/fallout2/";
     chdir(basepath);
 
-    ctr_debug_log("=== Fallout 2 CE 3DS v0.0.47 ===");
+    ctr_note("=== Fallout 2 CE 3DS v0.0.47 ===");
     ctr_debug_log("chdir done");
 
     linearHeapAvailableAtStart = ctr_sys_check_linear_heap();
@@ -93,6 +93,9 @@ int main(int argc, char* argv[])
     ctr_debug_log("calling falloutMain");
 #endif
     rc = falloutMain(argc, argv);
+#ifdef __3DS__
+    ctr_note("exit: game quit normally");
+#endif
 
 #if _WIN32
     CloseHandle(GNW95_mutex);

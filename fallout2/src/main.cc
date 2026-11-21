@@ -49,8 +49,10 @@
 #include "platform/ctr/ctr_perf.h"
 #endif
 #define CTR_LOG(msg) ctr_debug_log(msg)
+#define CTR_NOTE(msg) ctr_note(msg)
 #else
 #define CTR_LOG(msg) ((void)0)
+#define CTR_NOTE(msg) ((void)0)
 #endif
 
 namespace fallout {
@@ -91,7 +93,7 @@ int falloutMain(int argc, char** argv)
 
     CTR_LOG("falloutMain: calling falloutInit");
     if (!falloutInit(argc, argv)) {
-        CTR_LOG("falloutMain: falloutInit FAILED");
+        CTR_NOTE("falloutMain: falloutInit FAILED");
         return 1;
     }
     CTR_LOG("falloutMain: falloutInit done");

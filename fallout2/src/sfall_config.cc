@@ -28,7 +28,7 @@ bool sfallConfigInit(int argc, char** argv)
 
     if (!configInit(&gSfallConfig)) {
 #ifdef __3DS__
-        ctr_debug_log("sfallConfigInit: configInit failed");
+        ctr_note("sfallConfigInit: configInit failed");
 #endif
         return false;
     }

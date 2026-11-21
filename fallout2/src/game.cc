@@ -166,7 +166,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
 
     if (gameDbInit() == -1) {
 #ifdef __3DS__
-        ctr_debug_log("gameInitWithOptions: gameDbInit FAILED");
+        ctr_note("gameInitWithOptions: gameDbInit FAILED");
 #endif
         settingsExit(false);
         sfallConfigExit();

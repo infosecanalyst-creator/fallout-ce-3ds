@@ -1670,10 +1670,10 @@ static int lsgPerformSaveGame()
         debugPrint("\nLOADSAVE: ** Error opening save game for writing! **\n");
 #ifdef __3DS__
         {
-            extern void ctr_debug_log(const char* msg);
+            extern void ctr_note(const char* msg);
             char m[COMPAT_MAX_PATH + 40];
             snprintf(m, sizeof(m), "LOADSAVE: can't open %s for writing (patches %s)", _gmpath, _patches);
-            ctr_debug_log(m);
+            ctr_note(m);
         }
 #endif
         _RestoreSave();
@@ -1704,10 +1704,10 @@ static int lsgPerformSaveGame()
             debugPrint("\nLOADSAVE: ** Error writing save function #%d data! **\n", index);
 #ifdef __3DS__
             {
-                extern void ctr_debug_log(const char* msg);
+                extern void ctr_note(const char* msg);
                 char m[64];
                 snprintf(m, sizeof(m), "LOADSAVE: handler %d failed", index);
-                ctr_debug_log(m);
+                ctr_note(m);
             }
 #endif
             fileClose(_flptr);
@@ -2606,7 +2606,7 @@ static int _EndLoad(File* stream)
 
 // 0x47F510
 #ifdef __3DS__
-#define G2S_FAIL(n) do { extern void ctr_debug_log(const char* msg); char m_[300]; snprintf(m_, sizeof(m_), "G2S fail %d (%s | %s)", n, _str0, _str1); ctr_debug_log(m_); } while (0)
+#define G2S_FAIL(n) do { extern void ctr_note(const char* msg); char m_[300]; snprintf(m_, sizeof(m_), "G2S fail %d (%s | %s)", n, _str0, _str1); ctr_note(m_); } while (0)
 #else
 #define G2S_FAIL(n) do { } while (0)
 #endif

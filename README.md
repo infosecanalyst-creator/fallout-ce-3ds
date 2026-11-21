@@ -88,6 +88,8 @@ fallout.cfg / fallout2.cfg  [preferences]  running=1  combat_speed=50  player_sp
 fallout2/ddraw.ini          [Misc]         AutoQuickSave=3  DisplayKarmaChanges=1
 ```
 
+Debug log (Fallout 2): off by default; create an empty `sdmc:/3ds/fallout2/debug.txt` to write a detailed `debug.log` there (buffered, rolls over at 1 MB). Start, exit and failure lines are always logged.
+
 The data files come from the Windows GOG/Steam install. `innoextract -I app setup_fallout*.exe` extracts them from the GOG installers on Linux/macOS.
 
 ## Build

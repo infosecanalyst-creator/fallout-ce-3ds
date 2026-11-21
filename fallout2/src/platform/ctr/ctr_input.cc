@@ -110,7 +110,7 @@ static void ctr_home_quit_request(void)
     if (ctr_in_gameplay() && !ctrSaveWriting) {
         homeQuitSaveQueued = true;
         enqueueInputEvent(0x7E01);
-        ctr_debug_log("HOME close: exit save queued");
+        ctr_note("HOME close: exit save queued");
     }
 }
 
@@ -120,7 +120,7 @@ static void ctr_home_quit_poll(void)
         return;
     }
     if (!homeQuitSaveQueued || osGetTime() >= homeQuitDeadline) {
-        ctr_debug_log("HOME close: quitting without the exit save");
+        ctr_note("HOME close: quitting without the exit save");
         ctr_app_quit();
     }
 }

@@ -865,7 +865,7 @@ void initTransferTexture()
 {
     renderTextureData = (uint8_t *)linearAlloc(renderTextureByteCount);
     if (renderTextureData == nullptr) {
-        ctr_debug_log("initTransferTexture: linearAlloc FAILED");
+        ctr_note("initTransferTexture: linearAlloc FAILED");
         showMesageBox("Failed to allocate render texture\n");
         exit(EXIT_FAILURE);
     }
@@ -1000,7 +1000,7 @@ void ctr_gfx_init()
     ctr_debug_log("ctr_gfx_init: romfsInit done");
 
     if (!loadTextureFromFile(&static_tex, NULL, "romfs:/gfx/frame_tex.t3x")) {
-        ctr_debug_log("ctr_gfx_init: loadTextureFromFile FAILED");
+        ctr_note("ctr_gfx_init: loadTextureFromFile FAILED");
         showMesageBox("loadTextureFromFile failed\n");
         exit(EXIT_FAILURE);
     }

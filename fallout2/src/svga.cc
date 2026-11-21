@@ -181,7 +181,7 @@ int _GNW95_init_window(int width, int height, bool fullscreen, int scale)
 #ifdef __3DS__
     ctr_debug_log("_GNW95_init_window: calling SDL_Init(VIDEO)");
     if ((SDL_Init(SDL_INIT_VIDEO) == -1)) {
-        ctr_debug_log("_GNW95_init_window: SDL_Init FAILED");
+        ctr_note("_GNW95_init_window: SDL_Init FAILED");
         showMesageBox("Could not initialize SDL\n");
         return -1;
     }
@@ -242,7 +242,7 @@ int directDrawInit(int width, int height, int bpp)
     gSdlSurface = SDL_CreateRGBSurface(0, width, height, bpp, 0, 0, 0, 0);
     if (gSdlSurface == nullptr) {
 #ifdef __3DS__
-        ctr_debug_log("directDrawInit: SDL_CreateRGBSurface FAILED");
+        ctr_note("directDrawInit: SDL_CreateRGBSurface FAILED");
 #endif
         return -1;
     }

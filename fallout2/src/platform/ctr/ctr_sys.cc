@@ -80,18 +80,55 @@ size_t ctr_sys_check_heap() {
 
     return allocatedChunks * chunkSize;
 }
-// Kept open: opening, appending, fsync-ing and closing the file for every line
-// cost 100-200 ms each on the real SD card (see 3ds-sd-card-io-learnings).
+// debug.log on the SD card.
+// Off unless sdmc:/3ds/fallout2/debug.txt exists (checked once at start-up):
+// every line was written and flushed to the SD card, several per second in
+// play (gfx timings, map loads, every saved file), and each SD write stalls
+// the game. With debug.txt the full log comes back, buffered (no flush per
+// line) and rolled over to debug.log.old at 1 MB.
+// ctr_note() lines (start-up, failures, exit) are always written and flushed
+// at once: they are rare and are what's needed after a crash.
+// The file is kept open: opening, appending and closing it per line cost
+// 100-200 ms each on the real SD card (see 3ds-sd-card-io-learnings).
 static FILE* debugLogFile = nullptr;
+static long debugLogBytes = 0;
+static int debugLogOn = -1;
+static const long kDebugLogCap = 1024 * 1024;
 
-void ctr_debug_log(const char* msg) {
+bool ctr_debug_enabled() {
+    if (debugLogOn < 0) {
+        FILE* f = fopen("sdmc:/3ds/fallout2/debug.txt", "r");
+        debugLogOn = f != nullptr;
+        if (f != nullptr) fclose(f);
+    }
+    return debugLogOn != 0;
+}
+
+static void debugLogWrite(const char* msg, bool flush) {
+    if (debugLogFile != nullptr && debugLogBytes > kDebugLogCap) {
+        fclose(debugLogFile);
+        debugLogFile = nullptr;
+        remove("sdmc:/3ds/fallout2/debug.log.old");
+        rename("sdmc:/3ds/fallout2/debug.log", "sdmc:/3ds/fallout2/debug.log.old");
+    }
     if (debugLogFile == nullptr) {
         debugLogFile = fopen("sdmc:/3ds/fallout2/debug.log", "w");
         if (debugLogFile == nullptr) return;
-        setvbuf(debugLogFile, nullptr, _IOFBF, 4096);
+        setvbuf(debugLogFile, nullptr, _IOFBF, 16384);
+        debugLogBytes = 0;
     }
-    fprintf(debugLogFile, "%s\n", msg);
-    fflush(debugLogFile);
+    int n = fprintf(debugLogFile, "%s\n", msg);
+    if (n > 0) debugLogBytes += n;
+    if (flush) fflush(debugLogFile);
+}
+
+void ctr_debug_log(const char* msg) {
+    if (!ctr_debug_enabled()) return;
+    debugLogWrite(msg, false);
+}
+
+void ctr_note(const char* msg) {
+    debugLogWrite(msg, true);
 }
 
 #ifdef _DEBUG_OVERLAY
@@ -137,6 +174,7 @@ void ctr_app_quit()
     // The game's own atexit handler (win_exit) tears down the windows and
     // the GPU, but nothing stops audio: the SDL audio thread and ndsp keep
     // running and the system can't close the app. Stop them first.
+    ctr_note("exit: closed from the HOME menu");
     audioEngineExit();
     exit(EXIT_SUCCESS);
 }

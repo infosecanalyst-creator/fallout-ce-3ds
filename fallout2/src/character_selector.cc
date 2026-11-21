@@ -167,7 +167,7 @@ int characterSelectorOpen()
 
     if (!characterSelectorWindowInit()) {
 #ifdef __3DS__
-        ctr_debug_log("charSelector: windowInit FAILED");
+        ctr_note("charSelector: windowInit FAILED");
 #endif
         return 0;
     }
@@ -308,7 +308,7 @@ static bool characterSelectorWindowInit()
     gCharacterSelectorWindow = windowCreate(characterSelectorWindowX, characterSelectorWindowY, CS_WINDOW_WIDTH, CS_WINDOW_HEIGHT, _colorTable[0], 0);
     if (gCharacterSelectorWindow == -1) {
 #ifdef __3DS__
-        ctr_debug_log("charSelectorInit: windowCreate failed");
+        ctr_note("charSelectorInit: windowCreate failed");
 #endif
         return characterSelectorWindowFatalError(false);
     }
@@ -563,7 +563,7 @@ static bool characterSelectorWindowInit()
 
     if (!characterSelectorWindowRefresh()) {
 #ifdef __3DS__
-        ctr_debug_log("charSelectorInit: refresh FAILED");
+        ctr_note("charSelectorInit: refresh FAILED");
 #endif
         return characterSelectorWindowFatalError(false);
     }

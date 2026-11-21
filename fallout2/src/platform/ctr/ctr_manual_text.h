@@ -252,6 +252,7 @@ static const char* const kManualLines[] = {
     "| Picture looks odd | Select+L returns to the normal layout; ZL swaps the screens back",
     "| Map loads slowly | Big maps take a few seconds to read from the SD card. A fast card helps",
     "| Stuck in a menu | B backs out of menus; in a conversation, tap a reply",
+    "| Reporting a bug | An empty /3ds/fallout2/debug.txt turns on a detailed debug.log",
     "",
     "## Credits",
     "Fallout 2 Community Edition by Alexander Batalov. 3DS port by Deenyoro, building on MrHuu's 3DS platform layer. This port: dual-screen layout, dashboard, controls and fixes by Ryan Gurney with Claude.",
