@@ -451,7 +451,7 @@ void ctr_manual_run()
             if (down & KEY_DUP) f = f >= n ? n - 1 : f - 1;
             if (down & KEY_DDOWN) f = f >= n ? f : f + 1;
             if (down & KEY_DLEFT) f = f == n + 1 ? n : (f == n ? n - rows : f - rows);
-            if (down & KEY_DRIGHT) f = f == n ? n + 1 : (f > n ? f : f + rows);
+            if (down & KEY_DRIGHT) f = f == n ? n + 1 : (f > n || f + rows > n ? f : f + rows);
             if (f != gFocus && f >= 0 && f <= n + 1) {
                 if (f < n) select(f);
                 else gFocus = f;
