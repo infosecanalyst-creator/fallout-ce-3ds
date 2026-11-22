@@ -14,12 +14,14 @@ The game is played on the touch screen with the stylus, the way the PC game is p
 - Circle Pad or C-Stick: scroll. Hold to keep scrolling. You can also drag the stylus up or down on the touch screen.
 - D-pad: move between the section buttons.
 - L and R: previous and next section.
-- B or Start: close. The manual opens again where you left it.
+- LEFT at the bottom of the touch screen switches left-hand mode on or off (D-pad down to it, then A).
+- B, Start or CLOSE: close. The manual opens again where you left it.
 
 ### Opening this manual
 
 | Input | What it does |
 |---|---|
+| Start | Anywhere, the main menu too: the Start menu, then MANUAL |
 | Select | On the main menu or any menu: open the manual |
 | Select+Start | On the map: open the manual (hold Select, press Start) |
 
@@ -48,7 +50,7 @@ The touch screen shows the map and every menu. Use the stylus as the mouse.
 | Target | In combat: the enemy you last tapped, or else the one attacking you; how hurt it is and your chance to hit it |
 | Level, XP | When not fighting, with your caps and carry weight on the right (red when overloaded). Poison and radiation show here instead when you have any |
 | Messages | The latest messages from the log, newest in bright green |
-| Hint | On some screens, a line of button reminders along the bottom |
+| Hint | A line of button reminders along the bottom. On the map it takes turns through the shortcuts; in left-hand mode it names the buttons you really press |
 
 ### The top screen on other screens
 
@@ -58,8 +60,8 @@ The touch screen shows the map and every menu. Use the stylus as the mouse.
 | Trading | What your offer is worth, what they want, whether they will accept, their caps, and the touched item's details |
 | Save and load | The slot's picture, character, date, place and description |
 | World map | Where you are, the terrain, where you are heading, the known places, and the car's fuel |
-| Pip-Boy | A sharp, full-size view of the part of the Pip-Boy screen around where you last touched |
-| Preferences | A sharp, full-size view of the part of the page around where you last touched |
+| Pip-Boy | The dashboard. Press ZL for a sharp, full-size view of the part of the Pip-Boy screen around where you last touched |
+| Preferences | The dashboard. Press ZL for a sharp, full-size view of the part of the page around where you last touched: the small labels under each knob are easy to read there |
 | Conversations | The person you are talking to and what they say |
 | Character sheet | The description of the stat or skill you touched |
 
@@ -95,9 +97,9 @@ You can also tap open ground to walk there. The character always runs; change th
 | C-Stick | Scroll the map (New 3DS) |
 
 
-On an original 3DS, which has no C-Stick, the D-pad scrolls the map, so the D-pad shortcuts are not available there.
+On an original 3DS, which has no C-Stick, the D-pad scrolls the map, so the D-pad shortcuts are not available there. Use Start, then ACTIONS: swap hands, attack mode, Skilldex and character sheet are buttons there.
 
-## Tapping and the action menu
+## Tapping
 
 ### One tap does the right thing
 
@@ -123,6 +125,8 @@ Touch and hold on anything until the menu appears. It offers what fits the objec
 | Select+B | Reload the weapon in your hand |
 | L | Right click: cycles the cursor between move, look and attack, as on the PC |
 | A | Left click at the cursor |
+| Select | On the map: center the view on your character. In a menu and on the main menu: this manual |
+| Start, ACTIONS | Every shortcut on this page and the next ones as a touch button: automap, rest, quick heal, reload, quick save, quick load, swap hands, attack mode, Skilldex, character sheet, end combat |
 
 ## Combat
 
@@ -150,7 +154,7 @@ The dashboard's Target line shows the last enemy you tapped: how hurt it is and 
 |---|---|
 | Select+A | Quick heal: uses a Stimpak, or a Super Stimpak if you have no Stimpak. Costs 4 AP in combat, the same as using it from the inventory |
 
-## Inventory, looting and trading
+## Inventory and trading
 
 | Input | What it does |
 |---|---|
@@ -163,7 +167,7 @@ When looting a body or container, tap an item to take it (or drag it across), or
 
 When trading, tap an item to put it on the table in the middle (tap it there to take it back), or drag it. The top screen shows what your offer is worth, what they want and whether they will accept. Tap Offer to make the deal. Your character's Barter skill sets the prices. For a stack you choose how many to move.
 
-## Character, skills and Pip-Boy
+## Character and Pip-Boy
 
 | Input | What it does |
 |---|---|
@@ -185,7 +189,7 @@ Tap a skill (Sneak, Lockpick, Steal, Traps, First Aid, Doctor, Science, Repair),
 
 ### Pip-Boy
 
-Your quest notes, maps, the date and the alarm clock for resting. The text is small on the touch screen, so the top screen magnifies the part around where you last touched. Pip-Boy is not available in combat.
+Your quest notes, maps, the date and the alarm clock for resting. The text is small on the touch screen: press ZL and the top screen magnifies the part around where you last touched. Pip-Boy is not available in combat.
 
 ## Talking
 
@@ -206,17 +210,31 @@ Leave a town by walking off the edge of the map. On the world map, tap where you
 | Start+X | Quick save |
 | Start+Y | Quick load |
 
-Quick save rotates through slots 1, 2 and 3 without asking, so the last three quick saves are always kept.
+Quick save writes at once, without a slot list and without asking for a name. It keeps to slots 7, 8 and 9: it takes an empty one first and after that overwrites the oldest quick save, so the last three quick saves are always kept. The saves are named "Quick:" and the place.
+
+Quick save never overwrites a save you made yourself. If slots 7, 8 and 9 all hold your own saves, it says so in the message log and saves nothing: save over one of them from the Start menu, or keep your own saves in slots 1 to 6.
+
+Quick load asks first: "Load the last quick save?" with YES, LOAD and NO. The ring starts on NO and B is NO. YES loads the newest quick save. With no quick save yet, it says so.
+
+Both are also buttons under Start, ACTIONS.
 
 ### The Start menu
 
-Start opens a menu with six big buttons: RESUME, MANUAL, SAVE, SETTINGS, LEFT HAND and EXIT GAME. Tap one, or use the D-pad and A. B or Start closes it. Each button has a one-line reminder of what it does on the top screen.
+Start opens a menu with seven big buttons: RESUME, MANUAL, SAVE, ACTIONS, SETTINGS, LEFT HAND and EXIT GAME. Tap one, or use the D-pad and A. B or Start closes it. Each button has a one-line reminder of what it does on the top screen. Start works on the main menu too; there MANUAL, LEFT HAND and EXIT GAME can be used.
 
-- SAVE opens the save screen and SETTINGS opens the game's options (Preferences and so on). They only work during play on the map; on the world map or over a window they are greyed out and say so.
-- LEFT HAND on/off swaps the D-pad with Y, A, B and X (Y is up, A is right, B is down, X is left, and the reverse) so the stylus can be held in the left hand. It is remembered, and every button combination in this manual follows the swap.
-- EXIT GAME saves into slot 10 first, then asks before it quits. Where it cannot save (the world map, for example) the line says "not saved here, then asks".
+- SAVE opens the save screen. ACTIONS shows every button shortcut as a touch button. SETTINGS opens Preferences. These three only work during play on the map; on the world map or over a window they are greyed out and say so.
+- LEFT HAND on/off swaps the D-pad with Y, A, B and X (Y is up, A is right, B is down, X is left, and the reverse) so the stylus can be held in the left hand. It is remembered, and every button combination in this manual follows the swap. If the SD card refuses to store the setting, the menu says so.
+- EXIT GAME asks "Exit the game?" with YES, EXIT and NO. The ring starts on NO and B is NO. After YES the game is saved into slot 10 and closes, back to the Homebrew Menu. Nothing is written before you say yes.
 
-To save, tap a slot and then Done. The 3DS keyboard opens with a description filled in: the name of the place for a new save, or the old description when you overwrite a slot. Tap OK to save, or type your own first. Cancel goes back to the slot list without saving.
+Where EXIT GAME can save:
+
+- On the map: it saves, then closes.
+- With the inventory, Pip-Boy, Skilldex or automap open: it closes that window, saves, then closes the game.
+- On the world map, in a conversation, when trading or on the character sheet it cannot save. It says "The game cannot be saved here" and the button reads EXIT ANYWAY; NO takes you back so you can save first.
+
+If the save to slot 10 does not work (a full card, or the game refusing in the middle of something), the game says NOT SAVED and asks again before it closes. It never quits after a failed save without asking.
+
+To save by hand, tap a slot and then Done. The 3DS keyboard opens with a description filled in: the name of the place for a new save, or the old description when you overwrite a slot. Tap OK to save, or type your own first. Cancel goes back to the slot list without saving.
 
 A save that fails never costs you the old one: the game puts the previous save back and tells you the save failed instead of saying it worked.
 
@@ -225,6 +243,10 @@ Save often. Fallout is an unforgiving game.
 ### The exit save
 
 Slot 10 is kept for the exit save. EXIT GAME writes it, and so does closing the game from the HOME menu while you are playing on the map (the game waits until the save is finished before it closes). Your own saves in slots 1 to 9 are never touched by it.
+
+### Coming back
+
+On the main menu tap LOAD GAME. The list opens on your newest save, which is the exit save in slot 10 if you left with EXIT GAME. Tap Done to load it.
 
 ### Where saves are kept
 
@@ -262,9 +284,9 @@ sdmc:/3ds/fallout2/data/SAVEGAME/SLOT01 to SLOT10.
 | Select+Up/Dn | Zoom |
 | Select+R | Sharper top screen on/off |
 | Select+Start | This manual |
-| Start | Menu: Resume, Manual, Save, Settings, Left hand, Exit game |
-| Start+X | Quick save |
-| Start+Y | Quick load |
+| Start | Menu: Resume, Manual, Save, Actions, Settings, Left hand, Exit game |
+| Start+X | Quick save (slots 7 to 9) |
+| Start+Y | Quick load (asks first) |
 
 ### In menus
 
@@ -274,17 +296,18 @@ sdmc:/3ds/fallout2/data/SAVEGAME/SLOT01 to SLOT10.
 | B | Back (in conversations: right click) |
 | X | Take all, when looting |
 | L | Right click |
+| Start | The Start menu |
 | Select | This manual |
 | Circle Pad | Scroll the character sheet. On the world map, the main menu, character creation and in the whole-screen view it moves a cursor: A or R clicks |
 
 ## Preferences
 
-Start, then SETTINGS, then Preferences, changes the game settings. This port ships with:
+Start, then SETTINGS, opens Preferences, where the game settings are changed. The labels under the knobs are small on the touch screen: press ZL for a sharp view on the top screen. This port ships with:
 
 - Running always on: the character runs instead of walking.
 - Combat speed fast, and your own moves sped up too.
-- Karma changes reported in the message log (ddraw.ini, DisplayKarmaChanges=1).
-- Silent quick saves rotating through three slots (ddraw.ini, AutoQuickSave=3).
+- Karma changes reported in the message log.
+- Quick saves without a slot list or a name, kept to slots 7 to 9.
 
 Text, violence level, subtitles, brightness and sound volume work as on the PC.
 
@@ -337,7 +360,7 @@ Start it from the Homebrew Launcher. The intro movies play first: tap the screen
 | Lost the character | Press Select. If the map is zoomed in, Select+Down zooms out |
 | Picture looks odd | Select+L returns to the normal layout; ZL swaps the screens back |
 | Map loads slowly | Big maps take a few seconds to read from the SD card. A fast card helps |
-| Stuck in a menu | B backs out of menus; in a conversation, tap a reply |
+| Stuck in a menu | B backs out of menus; in a conversation, tap a reply. Start opens the Start menu anywhere |
 | Reporting a bug | The game always logs its start, exit and failures to /3ds/fallout2/debug.log. An empty /3ds/fallout2/debug.txt switches on the detailed log (it rolls over at 1 MB) |
 
 ### Credits

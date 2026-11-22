@@ -377,6 +377,88 @@ void _ResetLoadSave()
 // SaveGame
 // 0x47B88C
 #ifdef __3DS__
+// FALLOUT2-Q1 / Q2 / Q3: quick save and quick load are built in, the same as Fallout 1, and no
+// longer depend on AutoQuickSave=3 in the player's ddraw.ini. Quick saves rotate through slots
+// 7, 8 and 9 without asking, next to the exit save in slot 10. A slot is only overwritten when
+// it is empty or already holds a quick save (its description starts with "Quick"): the
+// player's own saves are never touched. Quick load loads the newest quick save.
+static long long ctrSlotTime(int slot)
+{
+    snprintf(_gmpath, sizeof(_gmpath), "%s\\%s%.2d\\%s", "SAVEGAME", "SLOT", slot + 1, "SAVE.DAT");
+    _flptr = fileOpen(_gmpath, "rb");
+    if (_flptr == nullptr) {
+        return 0;
+    }
+    int rc = lsgLoadHeaderInSlot(slot);
+    fileClose(_flptr);
+    if (rc == -1) {
+        return 0;
+    }
+    LoadSaveSlotData* ptr = &(_LSData[slot]);
+    return (((long long)ptr->fileYear * 13 + ptr->fileMonth) * 32 + ptr->fileDay) * 100000000LL + ptr->fileTime;
+}
+
+static bool ctrSlotIsQuick(int slot)
+{
+    // after ctrSlotTime(slot) != 0: the header is in _LSData[slot]
+    return strncmp(_LSData[slot].description, "Quick", 5) == 0;
+}
+
+// An empty one of slots 7-9, else the oldest quick save there; -1 when all three hold the
+// player's own saves.
+static int ctrQuickSaveSlot()
+{
+    int best = -1;
+    long long bestTime = 0;
+    for (int slot = 6; slot <= 8; slot++) {
+        long long t = ctrSlotTime(slot);
+        if (t == 0) {
+            return slot;
+        }
+        if (ctrSlotIsQuick(slot) && (best < 0 || t < bestTime)) {
+            best = slot;
+            bestTime = t;
+        }
+    }
+    return best;
+}
+
+// The newest quick save in slots 1-9; -1 when there is none.
+static int ctrQuickLoadSlot()
+{
+    int best = -1;
+    long long bestTime = 0;
+    for (int slot = 0; slot <= 8; slot++) {
+        long long t = ctrSlotTime(slot);
+        if (t != 0 && ctrSlotIsQuick(slot) && (best < 0 || t > bestTime)) {
+            best = slot;
+            bestTime = t;
+        }
+    }
+    return best;
+}
+
+// For Start+Y (ctr_input.cc): is there a quick save to load?
+bool ctrQuickSaveExists()
+{
+    return ctrQuickLoadSlot() >= 0;
+}
+
+// The newest save of all ten slots (the load list opens on it); -1 when there is none.
+static int ctrNewestSlot()
+{
+    int best = -1;
+    long long bestTime = 0;
+    for (int slot = 0; slot <= 9; slot++) {
+        long long t = ctrSlotTime(slot);
+        if (t != 0 && (best < 0 || t > bestTime)) {
+            best = slot;
+            bestTime = t;
+        }
+    }
+    return best;
+}
+
 // rule 17 (Ryan, Nov 19 2026: reserve the last slot): EXIT GAME quick-saves into slot 10. The
 // previous slot choice is kept, so the player's own quick save (F6) is not moved.
 int lsgSaveGame(int mode);
@@ -405,28 +487,37 @@ int lsgSaveGame(int mode)
     _ls_error_code = 0;
     _patches = settings.system.master_patches_path.c_str();
 
+#ifndef __3DS__
     // SFALL: skip slot selection if auto quicksave is enabled
     if (autoQuickSaveSlots) {
         _quick_done = true;
     }
+#endif
 
 #ifdef __3DS__
-    if (mode == LOAD_SAVE_MODE_QUICK && ctrForcedSlot >= 0) {
+    bool ctrQuickNamed = false;
+    if (mode == LOAD_SAVE_MODE_QUICK) {
+        const int quickSlot = ctrForcedSlot >= 0 ? ctrForcedSlot : ctrQuickSaveSlot();
+        if (quickSlot < 0) {
+            // slots 7-9 all hold the player's own saves: say so, overwrite nothing
+            static char msg[] = "Quick save: slots 7, 8 and 9 hold your own saves. Free one of them (save over it from the START menu) and quick save will use it.";
+            displayMonitorAddMessage(msg);
+            return 0;
+        }
         _quick_done = true;
-        _slot_cursor = ctrForcedSlot;
+        _slot_cursor = quickSlot;
+        ctrQuickNamed = ctrForcedSlot < 0;
     }
 #endif
     if (mode == LOAD_SAVE_MODE_QUICK && _quick_done) {
+#ifndef __3DS__
         // SFALL: cycle through first N slots for quicksaving
-        if (autoQuickSaveSlots
-#ifdef __3DS__
-            && ctrForcedSlot < 0
-#endif
-        ) {
+        if (autoQuickSaveSlots) {
             if (++_slot_cursor >= quickSaveSlots) {
                 _slot_cursor = 0;
             }
         }
+#endif
         snprintf(_gmpath, sizeof(_gmpath), "%s\\%s%.2d\\", "SAVEGAME", "SLOT", _slot_cursor + 1);
         strcat(_gmpath, "SAVE.DAT");
 
@@ -439,6 +530,10 @@ int lsgSaveGame(int mode)
         if (ctrForcedSlot >= 0) {
             strncpy(_LSData[_slot_cursor].description, "Exit save", LOAD_SAVE_DESCRIPTION_LENGTH);
             _LSData[_slot_cursor].description[LOAD_SAVE_DESCRIPTION_LENGTH - 1] = '\0';
+        } else if (ctrQuickNamed) {
+            // "Quick: <place>": marks the slot as a quick save (see ctrSlotIsQuick)
+            const char* city = mapGetCityName(mapGetCurrentMap());
+            snprintf(_LSData[_slot_cursor].description, LOAD_SAVE_DESCRIPTION_LENGTH, "Quick: %s", city != nullptr ? city : "");
         }
 #endif
 
@@ -970,6 +1065,25 @@ int lsgLoadGame(int mode)
     _ls_error_code = 0;
     _patches = settings.system.master_patches_path.c_str();
 
+#ifdef __3DS__
+    if (mode == LOAD_SAVE_MODE_QUICK) {
+        const int quickSlot = ctrQuickLoadSlot();
+        if (quickSlot < 0) {
+            static char msg[] = "No quick save yet. Start+X makes one.";
+            displayMonitorAddMessage(msg);
+            return 0;
+        }
+        _slot_cursor = quickSlot;
+        _quick_done = true;
+    } else {
+        // FALLOUT-X3: the list opens on the newest save (the exit save in slot 10 after
+        // EXIT GAME), not on slot 1.
+        const int newest = ctrNewestSlot();
+        if (newest >= 0) {
+            _slot_cursor = newest;
+        }
+    }
+#endif
     if (mode == LOAD_SAVE_MODE_QUICK && _quick_done) {
         int quickSaveWindowX = (screenGetWidth() - LS_WINDOW_WIDTH) / 2;
         int quickSaveWindowY = (screenGetHeight() - LS_WINDOW_HEIGHT) / 2;
@@ -2026,7 +2140,13 @@ static int lsgSaveHeaderInSlot(int slot)
     ptr->fileDay = temp[0];
     ptr->fileMonth = temp[1];
     ptr->fileYear = temp[2];
+#ifdef __3DS__
+    // Seconds into the day, so saves made on one day can be put in order (the original
+    // stored hour + minute). Used for the quick save rotation and "newest save".
+    ptr->fileTime = local->tm_hour * 3600 + local->tm_min * 60 + local->tm_sec;
+#else
     ptr->fileTime = local->tm_hour + local->tm_min;
+#endif
 
     if (fileWriteInt16List(_flptr, temp, 3) == -1) {
         return -1;

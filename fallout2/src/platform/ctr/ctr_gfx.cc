@@ -863,7 +863,13 @@ void finishRender()
 
 void initTransferTexture()
 {
+    // FALLOUT-Q5: the linear heap can still be short for a moment when the app before this
+    // one has just closed: retry for up to 5 s before giving up.
     renderTextureData = (uint8_t *)linearAlloc(renderTextureByteCount);
+    for (int tries = 0; renderTextureData == nullptr && tries < 50; tries++) {
+        svcSleepThread(100 * 1000 * 1000LL);
+        renderTextureData = (uint8_t *)linearAlloc(renderTextureByteCount);
+    }
     if (renderTextureData == nullptr) {
         ctr_note("initTransferTexture: linearAlloc FAILED");
         showMesageBox("Failed to allocate render texture\n");
@@ -906,12 +912,17 @@ void ctr_gfx_toggle_wide()
     ctr_gfx.isWide = !ctr_gfx.isWide;
     gfxSetWide(ctr_gfx.isWide);
     ctr_gfx_reinit();
+    // FALLOUT-Q6: checked; a card that refuses the write is reported instead of silently
+    // forgetting the choice at the next start.
+    bool saved = false;
     FILE* f = fopen(kWideSettingFile, "w");
     if (f != NULL) {
-        fprintf(f, "wide=%d\n", ctr_gfx.isWide ? 1 : 0);
-        fclose(f);
+        saved = fprintf(f, "wide=%d\n", ctr_gfx.isWide ? 1 : 0) > 0;
+        saved = fclose(f) == 0 && saved;
     }
-    ctrWideHint = ctr_gfx.isWide ? "Sharp 800-pixel top screen: ON  (Select+R turns it off)"
+    ctrWideHint = !saved ? (ctr_gfx.isWide ? "Sharp top screen: ON, but the setting could not be saved"
+                                           : "Sharp top screen: OFF, but the setting could not be saved")
+                : ctr_gfx.isWide ? "Sharp 800-pixel top screen: ON  (Select+R turns it off)"
                                  : "Sharp 800-pixel top screen: OFF  (Select+R turns it on)";
     ctrWideHintUntil = osGetTime() + 2500;
 }
@@ -1209,30 +1220,71 @@ static void dashRebuild(const CtrDashboard* d, const char* hint, int logLines)
 }
 
 // One-line button reminder for the screen on the touchscreen.
+// FALLOUT-U1: every hint has a left-hand wording (the D-pad and A/B/X/Y swap jobs, so "B
+// close" is pressed on D-pad Down). FALLOUT-U3: the automap, conversations, save / load and
+// the options page have their own line. FALLOUT-X1: on the map the strip takes turns
+// through the shortcuts, so they are seen during play and not only on the main menu.
+#define CTR_HINT(right, left) (lefty ? (left) : (right))
 static const char* dashHint(const CtrDashboard* d)
 {
+    const bool lefty = ctr_lefty();
+    const int turn = (int)((osGetTime() / 6000) % 4);
     switch (ctr_rectMap.active) {
     case DISPLAY_FIELD:
         if (d->turn == 1) {
-            return "ZR end turn    B attack    Hold R odds    Select+A heal";
+            return turn % 2 == 0
+                ? CTR_HINT("ZR end turn    B attack    Hold R odds    Select+A heal",
+                      "ZR end turn    Down attack    Hold R odds    Select+Right heal")
+                : CTR_HINT("Select+B reload    D-pad Down attack mode    Start+ZR end combat",
+                      "Select+Down reload    B attack mode    Start+ZR end combat");
         }
-        return "START menu    ZL swap screens    Select+X automap";   // house style: always a hint strip
+        switch (turn) {
+        case 0:
+            return CTR_HINT("START menu    ZL swap screens    Select+X automap",
+                "START menu    ZL swap screens    Select+Left automap");
+        case 1:
+            return "START, then ACTIONS: every shortcut as a button";
+        case 2:
+            return CTR_HINT("Select+A heal    Select+B reload    Select+Y rest",
+                "Select+Right heal    Select+Down reload    Select+Up rest");
+        default:
+            return CTR_HINT("Start+X quick save    Start+Y quick load (asks)    Select center",
+                "Start+Left quick save    Start+Up quick load (asks)    Select center");
+        }
     case DISPLAY_INVENTORY:
-        return "Drag items to hands or armor    Hold for menu    B close";
+        return CTR_HINT("Drag items to hands or armor    Hold for menu    B close",
+            "Drag items to hands or armor    Hold for menu    Down close");
     case DISPLAY_INVENTORY_LOOT:
-        return "Drag items across    X take all    B close";
+        return CTR_HINT("Drag items across    X take all    B close", "Drag items across    Left take all    Down close");
     case DISPLAY_INVENTORY_USE:
-        return "Tap the item to use    B close";
+        return CTR_HINT("Tap the item to use    B close", "Tap the item to use    Down close");
+    case DISPLAY_INVENTORY_TRADE:
+        return "Tap or drag items to the table    Tap Offer to deal";
     case DISPLAY_SKILLDEX:
-        return "Tap a skill, then what to use it on    B close";
+        return CTR_HINT("Tap a skill, then what to use it on    B close", "Tap a skill, then what to use it on    Down close");
     case DISPLAY_WORLDMAP:
-        return "Tap a place to travel there";
+        return "Tap a place to travel there    START menu";
     case DISPLAY_PIPBOY:
-        return "Tap the buttons on the left    B close";
+        return CTR_HINT("Tap the buttons on the left    Y or B close", "Tap the buttons on the left    Up or Down close");
+    case DISPLAY_DIALOG:
+        return "Tap a reply to say it    START menu";
+    case DISPLAY_LOADSAVE:
+        return CTR_HINT("Tap a slot, then Done    B cancel", "Tap a slot, then Done    Down cancel");
+    case DISPLAY_OPTIONS:
+    case DISPLAY_PAUSE:
+        return CTR_HINT("Tap a button    B close    ZL sharp view", "Tap a button    Down close    ZL sharp view");
+    case DISPLAY_CHAR:
+        return CTR_HINT("Circle Pad scroll    D-pad Right done    B cancel", "Circle Pad scroll    A done    Down cancel");
+    case DISPLAY_DYNAMIC:
+        if (ctrAutomapOpen) {
+            return CTR_HINT("X or B close the automap    ZL sharp view", "Left or Down close the automap    ZL sharp view");
+        }
+        return CTR_HINT("Tap a button to answer    B back", "Tap a button to answer    Down back");
     default:
         return "START menu    ZL swap screens";
     }
 }
+#undef CTR_HINT
 
 void ctr_dashboard_draw()
 {
@@ -1335,7 +1387,10 @@ void ctr_dashboard_draw()
 
     if (hint != nullptr) {
         rect(0, 224, 400, 16, panel);
-        C2D_DrawText(&dashText[DASH_T_HINT], C2D_WithColor | C2D_AlignCenter, 200 * kx, 225, 0.6f, 0.42f * kx, 0.42f, amber);
+        float hw = 0, hh = 0;
+        C2D_TextGetDimensions(&dashText[DASH_T_HINT], 0.42f, 0.42f, &hw, &hh);
+        const float hs = hw > 388.f ? 0.42f * 388.f / hw : 0.42f;   // never cut off
+        C2D_DrawText(&dashText[DASH_T_HINT], C2D_WithColor | C2D_AlignCenter, 200 * kx, 225, 0.6f, hs * kx, hs, amber);
     }
 
     C2D_Flush();
@@ -1392,7 +1447,7 @@ void ctr_help_draw()
         helpTextBuf = C2D_TextBufNew(2048);
         C2D_TextParse(&helpTitle, helpTextBuf, "FALLOUT 2");
         C2D_TextOptimize(&helpTitle);
-        C2D_TextParse(&helpSub, helpTextBuf, "Tap a button on the touch screen    Select manual");
+        C2D_TextParse(&helpSub, helpTextBuf, "Tap a button on the touch screen    START menu    Select manual");
         C2D_TextOptimize(&helpSub);
         for (int c = 0; c < 2; c++) {
             for (int r = 0; r < 9; r++) {
@@ -1602,7 +1657,10 @@ void ctr_hint_draw(const char* hint)
     C2D_Prepare();
     C2D_SceneBegin(topRenderTarget);
     C2D_DrawRectSolid(0, 224, 0.9f, 400 * kx, 16, C2D_Color32(20, 30, 70, 0xff));   // opaque and in front (depth 0.9): it covers the dashboard's own hint strip
-    C2D_DrawText(&hintTextObj, C2D_WithColor | C2D_AlignCenter, 200 * kx, 225, 0.95f, 0.42f * kx, 0.42f, C2D_Color32(255, 204, 64, 0xff));
+    float hw = 0, hh = 0;
+    C2D_TextGetDimensions(&hintTextObj, 0.42f, 0.42f, &hw, &hh);
+    const float hs = hw > 388.f ? 0.42f * 388.f / hw : 0.42f;   // never cut off
+    C2D_DrawText(&hintTextObj, C2D_WithColor | C2D_AlignCenter, 200 * kx, 225, 0.95f, hs * kx, hs, C2D_Color32(255, 204, 64, 0xff));
     C2D_Flush();
     gpuStateReady = false;
 }

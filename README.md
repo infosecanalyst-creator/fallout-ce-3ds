@@ -24,12 +24,12 @@ Both are forks of [alexbatalov/fallout1-ce](https://github.com/alexbatalov/fallo
 | Highlight | Hold R to outline every item and lootable body on the level (touch has no hover); in combat it also lists your hit chance against each visible enemy. |
 | Quick heal, reload, take all | Select+A uses a Stimpak (or Super Stimpak) and Select+B reloads, without opening the inventory; X takes everything from a body or container. |
 | Back | B and Start back out of any in-game menu (inventory, Pip-Boy, character sheet, Skilldex, automap, options). |
-| Start menu | Six big buttons (Resume, Manual, Save, Settings, Left hand, Exit game). Exit game and HOME > Close save into reserved slot 10 first; Save and Settings are greyed out away from the map. A failed save keeps the previous save. |
+| Start menu | Seven big buttons (Resume, Manual, Save, Actions, Settings, Left hand, Exit game); it opens on the main menu too. Actions shows every button shortcut as a touch button. Settings opens Preferences. Exit game asks first (focus on No), then saves into reserved slot 10 and closes the program; HOME > Close saves the same way. Save, Actions and Settings are greyed out away from the map. A failed save keeps the previous save, and the game asks again before quitting. |
 | Out-of-game top screen | Main menu and other screens outside a game show a controls card on the top screen. The character sheet shows a hint that the Circle Pad scrolls down to the skills. |
 | Camera | Follows the player and recenters near the edge of the view; C-stick scrolls (New 3DS); Select recenters. |
 | HUD shortcuts | Every HUD button on the untouchable top screen has a hardware shortcut (see controls). |
-| Defaults | Always run, fast combat, Fallout 2 quicksave without slot/name prompts (`AutoQuickSave=3`), karma change messages. |
-| Fallout 1 quick save | Rotates silently through slots 1-3 (like Fallout 2's AutoQuickSave=3); quick load loads the newest. |
+| Defaults | Always run, fast combat, quick save without slot/name prompts, Fallout 2 karma change messages. The last two are built in: they do not need a line in ddraw.ini. |
+| Quick save / load (both games) | Start+X rotates silently through slots 7-9, next to the exit save in slot 10, and only ever overwrites an empty slot or an older quick save, never a save you made yourself. Start+Y asks first, then loads the newest quick save. |
 | Faster file opens | Files are opened directly first; the case-insensitive directory scan (slow on SD) only runs if that fails. |
 | Fallout 1 saving | Saving failed when the SD folder's case differed from the config (`DATA` vs `master_patches=data`): the slot file list came back empty. Directory listing now falls back to upper case. |
 | Movie freeze fix | `SDL_OpenAudioDevice` returns 0 on failure, not -1; without `dspfirm.cdc` every movie used to hang forever in `_MVE_sndSync`. Movies now play silently. |
@@ -86,7 +86,6 @@ Recommended settings (already what the author ships on his card):
 
 ```
 fallout.cfg / fallout2.cfg  [preferences]  running=1  combat_speed=50  player_speedup=1
-fallout2/ddraw.ini          [Misc]         AutoQuickSave=3  DisplayKarmaChanges=1
 ```
 
 Debug log (Fallout 2): `sdmc:/3ds/fallout2/debug.log` always gets the start, exit and failure lines. Create an empty `sdmc:/3ds/fallout2/debug.txt` to switch on the detailed log (buffered, rolls over at 1 MB).

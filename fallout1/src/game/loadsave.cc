@@ -354,8 +354,10 @@ void ResetLoadSave()
 
 // 0x46D9C4
 #ifdef __3DS__
-// Quick saves rotate through slots 1-3 without asking (like Fallout 2 with
-// sfall's AutoQuickSave=3): the oldest or an empty one is overwritten.
+// Quick saves rotate through slots 7, 8 and 9 without asking, next to the exit save in
+// slot 10 (FALLOUT-Q1: they used to rotate through slots 1-3, where a player's first own
+// saves go). A slot is only ever overwritten when it is empty or already holds a quick save
+// (its description starts with "Quick"): the player's own saves are never touched.
 static long long ctrSlotTime(int slot)
 {
     // The header records the real date and time of the save.
@@ -373,13 +375,61 @@ static long long ctrSlotTime(int slot)
     return (((long long)ptr->fileYear * 13 + ptr->fileMonth) * 32 + ptr->fileDay) * 100000000LL + ptr->fileTime;
 }
 
-static int ctrQuickSlot(bool newest)
+static bool ctrSlotIsQuick(int slot)
 {
-    int best = 0;
-    long long bestTime = ctrSlotTime(0);
-    for (int slot = 1; slot < 3; slot++) {
+    // after ctrSlotTime(slot) != 0: the header is in LSData[slot]
+    return strncmp(LSData[slot].description, "Quick", 5) == 0;
+}
+
+// The slot the next quick save goes to: an empty one of 7-9, else the oldest quick save
+// there; -1 when all three hold the player's own saves.
+static int ctrQuickSaveSlot()
+{
+    int best = -1;
+    long long bestTime = 0;
+    for (int slot = 6; slot <= 8; slot++) {
         long long t = ctrSlotTime(slot);
-        if (newest ? t > bestTime : t < bestTime) {
+        if (t == 0) {
+            return slot;
+        }
+        if (ctrSlotIsQuick(slot) && (best < 0 || t < bestTime)) {
+            best = slot;
+            bestTime = t;
+        }
+    }
+    return best;
+}
+
+// The newest quick save (any of slots 1-9, so quick saves made by older builds in slots
+// 1-3 still load); -1 when there is none.
+static int ctrQuickLoadSlot()
+{
+    int best = -1;
+    long long bestTime = 0;
+    for (int slot = 0; slot <= 8; slot++) {
+        long long t = ctrSlotTime(slot);
+        if (t != 0 && ctrSlotIsQuick(slot) && (best < 0 || t > bestTime)) {
+            best = slot;
+            bestTime = t;
+        }
+    }
+    return best;
+}
+
+// For Start+Y (ctr_input.cc): is there a quick save to load?
+bool ctrQuickSaveExists()
+{
+    return ctrQuickLoadSlot() >= 0;
+}
+
+// The newest save of all ten slots (the load list opens on it); -1 when there is none.
+static int ctrNewestSlot()
+{
+    int best = -1;
+    long long bestTime = 0;
+    for (int slot = 0; slot <= 9; slot++) {
+        long long t = ctrSlotTime(slot);
+        if (t != 0 && (best < 0 || t > bestTime)) {
             best = slot;
             bestTime = t;
         }
@@ -418,7 +468,14 @@ int SaveGame(int mode)
 
 #ifdef __3DS__
     if (mode == LOAD_SAVE_MODE_QUICK) {
-        slot_cursor = ctrForcedSlot >= 0 ? ctrForcedSlot : ctrQuickSlot(false);
+        const int quickSlot = ctrForcedSlot >= 0 ? ctrForcedSlot : ctrQuickSaveSlot();
+        if (quickSlot < 0) {
+            // slots 7-9 all hold the player's own saves: say so, overwrite nothing
+            static char msg[] = "Quick save: slots 7, 8 and 9 hold your own saves. Free one of them (save over it from the START menu) and quick save will use it.";
+            display_print(msg);
+            return 0;
+        }
+        slot_cursor = quickSlot;
         quick_done = true;
     }
 #endif
@@ -961,8 +1018,21 @@ int LoadGame(int mode)
 
 #ifdef __3DS__
     if (mode == LOAD_SAVE_MODE_QUICK) {
-        slot_cursor = ctrQuickSlot(true);
-        quick_done = ctrSlotTime(slot_cursor) != 0;
+        const int quickSlot = ctrQuickLoadSlot();
+        if (quickSlot < 0) {
+            static char msg[] = "No quick save yet. Start+X makes one.";
+            display_print(msg);
+            return 0;
+        }
+        slot_cursor = quickSlot;
+        quick_done = true;
+    } else {
+        // FALLOUT-X3: the list opens on the newest save (the exit save in slot 10 after
+        // EXIT GAME), not on slot 1.
+        const int newest = ctrNewestSlot();
+        if (newest >= 0) {
+            slot_cursor = newest;
+        }
     }
 #endif
     if (mode == LOAD_SAVE_MODE_QUICK && quick_done) {

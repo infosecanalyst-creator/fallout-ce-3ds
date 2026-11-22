@@ -111,6 +111,16 @@ int showOptions()
         sharedFpsLimiter.mark();
 
         int keyCode = inputGetInput();
+#ifdef __3DS__
+        // START > SETTINGS (ctr_input.cc): open Preferences at once and leave with it, so the
+        // five-button plate (Save / Load / Preferences / Exit / Done) is not in the way.
+        extern bool ctrPrefsDirect;
+        const bool prefsOnly = ctrPrefsDirect;
+        if (prefsOnly) {
+            ctrPrefsDirect = false;
+            keyCode = 502;
+        }
+#endif
 
         if (keyCode == KEY_ESCAPE || keyCode == 504 || _game_user_wants_to_quit != 0) {
             rc = 0;
@@ -154,6 +164,11 @@ int showOptions()
                 setActiveRectMap(DISPLAY_FULL);
 #endif
                 doPreferences(false);
+#ifdef __3DS__
+                if (prefsOnly) {
+                    rc = 0;
+                }
+#endif
                 break;
             case KEY_PLUS:
             case KEY_EQUAL:
@@ -172,7 +187,13 @@ int showOptions()
             case KEY_CTRL_X:
             case KEY_F10:
             case 503:
+#ifdef __3DS__
+                // the plate's Exit does what START > EXIT GAME does (asks, exit save, quit)
+                rc = 0;
+                enqueueInputEvent(0x7E04);
+#else
                 showQuitConfirmationDialog();
+#endif
                 break;
             }
         }

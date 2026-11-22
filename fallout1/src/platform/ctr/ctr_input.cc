@@ -91,6 +91,116 @@ bool ctr_exit_saves(void)
     return ctr_in_gameplay();
 }
 
+// What EXIT GAME can do on this screen (the START menu and the question say the same thing):
+// save to slot 10; close a window over the map first and then save (FALLOUT-Q4: inventory,
+// Pip-Boy, Skilldex and the automap all close on Esc); or nothing (world map, conversations,
+// the main menu).
+int ctr_exit_kind(void)
+{
+    if (ctr_in_gameplay()) {
+        return CTR_EXIT_SAVES;
+    }
+    if (ctrDashboardAvailable()) {
+        const int a = ctr_rectMap.active;
+        if (a == DISPLAY_INVENTORY || a == DISPLAY_PIPBOY || a == DISPLAY_SKILLDEX || (a == DISPLAY_DYNAMIC && ctrAutomapOpen)) {
+            return CTR_EXIT_CLOSES;
+        }
+    }
+    return CTR_EXIT_NOSAVE;
+}
+
+// EXIT GAME (FALLOUT-U8 / X4 / Q3): one question in the house style, focus on NO, B cancels.
+// YES saves to slot 10 where it can (game.cc 0x7E02: exit save, then quit; a failed save asks
+// again) and leaves for the Homebrew Menu. Nothing is written before YES.
+void ctr_app_quit();
+static u64 exitAfterCloseUntil = 0;
+
+void ctr_exit_game_ask(void)
+{
+    const int kind = ctr_exit_kind();
+    if (kind == CTR_EXIT_SAVES || kind == CTR_EXIT_CLOSES) {
+        if (ctr_ask_run("EXIT GAME", "Exit the game?", "It is saved to slot 10 first.",
+                kind == CTR_EXIT_CLOSES ? "This window is closed, then the game is saved" : "The game is saved to slot 10, the slot kept for",
+                kind == CTR_EXIT_CLOSES ? "to slot 10. Your own saves are not touched." : "the exit save. Your own saves are not touched.",
+                "To carry on later: LOAD GAME opens on that save.", "YES, EXIT")) {
+            if (kind == CTR_EXIT_CLOSES) {
+                GNW_add_input_buffer(KEY_ESCAPE);
+                exitAfterCloseUntil = osGetTime() + 3000;   // ctr_exit_poll sends the save once the map is back
+            } else {
+                GNW_add_input_buffer(0x7E02);
+            }
+        }
+    } else if (ctrDashboardAvailable()) {
+        if (ctr_ask_run("EXIT GAME", "Exit without saving?", "The game cannot be saved here.",
+                "The game cannot be saved on this screen.", "Everything since your last save is lost.",
+                "NO goes back, so you can save first.", "EXIT ANYWAY")) {
+            ctr_app_quit();
+        }
+    } else {
+        if (ctr_ask_run("EXIT GAME", "Exit the game?", "", "No game is running: nothing to save.", nullptr, nullptr, "YES, EXIT")) {
+            ctr_app_quit();
+        }
+    }
+}
+
+// The exit save did not work (game.cc 0x7E02): never quit on top of that without asking.
+bool ctr_exit_unsaved_ask(void)
+{
+    return ctr_ask_run("NOT SAVED", "Exit without saving?", "The save to slot 10 did not work.",
+        "The exit save failed, or the game cannot be saved", "right now (in combat, for example).",
+        "NO goes back to the game.", "EXIT ANYWAY");
+}
+
+static void ctr_exit_poll(void)
+{
+    if (exitAfterCloseUntil == 0) {
+        return;
+    }
+    if (ctr_in_gameplay()) {
+        exitAfterCloseUntil = 0;
+        GNW_add_input_buffer(0x7E02);
+    } else if (osGetTime() > exitAfterCloseUntil) {
+        exitAfterCloseUntil = 0;   // the window did not close: ask again, honestly
+        ctr_exit_game_ask();
+    }
+}
+
+// Quick load (FALLOUT-Q2): Start+Y sits next to Start+X, so it asks first. With no quick save
+// the game itself says "No quick save yet".
+bool ctrQuickSaveExists();   // loadsave.cc
+
+static void ctr_quick_load_ask(void)
+{
+    if (!ctrQuickSaveExists()
+            || ctr_ask_run("QUICK LOAD", "Load the last quick save?", "Unsaved progress is lost.",
+                "The newest quick save is loaded.", "Everything since your last save is lost.", nullptr, "YES, LOAD")) {
+        GNW_add_input_buffer(KEY_F7);
+    }
+}
+
+// START > SETTINGS opens Preferences itself, not the game's five-button plate (FALLOUT-X6).
+// options.cc reads and clears this.
+bool ctrPrefsDirect = false;
+
+// START > ACTIONS (FALLOUT-X1 / X7): the chord and D-pad shortcuts as touch buttons.
+static void ctr_actions(void)
+{
+    switch (ctr_actions_run()) {
+    case CTR_ACT_AUTOMAP: GNW_add_input_buffer(KEY_TAB); break;
+    case CTR_ACT_REST: GNW_add_input_buffer(KEY_LOWERCASE_Z); break;
+    case CTR_ACT_HEAL: inven_quick_heal(); break;
+    case CTR_ACT_RELOAD: if (intface_is_enabled()) intface_quick_reload(); break;
+    case CTR_ACT_QUICKSAVE: GNW_add_input_buffer(KEY_F6); break;
+    case CTR_ACT_QUICKLOAD: ctr_quick_load_ask(); break;
+    case CTR_ACT_HANDS: GNW_add_input_buffer(KEY_LOWERCASE_B); break;
+    case CTR_ACT_MODE: GNW_add_input_buffer(KEY_LOWERCASE_N); break;
+    case CTR_ACT_SKILLDEX: GNW_add_input_buffer(KEY_LOWERCASE_S); break;
+    case CTR_ACT_CHAR: GNW_add_input_buffer(KEY_LOWERCASE_C); break;
+    case CTR_ACT_ENDCOMBAT: GNW_add_input_buffer(KEY_RETURN); break;
+    default: break;
+    }
+}
+
 // HOME > Close (FO-05): aptMainLoop() went false, SDL sends SDL_QUIT. In a running
 // game, queue the same slot-10 exit save START > EXIT GAME does (game.cc 0x7E01 runs it
 // from the game loop, then quits). Nothing to save, or the save never ran within 5 s
@@ -454,6 +564,8 @@ void input_frame_axis(int *delta_x, int *delta_y)
 
 void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
 {
+    ctr_exit_poll();
+
     // The manual: Select+Start anywhere, or a Select tap outside the map.
     if ((KEY_HELD(KEY_SELECT) && KEY_PRESS(KEY_START)) ||
             (KEY_RELEASED(KEY_SELECT) && key_combi_flags == FLAG_NONE && !ctr_in_gameplay() &&
@@ -513,8 +625,12 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
             key_combi_flags |= FLAG_START_DUP;
         }
         if (KEY_HELD(KEY_START) && KEY_PRESS(KEY_Y)) {
-            GNW_add_input_buffer(KEY_F7);
-            key_combi_flags |= FLAG_START_DDOWN;
+            ctr_quick_load_ask();   // asks first (focus on NO), then F7
+            key_combi_flags = FLAG_NONE;
+            hidScanInput();
+            ctr_input.frame.kHeld = ctr_remap(hidKeysHeld());
+            oldpad = ctr_input.frame.kHeld;
+            return;
         }
     }
 
@@ -522,24 +638,25 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
         if (key_combi_flags) {
             key_combi_flags = FLAG_NONE;
         } else {
-            // In a running game Start always backs out (options menu,
-            // elevator, any dialog box); outside it, not on the main menu.
-            if ((ctr_rectMap.active != DISPLAY_MOVIE) &&
-                    (ctrDashboardAvailable() ||
-                     ((ctr_rectMap.active != DISPLAY_MAIN) && (ctr_rectMap.active != DISPLAY_FULL)))) {
+            // START opens the port menu everywhere but in movies, the main menu included
+            // (FALLOUT-X2: MANUAL, LEFT HAND and EXIT GAME work there; the rest is greyed).
+            if ((ctr_rectMap.active != DISPLAY_MOVIE) && (ctr_rectMap.active != DISPLAY_SPLASH) &&
+                    (ctrDashboardAvailable() || (ctr_rectMap.active != DISPLAY_FULL))) {
                 // Start opens the small menu: Manual, Options (the old
                 // Start action), Close. B still backs out of dialogs.
-                // START menu rows: RESUME, MANUAL, SAVE, SETTINGS, LEFT HAND, EXIT GAME
+                // START menu rows: RESUME, MANUAL, SAVE, ACTIONS, SETTINGS, LEFT HAND, EXIT GAME
                 int choice = ctr_startmenu_run();
-                if (choice == 1) {
+                if (choice == CTR_MENU_MANUAL) {
                     ctr_manual_run();
-                } else if (choice == 2) {
+                } else if (choice == CTR_MENU_SAVE) {
                     GNW_add_input_buffer(KEY_CTRL_S);   // the game's save screen
-                } else if (choice == 3) {
-                    GNW_add_input_buffer(KEY_ESCAPE);   // the game's options
-                } else if (choice == 5) {
-                    if (ctr_in_gameplay()) GNW_add_input_buffer(0x7E01);   // save into the reserved slot 10 first (game.cc)
-                    GNW_add_input_buffer(KEY_CTRL_Q);   // the game asks before quitting
+                } else if (choice == CTR_MENU_ACTIONS) {
+                    ctr_actions();
+                } else if (choice == CTR_MENU_SETTINGS) {
+                    ctrPrefsDirect = true;              // options.cc: straight to Preferences
+                    GNW_add_input_buffer(KEY_ESCAPE);
+                } else if (choice == CTR_MENU_EXIT) {
+                    ctr_exit_game_ask();                // asks; YES saves to slot 10 where it can, then quits
                 }
                 key_combi_flags = FLAG_NONE;
                 hidScanInput();

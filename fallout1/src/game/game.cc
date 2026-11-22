@@ -874,6 +874,25 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     }
 #endif
+#ifdef __3DS__
+    case 0x7E02: {   // EXIT GAME, after YES (ctr_input.cc): exit save into slot 10, then quit
+        extern int ctrExitSave();
+        extern bool ctr_exit_unsaved_ask(void);
+        extern void ctr_app_quit();
+        int rc = ctrExitSave();
+        debug_printf("\n3ds: exit save (EXIT GAME) -> %d\n", rc);
+        // never quit after a failed save without asking
+        if (rc == 1 || ctr_exit_unsaved_ask()) {
+            ctr_app_quit();
+        }
+        break;
+    }
+    case 0x7E04: {   // the options plate's own Exit: the same question as START > EXIT GAME
+        extern void ctr_exit_game_ask(void);
+        ctr_exit_game_ask();
+        break;
+    }
+#endif
     case KEY_F6:
         if (1) {
             gsound_play_sfx_file("ib1p1xx1");

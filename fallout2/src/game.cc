@@ -992,6 +992,28 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         break;
     }
 #endif
+#ifdef __3DS__
+    case 0x7E02: {   // EXIT GAME, after YES (ctr_input.cc): exit save into slot 10, then quit
+        extern int ctrExitSave();
+        extern bool ctr_exit_unsaved_ask(void);
+        extern void ctr_app_quit();
+        extern void ctr_note(const char* msg);
+        int rc = ctrExitSave();
+        char m[48];
+        snprintf(m, sizeof(m), "EXIT GAME: slot 10 save -> %d", rc);
+        ctr_note(m);
+        // never quit after a failed save without asking
+        if (rc == 1 || ctr_exit_unsaved_ask()) {
+            ctr_app_quit();
+        }
+        break;
+    }
+    case 0x7E04: {   // the options plate's own Exit: the same question as START > EXIT GAME
+        extern void ctr_exit_game_ask(void);
+        ctr_exit_game_ask();
+        break;
+    }
+#endif
     case KEY_F6:
         if (1) {
             soundPlayFile("ib1p1xx1");
@@ -1104,7 +1126,12 @@ int gameSetGlobalVar(int var, int value)
 
     // SFALL: Display karma changes.
     if (var == GVAR_PLAYER_REPUTATION) {
+#ifdef __3DS__
+        // FALLOUT2-X4: built in on the 3DS (the manual promises it); ddraw.ini can still turn it off
+        bool shouldDisplayKarmaChanges = true;
+#else
         bool shouldDisplayKarmaChanges = false;
+#endif
         configGetBool(&gSfallConfig, SFALL_CONFIG_MISC_KEY, SFALL_CONFIG_DISPLAY_KARMA_CHANGES_KEY, &shouldDisplayKarmaChanges);
         if (shouldDisplayKarmaChanges) {
             int diff = value - gGameGlobalVars[var];
@@ -1446,7 +1473,7 @@ static int gameDbInit()
     int master_db_handle = dbOpen(main_file_name, 0, patch_file_name, 1);
     if (master_db_handle == -1) {
 #ifdef __3DS__
-        showMesageBox("Could not find the master datafile.\n\nPlease move 'MASTER.DAT'\nto 'sdmc:/3ds/fallout2/'");
+        showMesageBox("Could not find the master datafile.\n\nPlease copy 'master.dat'\nto 'sdmc:/3ds/fallout2/'");
 #else
         showMesageBox("Could not find the master datafile. Please make sure the FALLOUT CD is in the drive and that you are running FALLOUT from the directory you installed it to.");
 #endif
