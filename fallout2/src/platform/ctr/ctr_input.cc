@@ -182,6 +182,7 @@ static void ctr_quick_load_ask(void)
 // START > SETTINGS opens Preferences itself, not the game's five-button plate (FALLOUT-X6).
 // options.cc reads and clears this.
 bool ctrPrefsDirect = false;
+static u64 prefsDirectUntil = 0;   // the request lapses if the options screen did not open (interface disabled)
 
 // START > ACTIONS (FALLOUT-X1 / X7): the chord and D-pad shortcuts as touch buttons.
 static void ctr_actions(void)
@@ -568,6 +569,9 @@ void input_frame_axis(int *delta_x, int *delta_y)
 void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
 {
     ctr_exit_poll();
+    if (ctrPrefsDirect && osGetTime() > prefsDirectUntil) {
+        ctrPrefsDirect = false;
+    }
 
     // The manual: Select+Start anywhere, or a Select tap outside the map.
     if ((KEY_HELD(KEY_SELECT) && KEY_PRESS(KEY_START)) ||
@@ -657,6 +661,7 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
                     ctr_actions();
                 } else if (choice == CTR_MENU_SETTINGS) {
                     ctrPrefsDirect = true;              // options.cc: straight to Preferences
+                    prefsDirectUntil = osGetTime() + 1500;
                     enqueueInputEvent(KEY_ESCAPE);
                 } else if (choice == CTR_MENU_EXIT) {
                     ctr_exit_game_ask();                // asks; YES saves to slot 10 where it can, then quits
