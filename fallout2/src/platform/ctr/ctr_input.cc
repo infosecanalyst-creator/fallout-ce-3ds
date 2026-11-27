@@ -106,8 +106,9 @@ int ctr_exit_kind(void)
         if (a == DISPLAY_INVENTORY || a == DISPLAY_PIPBOY || a == DISPLAY_SKILLDEX || (a == DISPLAY_DYNAMIC && ctrAutomapOpen)) {
             return CTR_EXIT_CLOSES;
         }
+        return CTR_EXIT_NOSAVE;
     }
-    return CTR_EXIT_NOSAVE;
+    return CTR_EXIT_NOGAME;   // main menu, character creation: no game is running
 }
 
 // EXIT GAME (FALLOUT-U8 / X4 / Q3): one question in the house style, focus on NO, B cancels.
@@ -131,7 +132,7 @@ void ctr_exit_game_ask(void)
                 enqueueInputEvent(0x7E02);
             }
         }
-    } else if (ctrDashboardAvailable()) {
+    } else if (kind == CTR_EXIT_NOSAVE) {
         if (ctr_ask_run("EXIT GAME", "Exit without saving?", "The game cannot be saved here.",
                 "The game cannot be saved on this screen.", "Everything since your last save is lost.",
                 "NO goes back, so you can save first.", "EXIT ANYWAY")) {

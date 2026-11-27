@@ -603,6 +603,17 @@ int pageMove(int from, int dx, int dy)
         const float d = along * 2 + across * 5;
         if (d < bestD) { bestD = d; best = i; }
     }
+    if (best >= 0) return best;
+    // nothing further that way: wrap round to the far end (up from RESUME lands on EXIT GAME)
+    float far = 0;
+    for (int i = 0; i < (int)gPage.size(); i++) {
+        if (i == from || !gPage[i].usable) continue;
+        const float x = gPage[i].x + gPage[i].w / 2, y = gPage[i].y + gPage[i].h / 2;
+        const float along = dx ? (x - cx) * dx : (y - cy) * dy;
+        const float across = dx ? fabsf(y - cy) : fabsf(x - cx);
+        if (across > 8 || along > -2) continue;   // same row or column only
+        if (-along > far) { far = -along; best = i; }
+    }
     return best >= 0 ? best : from;
 }
 
@@ -746,6 +757,7 @@ void menuDrawTop()
         default:
             help = gMenuWhere == CTR_EXIT_SAVES ? "asks, saves to slot 10, quits"
                  : gMenuWhere == CTR_EXIT_CLOSES ? "asks, closes this window, saves"
+                 : gMenuWhere == CTR_EXIT_NOGAME ? "asks, back to the Homebrew Menu"
                                                  : "asks; cannot save on this screen";
             break;
         }

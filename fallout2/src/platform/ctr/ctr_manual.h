@@ -24,7 +24,7 @@ enum { CTR_MENU_RESUME = 0, CTR_MENU_MANUAL = 1, CTR_MENU_SAVE = 2, CTR_MENU_SET
 int ctr_startmenu_run();
 
 // What EXIT GAME can do on the current screen (ctr_input.cc).
-enum { CTR_EXIT_SAVES = 0, CTR_EXIT_CLOSES = 1, CTR_EXIT_NOSAVE = 2 };
+enum { CTR_EXIT_SAVES = 0, CTR_EXIT_CLOSES = 1, CTR_EXIT_NOSAVE = 2, CTR_EXIT_NOGAME = 3 };
 
 // START > ACTIONS (FALLOUT-X1 / X7): every chord and D-pad shortcut as a touch button.
 // Returns the action picked, CTR_ACT_NONE for BACK / B.
