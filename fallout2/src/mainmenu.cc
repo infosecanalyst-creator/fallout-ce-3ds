@@ -201,6 +201,12 @@ int mainMenuWindowInit()
         }
 
         buttonSetMask(gMainMenuButtons[index], _mainMenuButtonNormalFrmImage.getData());
+#ifdef __3DS__
+        // On the touch screen people tap the word (NEW GAME), not the small red button beside
+        // it: the word does the same as the button.
+        buttonCreate(gMainMenuWindow, offsetX + 60, offsetY + 19 + index * 42 - index, 180, 26, -1, -1, -1,
+            gMainMenuButtonKeyBindings[index], nullptr, nullptr, nullptr, BUTTON_FLAG_TRANSPARENT);
+#endif
     }
 
     fontSetCurrent(104);

@@ -190,6 +190,12 @@ int main_menu_create()
         }
 
         win_register_button_mask(buttons[index], button_up_data);
+#ifdef __3DS__
+        // On the touch screen people tap the word (NEW GAME), not the small red button beside
+        // it: the word does the same as the button.
+        win_register_button(main_window, 455, index * 42 - index + 45, 180, 26, -1, -1, -1, button_values[index],
+            NULL, NULL, NULL, BUTTON_FLAG_TRANSPARENT);
+#endif
     }
 
     text_font(104);
