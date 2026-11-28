@@ -713,9 +713,9 @@ void fitText(const std::string& s, float x, float y, float scale, u32 color, flo
 }
 
 // ---- START menu -----------------------------------------------------------
-const int kMenuCount = 7;
-// screen order; the codes are the CTR_MENU_* values of ctr_manual.h
-const int kMenuOrder[kMenuCount] = { CTR_MENU_RESUME, CTR_MENU_MANUAL, CTR_MENU_SAVE, CTR_MENU_ACTIONS, CTR_MENU_SETTINGS, CTR_MENU_LEFTY, CTR_MENU_EXIT };
+const int kMenuCount = 8;
+// screen order (house order, cross-port pass); the codes are the CTR_MENU_* values of ctr_manual.h
+const int kMenuOrder[kMenuCount] = { CTR_MENU_RESUME, CTR_MENU_MANUAL, CTR_MENU_SAVE, CTR_MENU_LOAD, CTR_MENU_SETTINGS, CTR_MENU_ACTIONS, CTR_MENU_LEFTY, CTR_MENU_EXIT };
 int gMenuWhere = 0;   // CTR_EXIT_* of ctr_exit_kind(): what EXIT GAME can do here
 
 const char* menuLabel(int code)
@@ -723,7 +723,8 @@ const char* menuLabel(int code)
     switch (code) {
     case CTR_MENU_RESUME: return "RESUME";
     case CTR_MENU_MANUAL: return "MANUAL";
-    case CTR_MENU_SAVE: return "SAVE";
+    case CTR_MENU_SAVE: return "SAVE GAME";
+    case CTR_MENU_LOAD: return "LOAD GAME";
     case CTR_MENU_ACTIONS: return "ACTIONS";
     case CTR_MENU_SETTINGS: return "SETTINGS";
     case CTR_MENU_LEFTY: return gLefty ? "LEFT HAND: ON" : "LEFT HAND: OFF";
@@ -735,7 +736,7 @@ const char* menuLabel(int code)
 // menu, world map, over a window) they are greyed out and inert.
 bool menuUsable(int code)
 {
-    if (code == CTR_MENU_SAVE || code == CTR_MENU_SETTINGS || code == CTR_MENU_ACTIONS) return ctr_exit_saves();
+    if (code == CTR_MENU_SAVE || code == CTR_MENU_LOAD || code == CTR_MENU_SETTINGS || code == CTR_MENU_ACTIONS) return ctr_exit_saves();
     return true;
 }
 
@@ -751,6 +752,7 @@ void menuDrawTop()
         case CTR_MENU_RESUME: help = "back to the game"; break;
         case CTR_MENU_MANUAL: help = "how to play on the 3DS"; break;
         case CTR_MENU_SAVE: help = "save your game (slots 1 to 9)"; break;
+        case CTR_MENU_LOAD: help = "load a saved game"; break;
         case CTR_MENU_ACTIONS: help = "every shortcut as a button"; break;
         case CTR_MENU_SETTINGS: help = "the game's Preferences"; break;
         case CTR_MENU_LEFTY: help = gLeftySaveFailed ? "could not save this (SD card?)" : "swap the D-pad and A/B/X/Y"; break;
@@ -761,8 +763,8 @@ void menuDrawTop()
                                                  : "asks; cannot save on this screen";
             break;
         }
-        text(menuLabel(code), 16, 32 + i * 26, 0.5f, !usable ? grey : (i == gPageSel ? gold : white));
-        fitText(!usable ? "only during play on the map" : help, 170, 33 + i * 26, 0.45f, grey, 222);
+        text(menuLabel(code), 16, 30 + i * 22, 0.5f, !usable ? grey : (i == gPageSel ? gold : white));   // eight rows end above the build line
+        fitText(!usable ? "only during play on the map" : help, 170, 31 + i * 22, 0.45f, grey, 222);
     }
     text("Build " PORT_VERSION, 8, 208, 0.4f, grey);
 }
@@ -828,7 +830,7 @@ int ctr_startmenu_run()
         gPageHead.clear();
         gPageSub.clear();
         gPageTop = menuDrawTop;
-        // seven rows filling the touch screen: 6 px edges, 4 px gaps
+        // eight rows filling the touch screen: 6 px edges, 4 px gaps
         const float h = (240 - 12 - (kMenuCount - 1) * 4) / (float)kMenuCount;
         for (int i = 0; i < kMenuCount; i++) {
             gPage.push_back({ 6, 6 + i * (h + 4), 308, h, menuLabel(kMenuOrder[i]), menuUsable(kMenuOrder[i]), kMenuOrder[i] });

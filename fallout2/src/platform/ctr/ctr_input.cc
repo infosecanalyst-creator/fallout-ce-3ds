@@ -121,10 +121,10 @@ void ctr_exit_game_ask(void)
 {
     const int kind = ctr_exit_kind();
     if (kind == CTR_EXIT_SAVES || kind == CTR_EXIT_CLOSES) {
-        if (ctr_ask_run("EXIT GAME", "Exit the game?", "It is saved to slot 10 first.",
+        if (ctr_ask_run("EXIT GAME", "Exit Fallout 2?", "It is saved first (slot 10).",
                 kind == CTR_EXIT_CLOSES ? "This window is closed, then the game is saved" : "The game is saved to slot 10, the slot kept for",
                 kind == CTR_EXIT_CLOSES ? "to slot 10. Your own saves are not touched." : "the exit save. Your own saves are not touched.",
-                "To carry on later: LOAD GAME opens on that save.", "YES, EXIT")) {
+                "To carry on later: LOAD GAME opens on that save.", "YES")) {
             if (kind == CTR_EXIT_CLOSES) {
                 enqueueInputEvent(KEY_ESCAPE);
                 exitAfterCloseUntil = osGetTime() + 3000;   // ctr_exit_poll sends the save once the map is back
@@ -139,7 +139,7 @@ void ctr_exit_game_ask(void)
             ctr_app_quit();
         }
     } else {
-        if (ctr_ask_run("EXIT GAME", "Exit the game?", "", "No game is running: nothing to save.", nullptr, nullptr, "YES, EXIT")) {
+        if (ctr_ask_run("EXIT GAME", "Exit Fallout 2?", "", "No game is running: nothing to save.", nullptr, nullptr, "YES")) {
             ctr_app_quit();
         }
     }
@@ -175,7 +175,7 @@ static void ctr_quick_load_ask(void)
 {
     if (!ctrQuickSaveExists()
             || ctr_ask_run("QUICK LOAD", "Load the last quick save?", "Unsaved progress is lost.",
-                "The newest quick save is loaded.", "Everything since your last save is lost.", nullptr, "YES, LOAD")) {
+                "The newest quick save is loaded.", "Everything since your last save is lost.", nullptr, "YES")) {
         enqueueInputEvent(KEY_F7);
     }
 }
@@ -668,12 +668,14 @@ void input_frame_buttons(int *delta_x, int *delta_y, int *buttons)
                     (ctrDashboardAvailable() || (ctr_rectMap.active != DISPLAY_FULL))) {
                 // Start opens the small menu: Manual, Options (the old
                 // Start action), Close. B still backs out of dialogs.
-                // START menu rows: RESUME, MANUAL, SAVE, ACTIONS, SETTINGS, LEFT HAND, EXIT GAME
+                // START menu rows: RESUME, MANUAL, SAVE GAME, LOAD GAME, SETTINGS, ACTIONS, LEFT HAND, EXIT GAME
                 int choice = ctr_startmenu_run();
                 if (choice == CTR_MENU_MANUAL) {
                     ctr_manual_run();
                 } else if (choice == CTR_MENU_SAVE) {
                     enqueueInputEvent(KEY_CTRL_S);   // the game's save screen
+                } else if (choice == CTR_MENU_LOAD) {
+                    enqueueInputEvent(KEY_CTRL_L);   // the game's load screen
                 } else if (choice == CTR_MENU_ACTIONS) {
                     ctr_actions();
                 } else if (choice == CTR_MENU_SETTINGS) {

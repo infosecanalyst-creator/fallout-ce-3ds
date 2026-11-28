@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-27
+
+- Same as the other 3DS ports (cross-port pass). START menu in the house order: RESUME, MANUAL, SAVE GAME, LOAD GAME, SETTINGS, ACTIONS, LEFT HAND, EXIT GAME. SAVE is now called SAVE GAME, and LOAD GAME is new: it opens the game's own load screen (the same as Ctrl+L), on the map only, like SAVE GAME.
+- Questions read YES / NO: EXIT GAME asks "Exit Fallout?" (Fallout 2: "Exit Fallout 2?") with "It is saved first (slot 10)." (the buttons said "YES, EXIT"); quick load's button says YES (was "YES, LOAD"). The ring still starts on NO and B is NO.
+
 ## 2026-11-21 (audit fixes)
 
 Both games:

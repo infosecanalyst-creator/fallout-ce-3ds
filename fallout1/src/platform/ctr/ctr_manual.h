@@ -20,7 +20,7 @@ void ctr_lefty_toggle();
 
 // Start menu (house style). Returns one of these; LEFT HAND flips the setting and the menu
 // stays open, so it is never returned.
-enum { CTR_MENU_RESUME = 0, CTR_MENU_MANUAL = 1, CTR_MENU_SAVE = 2, CTR_MENU_SETTINGS = 3, CTR_MENU_LEFTY = 4, CTR_MENU_EXIT = 5, CTR_MENU_ACTIONS = 6 };
+enum { CTR_MENU_RESUME = 0, CTR_MENU_MANUAL = 1, CTR_MENU_SAVE = 2, CTR_MENU_SETTINGS = 3, CTR_MENU_LEFTY = 4, CTR_MENU_EXIT = 5, CTR_MENU_ACTIONS = 6, CTR_MENU_LOAD = 7 };
 int ctr_startmenu_run();
 
 // What EXIT GAME can do on the current screen (ctr_input.cc).
