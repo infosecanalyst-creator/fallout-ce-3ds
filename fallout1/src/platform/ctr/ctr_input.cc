@@ -395,6 +395,22 @@ void ctr_input_get_touch(int *newX, int *newY)
                 input_touch_to_texture(DISPLAY_CHAR_EDIT_SEX,
                         ctr_input.frame.touchX, ctr_input.frame.touchY, newX, newY);
             break;
+        case DISPLAY_CHAR_SELECT: {
+            // FALLOUT-U9: each choice (take, modify, create, back) is a small round button with
+            // its text beside it. The whole row is the target: a tap right of a button, on its
+            // text, presses that button. (Rect 0 is the prev / next pair and stays exact.)
+            input_touch_to_texture(DISPLAY_CHAR_SELECT, ctr_input.frame.touchX, ctr_input.frame.touchY, newX, newY);
+            for (int i = 1; i < numRectsInMap[DISPLAY_CHAR_SELECT]; ++i) {
+                const rectMap_t* r = rectMaps[DISPLAY_CHAR_SELECT][i];
+                const int top = 240 - (int)(r->dst_y + r->dst_h), bottom = 240 - (int)r->dst_y;
+                if (ctr_input.frame.touchY >= top - 2 && ctr_input.frame.touchY < bottom + 2
+                        && ctr_input.frame.touchX >= r->dst_x + r->dst_w && ctr_input.frame.touchX < 314) {
+                    *newX = (int)(r->src_x + r->src_w / 2);
+                    *newY = (int)(r->src_y + r->src_h / 2);
+                }
+            }
+            break;
+        }
         case DISPLAY_LOADSAVE:
             input_touch_to_texture(DISPLAY_LOADSAVE_SLOT,
                     ctr_input.frame.touchX, ctr_input.frame.touchY, newX, newY);
